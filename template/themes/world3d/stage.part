@@ -1,0 +1,575 @@
+      <div id="world3d-overlay" aria-hidden="true">
+        <svg id="world3d-leaders" viewBox="0 0 1080 1920" preserveAspectRatio="none"></svg>
+        <div id="world3d-tags"></div>
+      </div>
+      <script type="importmap">
+        {"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/addons/"}}
+      </script>
+      <script>
+        window.__hf = window.__hf || {};
+        window.__hf.buildReady = window.__hf.buildReady || {};
+        let resolveWorld3dReady;
+        window.__hf.buildReady.world3d = new Promise(resolve => { resolveWorld3dReady = resolve; });
+      </script>
+      <script type="module">
+        import * as THREE from "three";
+        import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+        import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
+
+        const WORLD = @@world@@;
+        const KIT = @@kit@@;
+        const WIDTH = 1080;
+        const HEIGHT = 1920;
+        const DEFAULT_FOV = 42;
+        const canvas = document.getElementById("world3d-canvas");
+        const worldWrap = document.getElementById("w-world");
+        const overlay = document.getElementById("world3d-overlay");
+        worldWrap.insertBefore(overlay, canvas);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(1);
+        renderer.setSize(WIDTH, HEIGHT, false);
+        const gl = renderer.getContext();
+        let contextLost = false;
+        canvas.addEventListener("webglcontextlost", () => { contextLost = true; });
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(DEFAULT_FOV, WIDTH / HEIGHT, 0.1, 100);
+        scene.add(new THREE.HemisphereLight(0xEAF6FF, 0x17212C, 2.1));
+        const keyLight = new THREE.DirectionalLight(0xFFF3D6, 3.2);
+        keyLight.position.set(-4, 7, 8);
+        scene.add(keyLight);
+        const rimLight = new THREE.DirectionalLight(0x22D3EE, 1.25);
+        rimLight.position.set(5, 3, -5);
+        scene.add(rimLight);
+
+        const kitByName = new Map(KIT.map(piece => [piece.name, piece]));
+        const gltfLoader = new GLTFLoader();
+        const loadedGLBs = new Map();
+        const geometryCache = new Map();
+        const materialCache = new Map();
+        const objectById = new Map(WORLD.objects.map(object => [object.id, object]));
+        const objectMeshes = new Map();
+        const pathById = new Map(WORLD.paths.map(path => [path.id,
+          new THREE.CatmullRomCurve3(path.points.map(point => new THREE.Vector3(...point))) ]));
+        const mixers = [];
+        const sendRuns = [];
+        const tokenRuns = [];
+        const labelElements = [];
+        let labelTimeline = null;
+        let worldReady = false;
+        const tagsRoot = document.getElementById("world3d-tags");
+        const leaders = document.getElementById("world3d-leaders");
+        const svgNS = "http://www.w3.org/2000/svg";
+        const clamp01 = value => Math.max(0, Math.min(1, value));
+        const smoothstep = value => value * value * (3 - 2 * value);
+
+        function hashString(value) {
+          let hash = 2166136261;
+          for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
+          return hash >>> 0;
+        }
+
+        function material(color, kind = "standard") {
+          const key = kind + ":" + color;
+          if (!materialCache.has(key)) {
+            materialCache.set(key, kind === "basic"
+              ? new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+              : new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.04 }));
+          }
+          return materialCache.get(key);
+        }
+
+        function roundedGeometry(size, requestedRadius) {
+          const radius = Math.min(requestedRadius, size[0] * 0.48, size[1] * 0.48, size[2] * 0.48);
+          const key = size.join(",") + ":" + radius;
+          if (geometryCache.has(key)) return geometryCache.get(key);
+          const geometry = new THREE.BoxGeometry(...size, 4, 4, 4);
+          const positions = geometry.attributes.position;
+          const normals = geometry.attributes.normal;
+          const core = size.map(dimension => dimension / 2 - radius);
+          const point = new THREE.Vector3();
+          const normal = new THREE.Vector3();
+          for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i);
+            normal.set(
+              point.x - Math.max(-core[0], Math.min(core[0], point.x)),
+              point.y - Math.max(-core[1], Math.min(core[1], point.y)),
+              point.z - Math.max(-core[2], Math.min(core[2], point.z)),
+            );
+            if (normal.lengthSq() < 1e-8) normal.fromBufferAttribute(geometry.attributes.normal, i);
+            normal.normalize();
+            point.set(core[0] * Math.sign(point.x), core[1] * Math.sign(point.y), core[2] * Math.sign(point.z))
+              .addScaledVector(normal, radius);
+            positions.setXYZ(i, point.x, point.y, point.z);
+            normals.setXYZ(i, normal.x, normal.y, normal.z);
+          }
+          positions.needsUpdate = true;
+          normals.needsUpdate = true;
+          geometry.computeBoundingSphere();
+          geometryCache.set(key, geometry);
+          return geometry;
+        }
+
+        function addRounded(parent, size, color, position = [0, 0, 0], radius = Math.min(...size) * 0.14, kind = "standard") {
+          const mesh = new THREE.Mesh(roundedGeometry(size, radius), material(color, kind));
+          mesh.position.set(...position);
+          parent.add(mesh);
+          return mesh;
+        }
+
+        function addCylinder(parent, radius, height, color, position) {
+          const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.82, radius, height, 12), material(color));
+          mesh.position.set(...position);
+          parent.add(mesh);
+          return mesh;
+        }
+
+        function buildRobot(size, color, seed) {
+          const group = new THREE.Group();
+          const bodyRadius = size[0] * 0.31;
+          const body = new THREE.Mesh(new THREE.CapsuleGeometry(bodyRadius, size[1] * 0.31, 4, 12), material(color));
+          body.position.y = size[1] * 0.39;
+          group.add(body);
+          const headRadius = size[0] * 0.28;
+          const head = new THREE.Mesh(new THREE.SphereGeometry(headRadius, 16, 12), material("#E2E8F0"));
+          head.position.set(0, size[1] * 0.78, 0.02);
+          group.add(head);
+          addRounded(group, [headRadius * 0.85, headRadius * 0.24, 0.045], "#0B0D12",
+            [0, size[1] * 0.8, headRadius * 0.82], headRadius * 0.1, "basic");
+
+          for (const [name, side] of [["leftArm", -1], ["rightArm", 1]]) {
+            const arm = new THREE.Group();
+            arm.name = name;
+            arm.position.set(side * size[0] * 0.42, size[1] * 0.46, 0);
+            const limb = new THREE.Mesh(new THREE.CapsuleGeometry(size[0] * 0.105, size[1] * 0.22, 3, 8), material("#CBD5E1"));
+            limb.position.y = -size[1] * 0.12;
+            arm.add(limb);
+            group.add(arm);
+          }
+          for (const side of [-1, 1]) {
+            addRounded(group, [size[0] * 0.2, size[1] * 0.17, size[2] * 0.27], "#334155",
+              [side * size[0] * 0.17, size[1] * 0.04, 0], size[0] * 0.06);
+          }
+
+          const phase = (hashString("robot:" + seed) % 100000) / 100000 * 1.2;
+          const mixer = new THREE.AnimationMixer(group);
+          const clip = new THREE.AnimationClip("seek-arm-swing", 1.2, [
+            new THREE.NumberKeyframeTrack("leftArm.rotation[z]", [0, 0.6, 1.2], [-0.22, 0.24, -0.22]),
+            new THREE.NumberKeyframeTrack("rightArm.rotation[z]", [0, 0.6, 1.2], [0.22, -0.24, 0.22]),
+          ]);
+          const action = mixer.clipAction(clip);
+          action.play();
+          action.paused = true;
+          mixers.push({ mixer, action, duration: clip.duration, phase });
+          return group;
+        }
+
+        function buildKit(piece, color, seed = piece.name, animationName = null) {
+          if (piece.type === "glb") {
+            const asset = loadedGLBs.get(piece.name);
+            if (!asset) throw new Error("world3d: GLB not loaded for " + piece.file);
+            const model = SkeletonUtils.clone(asset.scene);
+            model.position.set(...piece.offset);
+            const normalized = new THREE.Group();
+            normalized.rotation.set(...piece.rot.map(degrees => THREE.MathUtils.degToRad(degrees)));
+            normalized.scale.setScalar(piece.scale);
+            normalized.add(model);
+            normalized.updateMatrixWorld(true);
+            if (!piece.size) piece.size = new THREE.Box3().setFromObject(normalized).getSize(new THREE.Vector3()).toArray();
+            const instance = new THREE.Group();
+            instance.add(normalized);
+            const clipName = animationName || piece.clips?.[0];
+            const clip = clipName && asset.animations.find(candidate => candidate.name === clipName);
+            if (clipName && !clip) throw new Error("world3d: clip '" + clipName + "' not found in " + piece.file);
+            if (clip) {
+              const mixer = new THREE.AnimationMixer(model);
+              const action = mixer.clipAction(clip);
+              action.play();
+              action.paused = true;
+              mixers.push({ mixer, action, duration: clip.duration, phase: 0 });
+            }
+            return instance;
+          }
+          const group = new THREE.Group();
+          const size = piece.size;
+          switch (piece.builder) {
+            case "ground":
+              group.add(new THREE.Mesh(new THREE.BoxGeometry(...size), material(color)));
+              break;
+            case "rounded-box":
+            case "data-box":
+              addRounded(group, size, color);
+              if (piece.builder === "data-box") {
+                addRounded(group, [size[0] * 0.58, size[1] * 0.1, size[2] * 0.08], "#ECFCCB",
+                  [0, size[1] * 0.12, size[2] * 0.53], size[1] * 0.04, "basic");
+              }
+              break;
+            case "token":
+              addRounded(group, size, color);
+              break;
+            case "road": {
+              group.add(new THREE.Mesh(new THREE.BoxGeometry(...size), material(color)));
+              const dashWidth = size[0] / 10;
+              for (let i = 0; i < 7; i++) {
+                addRounded(group, [dashWidth * 0.48, 0.025, 0.075], "#CBD5E1",
+                  [(i - 3) * dashWidth * 1.35, size[1] * 0.53, 0], 0.02, "basic");
+              }
+              break;
+            }
+            case "building": {
+              addRounded(group, size, color);
+              for (let row = 0; row < 2; row++) for (let col = 0; col < 3; col++) {
+                addRounded(group, [size[0] * 0.12, size[1] * 0.13, 0.05], "#BAE6FD",
+                  [(col - 1) * size[0] * 0.25, (row - 0.1) * size[1] * 0.27, size[2] * 0.51],
+                  size[0] * 0.025, "basic");
+              }
+              addRounded(group, [size[0] * 0.18, size[1] * 0.36, 0.055], "#334155",
+                [0, -size[1] * 0.31, size[2] * 0.52], size[0] * 0.04);
+              break;
+            }
+            case "phone": {
+              addRounded(group, size, color);
+              addRounded(group, [size[0] * 0.82, size[1] * 0.78, 0.035], "#0F172A",
+                [0, size[1] * 0.015, size[2] * 0.56], size[0] * 0.07);
+              addRounded(group, [size[0] * 0.22, size[1] * 0.035, 0.025], "#94A3B8",
+                [0, size[1] * 0.39, size[2] * 0.59], size[0] * 0.02, "basic");
+              addRounded(group, [size[0] * 0.13, size[0] * 0.13, 0.03], "#BFDBFE",
+                [0, -size[1] * 0.39, size[2] * 0.59], size[0] * 0.06, "basic");
+              break;
+            }
+            case "server": {
+              addRounded(group, size, color);
+              for (let row = 0; row < 4; row++) {
+                const y = (1.5 - row) * size[1] * 0.19;
+                addRounded(group, [size[0] * 0.78, size[1] * 0.13, 0.055], "#1E293B",
+                  [0, y, size[2] * 0.53], size[1] * 0.035);
+                for (let light = 0; light < 3; light++) {
+                  addRounded(group, [0.06, 0.06, 0.025], light === 0 ? "#4ADE80" : "#38BDF8",
+                    [-size[0] * 0.27 + light * size[0] * 0.16, y, size[2] * 0.57], 0.025, "basic");
+                }
+              }
+              break;
+            }
+            case "factory": {
+              addRounded(group, [size[0] * 0.92, size[1] * 0.72, size[2] * 0.9], color,
+                [0, -size[1] * 0.12, 0]);
+              addRounded(group, [size[0] * 0.58, size[1] * 0.25, size[2] * 0.92], "#FDBA74",
+                [size[0] * 0.17, size[1] * 0.37, 0]);
+              for (let i = 0; i < 2; i++) {
+                addCylinder(group, size[0] * 0.075, size[1] * 0.52, "#64748B",
+                  [(i - 0.5) * size[0] * 0.48, size[1] * 0.5, -size[2] * 0.2]);
+                addCylinder(group, size[0] * 0.09, size[1] * 0.07, "#CBD5E1",
+                  [(i - 0.5) * size[0] * 0.48, size[1] * 0.77, -size[2] * 0.2]);
+              }
+              for (let i = 0; i < 3; i++) {
+                addRounded(group, [size[0] * 0.13, size[1] * 0.2, 0.05], "#BAE6FD",
+                  [(i - 1) * size[0] * 0.23, -size[1] * 0.12, size[2] * 0.47],
+                  size[0] * 0.025, "basic");
+              }
+              break;
+            }
+            case "robot":
+              return buildRobot(size, color, seed);
+            default:
+              throw new Error("world3d: unknown code builder " + piece.builder);
+          }
+          return group;
+        }
+
+        function addShadow(object, piece) {
+          if (piece.name === "city-base" || piece.builder === "ground" || piece.builder === "road" || piece.name.startsWith("city-road-")) return;
+          const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.72, 32),
+            new THREE.MeshBasicMaterial({ color: 0x02060A, transparent: true, opacity: 0.24, depthWrite: false }));
+          shadow.rotation.x = -Math.PI / 2;
+          shadow.position.set(object.pos[0], -0.275, object.pos[2]);
+          shadow.scale.set(piece.size[0] * (object.scale || 1) * 0.72, piece.size[2] * (object.scale || 1) * 0.56, 1);
+          scene.add(shadow);
+        }
+
+        function tokenTexture(text) {
+          const surface = document.createElement("canvas");
+          surface.width = 384;
+          surface.height = 128;
+          const context = surface.getContext("2d");
+          context.clearRect(0, 0, surface.width, surface.height);
+          context.fillStyle = "#0B0D12";
+          context.font = "700 66px 'Be Vietnam Pro', sans-serif";
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillText(text, surface.width / 2, surface.height / 2);
+          const texture = new THREE.CanvasTexture(surface);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          return texture;
+        }
+
+        function createTokenBlock(text, position, id) {
+          const piece = kitByName.get("token");
+          const size = [...piece.size];
+          size[0] = Math.min(1.55, Math.max(0.72, 0.46 + text.length * 0.12));
+          const group = new THREE.Group();
+          group.position.copy(position);
+          group.name = id;
+          addRounded(group, size, piece.color);
+          const face = new THREE.Mesh(new THREE.PlaneGeometry(size[0] * 0.82, size[1] * 0.58),
+            new THREE.MeshBasicMaterial({ map: tokenTexture(text), transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+          face.position.set(0, 0, size[2] * 0.51);
+          group.add(face);
+          group.visible = false;
+          scene.add(group);
+          return group;
+        }
+
+        function labelPoint(stop) {
+          if (typeof stop.label.at === "string") {
+            const object = objectById.get(stop.label.at);
+            const piece = kitByName.get(object.kit);
+            const point = objectMeshes.get(stop.label.at).getWorldPosition(new THREE.Vector3());
+            if (piece.type === "glb") point.y += piece.size[1] * (object.scale || 1) * 0.72;
+            return point;
+          }
+          return new THREE.Vector3(...stop.label.at);
+        }
+
+        function attachLabelTimeline(timeline) {
+          labelTimeline = timeline;
+          for (const { stop, index, tag } of labelElements) {
+            const end = Math.min(WORLD.stops[index + 1]?.t ?? Number(document.getElementById("sc-cta").dataset.start),
+              Number(document.getElementById("sc-cta").dataset.start));
+            const available = Math.max(0, end - stop.t);
+            const fadeDuration = Math.min(0.18, available * 0.45);
+            const enterDuration = Math.min(0.28, available - fadeDuration);
+            const fadeOutAt = end - fadeDuration;
+            timeline.fromTo(tag, { opacity: 0, scale: 0.78, transformOrigin: "50% 50%" },
+              { opacity: 1, scale: 1, duration: enterDuration, ease: "back.out(1.5)", immediateRender: false }, stop.t);
+            timeline.to(tag, { opacity: 0, scale: 0.92, duration: fadeDuration, ease: "power2.in" }, fadeOutAt);
+          }
+        }
+
+        const localOffsets = [[0, -112], [116, -58], [-116, -58], [148, 0], [-148, 0], [0, 128],
+          [190, -104], [-190, -104], [190, 104], [-190, 104], [0, -202], [0, 218], [266, -32], [-266, -32]];
+        const globalCenters = [];
+        let layoutMasks = [];
+        for (const y of [360, 560, 760, 980, 1430, 1600, 1740]) {
+          for (const x of [145, 340, 535, 730, 925]) globalCenters.push([x, y]);
+        }
+
+        function intersects(a, b, pad = 12) {
+          return a.left < b.right + pad && a.right > b.left - pad &&
+            a.top < b.bottom + pad && a.bottom > b.top - pad;
+        }
+
+        function protectedRects() {
+          return layoutMasks;
+        }
+
+        function positionLabel(label, projected, masks) {
+          const { width, height } = label;
+          const valid = center => {
+            const left = center[0] - width / 2;
+            const top = center[1] - height / 2;
+            const rect = { left, top, right: left + width, bottom: top + height };
+            return left >= 24 && top >= 24 && rect.right <= WIDTH - 24 && rect.bottom <= HEIGHT - 24 &&
+              !masks.some(mask => intersects(rect, mask));
+          };
+          const candidates = localOffsets.map(([x, y]) => [projected.x + x, projected.y + y]);
+          let center = candidates.find(valid);
+          if (!center) {
+            center = globalCenters.find(valid);
+          }
+          if (!center) center = [WIDTH / 2, 760];
+          const left = center[0] - width / 2;
+          const top = center[1] - height / 2;
+          label.pin.style.left = left + "px";
+          label.pin.style.top = top + "px";
+          const edgeX = Math.max(left, Math.min(left + width, projected.x));
+          const edgeY = Math.max(top, Math.min(top + height, projected.y));
+          label.line.setAttribute("x1", projected.x.toFixed(1));
+          label.line.setAttribute("y1", projected.y.toFixed(1));
+          label.line.setAttribute("x2", edgeX.toFixed(1));
+          label.line.setAttribute("y2", edgeY.toFixed(1));
+          label.line.style.opacity = label.tag.style.opacity || "0";
+        }
+
+        function cameraPose(time) {
+          const stops = WORLD.stops;
+          if (time < stops[0].t) return stops[0].camera;
+          for (let i = 0; i < stops.length - 1; i++) {
+            const current = stops[i];
+            const next = stops[i + 1];
+            const duration = Math.min(1.2, (next.t - current.t) / 2);
+            const start = next.t - duration;
+            if (time < start) return current.camera;
+            if (time <= next.t) {
+              const p = smoothstep(clamp01((time - start) / duration));
+              return {
+                pos: current.camera.pos.map((value, axis) => value + (next.camera.pos[axis] - value) * p),
+                look: current.camera.look.map((value, axis) => value + (next.camera.look[axis] - value) * p),
+                fov: (current.camera.fov ?? DEFAULT_FOV) + ((next.camera.fov ?? DEFAULT_FOV) - (current.camera.fov ?? DEFAULT_FOV)) * p,
+              };
+            }
+          }
+          return stops[stops.length - 1].camera;
+        }
+
+        function renderAt(time) {
+          if (!worldReady) return;
+          if (contextLost || gl.isContextLost()) throw new Error("world3d: WebGL context lost");
+          const pose = cameraPose(time);
+          camera.position.set(...pose.pos);
+          camera.fov = pose.fov ?? DEFAULT_FOV;
+          camera.updateProjectionMatrix();
+          camera.lookAt(...pose.look);
+          camera.updateMatrixWorld(true);
+          for (const entry of mixers) {
+            entry.action.time = entry.duration > 0
+              ? ((time + entry.phase) % entry.duration + entry.duration) % entry.duration
+              : 0;
+            entry.mixer.update(0);
+          }
+          for (const run of sendRuns) {
+            const step = run.duration / run.count;
+            const rawProgress = (time - run.start) / step - run.index;
+            const progress = clamp01(rawProgress);
+            run.mesh.visible = rawProgress >= 0 && time < run.start + run.duration + 0.8;
+            run.curve.getPointAt(progress, run.mesh.position);
+          }
+          for (const run of tokenRuns) {
+            const elapsed = time - run.start - run.index * 0.18;
+            const progress = clamp01(elapsed / 0.26);
+            const pop = progress === 0 ? 0 : 1 + 2.70158 * Math.pow(progress - 1, 3) + 1.70158 * Math.pow(progress - 1, 2);
+            run.mesh.visible = elapsed >= 0 && elapsed < run.duration;
+            run.mesh.scale.setScalar(pop);
+          }
+          labelTimeline.time(time);
+          const masks = protectedRects();
+          for (const label of labelElements) {
+            const point = label.point.clone().project(camera);
+            positionLabel(label, { x: (point.x * 0.5 + 0.5) * WIDTH, y: (-point.y * 0.5 + 0.5) * HEIGHT }, masks);
+          }
+          renderer.render(scene, camera);
+        }
+
+        async function setupWorld() {
+          const usedKitNames = new Set(WORLD.objects.map(object => object.kit));
+          for (const stop of WORLD.stops) {
+            for (const action of stop.actions || []) if (action.type === "send") usedKitNames.add(action.kit);
+          }
+          const glbPieces = [...usedKitNames].map(name => kitByName.get(name)).filter(piece => piece.type === "glb");
+          await Promise.all(glbPieces.map(async piece => {
+            try {
+              const url = new URL("./assets/world3d/models/" + piece.file, import.meta.url).href;
+              loadedGLBs.set(piece.name, await gltfLoader.loadAsync(url));
+            } catch (error) {
+              console.error("world3d: failed to load " + piece.file, error);
+              throw error;
+            }
+          }));
+
+          for (const object of WORLD.objects) {
+            const piece = kitByName.get(object.kit);
+            const group = buildKit(piece, object.color || piece.color, object.id, object.animation);
+            group.name = "world-object-" + object.id;
+            group.position.set(...object.pos);
+            if (object.rot) group.rotation.set(...object.rot.map(degrees => THREE.MathUtils.degToRad(degrees)));
+            if (object.scale) group.scale.multiplyScalar(object.scale);
+            scene.add(group);
+            objectMeshes.set(object.id, group);
+            addShadow(object, piece);
+          }
+
+          for (const stop of WORLD.stops) {
+            for (let actionIndex = 0; actionIndex < (stop.actions || []).length; actionIndex++) {
+              const action = stop.actions[actionIndex];
+              if (action.type === "send") {
+                const curve = pathById.get(action.path);
+                for (let i = 0; i < action.count; i++) {
+                  const piece = kitByName.get(action.kit);
+                  const mesh = buildKit(piece, piece.color, stop.id + ":" + actionIndex + ":" + i);
+                  mesh.name = "send-" + stop.id + "-" + actionIndex + "-" + i;
+                  mesh.visible = false;
+                  scene.add(mesh);
+                  sendRuns.push({ mesh, curve, start: stop.t, duration: action.duration, index: i, count: action.count });
+                }
+              } else if (action.type === "tokens") {
+                const target = objectMeshes.get(action.at);
+                const targetObject = objectById.get(action.at);
+                const targetPiece = kitByName.get(targetObject.kit);
+                const scale = targetObject.scale || 1;
+                const center = target.position.clone();
+                center.y += targetPiece.size[1] * scale * (targetPiece.type === "glb" ? 1 : 0.5) + 0.48;
+                const totalWidth = action.text.reduce((width, text) => width + Math.min(1.55, Math.max(0.72, 0.46 + text.length * 0.12)), 0)
+                  + (action.text.length - 1) * 0.12;
+                let x = -totalWidth / 2;
+                action.text.forEach((text, i) => {
+                  const width = Math.min(1.55, Math.max(0.72, 0.46 + text.length * 0.12));
+                  const position = center.clone().add(new THREE.Vector3(x + width / 2, 0, 0.12));
+                  const mesh = createTokenBlock(text, position, "token-" + stop.id + "-" + actionIndex + "-" + i);
+                  tokenRuns.push({ mesh, start: stop.t, index: i, duration: 3.5 });
+                  x += width + 0.12;
+                });
+              }
+            }
+          }
+
+          WORLD.stops.forEach((stop, index) => {
+            if (!stop.label) return;
+            const pin = document.createElement("div");
+            pin.className = "tag-pin";
+            pin.dataset.stopId = stop.id;
+            const tag = document.createElement("div");
+            tag.className = "tag";
+            tag.textContent = stop.label.text;
+            pin.append(tag);
+            tagsRoot.append(pin);
+            const line = document.createElementNS(svgNS, "line");
+            line.setAttribute("class", "tag-leader");
+            leaders.append(line);
+            labelElements.push({ stop, index, pin, tag, line, point: labelPoint(stop), width: 0, height: 0 });
+          });
+
+          if (!window.__timelines?.main) throw new Error("world3d: main composition timeline is not registered");
+          attachLabelTimeline(window.__timelines.main);
+          await document.fonts.ready;
+          const protectedSelectors = ["#kara .kc", "#watermark-top", "#watermark-bottom", "#world3d-openai-tag"];
+          layoutMasks = protectedSelectors.flatMap(selector => [...document.querySelectorAll(selector)])
+            .map(element => element.getBoundingClientRect())
+            .filter(rect => rect.width > 0 && rect.height > 0);
+          for (const label of labelElements) {
+            label.width = label.tag.offsetWidth;
+            label.height = label.tag.offsetHeight;
+          }
+          await renderer.compileAsync(scene, camera);
+          worldReady = true;
+          renderAt(0);
+          const pixel = new Uint8Array(4);
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+          if (contextLost || gl.isContextLost()) throw new Error("world3d: WebGL context lost");
+          resolveWorld3dReady();
+        }
+
+        window.addEventListener("hf-seek", event => renderAt(event.detail.time));
+        window.__world3d = {
+          stops: WORLD.stops,
+          renderAt,
+          attachLabelTimeline,
+          labelRects(time) {
+            renderAt(time);
+            return [...document.querySelectorAll(".tag")]
+              .filter(tag => Number(getComputedStyle(tag).opacity) > 0.05)
+              .map(tag => {
+                const rect = tag.getBoundingClientRect();
+                return { stopId: tag.parentElement.dataset.stopId, text: tag.textContent,
+                  x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+              });
+          },
+        };
+        setupWorld().catch(error => console.error("world3d: setup failed", error));  // a failed setup never resolves, so the render times out
+      </script>
+      <div class="watermark" id="watermark-top" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>
+      <div class="watermark" id="watermark-bottom" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>

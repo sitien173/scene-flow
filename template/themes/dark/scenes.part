@@ -1,0 +1,99 @@
+
+      <!-- Each scene below is an example for the sample SCRIPT.md. Rebuild the copy and cues per video. -->
+
+      <!-- h1 · repo walkthrough: the captured page pans and zooms behind a fixed browser card. -->
+      <div class="scene" id="sc-h1">
+        <div class="wrap" id="w-h1">
+          <div class="surface browser-card browser-card-walk">
+            <div class="browser-bar">
+              <i class="browser-dot"></i><i class="browser-dot"></i><i class="browser-dot"></i>
+              <span class="browser-address">github.com/slimsoftvietnam/scene-flow</span>
+            </div>
+            <div class="browser-view">
+              <div id="h1-zoom">
+                <div id="h1-pan">
+                  <img src="assets/img/h1-page.webp" alt="Captured GitHub repository page">
+                  <div id="h1-spot"></div>
+                  <svg id="h1-outline" viewBox="0 0 1280 2000"><rect class="h1-stroke" pathLength="1" x="0" y="0" width="0" height="0" rx="12" /></svg>
+                  <svg id="h1-underline" viewBox="0 0 1280 2000"><line class="h1-stroke" pathLength="1" x1="0" y1="0" x2="0" y2="0" /></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- keeps the full-size decode of the page cached so every frame resamples from it, whatever the seek order -->
+          <div class="h1-decode" aria-hidden="true"><img src="assets/img/h1-page.webp" alt=""></div>
+          <div id="h1-ripple"></div>
+          <svg id="h1-cursor" viewBox="0 0 24 24"><use href="#cursor" /></svg>
+        </div>
+      </div>
+
+      <!-- s1 · old-to-new chips, two-column proof and the shared STEPS tracker. -->
+      <div class="scene clip" id="sc-s1" data-start="@@start:s1@@" data-duration="@@dur:s1@@" data-track-index="1">
+        <div class="wrap" id="w-s1">
+          <div class="section-title" id="s1-heading">TỪ CŨ SANG MỚI</div>
+          <div class="compare-row">
+            <div class="compare-chip old surface" id="s1-old"><span>Làm thủ công</span><i id="s1-strike"></i></div>
+            <svg class="ic" id="s1-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+            <div class="compare-chip new" id="s1-new">Tự động chạy</div>
+          </div>
+          <article class="surface number-card" id="s1-stat-a"><strong>01</strong><span>Tải dự án mẫu</span></article>
+          <article class="surface number-card" id="s1-stat-b"><strong>02</strong><span>Chạy lệnh dựng</span></article>
+        </div>
+      </div>
+
+      <!-- p1 · prompt words, screenshot stand-in with its source and a status checklist. -->
+      <div class="scene clip" id="sc-p1" data-start="@@start:p1@@" data-duration="@@dur:p1@@" data-track-index="1">
+        <div class="wrap" id="w-p1">
+          <div class="section-title cyan" id="p1-heading">MỘT CÂU LỆNH, MỘT BẢN DỰNG</div>
+          <div class="surface browser-card" id="p1-shot">
+            <div class="browser-bar">
+              <i class="browser-dot"></i><i class="browser-dot"></i><i class="browser-dot"></i>
+              <span class="browser-address">github.com / SoiRepo</span>
+            </div>
+            <div class="browser-view"><img src="assets/logos/soi-repo-mark.svg" alt="Soi Repo mark, screenshot stand-in"></div>
+          </div>
+          <div class="source-line">Nguồn: github.com</div>
+          <article class="surface prompt-card" id="p1-pc">
+            <div class="prompt-head"><svg class="ic" viewBox="0 0 24 24"><use href="#i-code" /></svg><span>CÂU LỆNH</span></div>
+            <div class="prompt-text">@@p:4@@</div>
+          </article>
+          <div class="surface status-card" id="p1-status">
+            <div class="status-row ok"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check" /></svg><span>Prompt đã sẵn sàng</span></div>
+            <div class="status-row ok"><svg class="ic" viewBox="0 0 24 24"><use href="#i-check" /></svg><span>Ảnh minh họa đã tải</span></div>
+            <div class="status-row warn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5 2.8 20h18.4L12 3.5Z" /><path d="M12 9v4" /><path d="M12 16.5h.01" /></svg><span>Chưa thêm video đầu ra</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- cta · a dark comment composer; the keyword types on its spoken cue. -->
+      <div class="scene clip" id="sc-cta" data-start="@@start:cta@@" data-duration="@@dur:cta@@" data-track-index="1">
+        <div class="wrap" id="w-cta">
+          <div class="section-title" id="cta-heading">CẦN HƯỚNG DẪN CHI TIẾT?</div>
+          <div class="surface comment-card" id="cta-cb">
+            <div class="comment-icon"><svg class="ic" viewBox="0 0 24 24"><use href="#i-msg" /></svg></div>
+            <div class="comment-text"><span id="cta-ph">Bình luận…</span><span id="cta-word">@@ctaq@@</span></div>
+            <div class="comment-send" id="cta-snd"><svg class="ic" viewBox="0 0 24 24"><use href="#i-send" /></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ec · Soi Repo bookend. The final image and slogan hold through @@end@@. -->
+      <div class="scene clip" id="sc-ec" data-start="@@start:ec@@" data-duration="@@dur:ec@@" data-track-index="1">
+        <div class="wrap" id="w-ec">
+          <img id="ec-logo" src="@@logo@@" alt="Soi Repo mark">
+          <div id="ec-brand">@@brand@@</div>
+          <div id="ec-slogan">@@slogan@@</div>
+        </div>
+      </div>
+
+      <div id="flash"></div>
+      <div id="trk" data-layout-allow-overflow="true">
+        @@trk@@
+      </div>
+
+      <div id="kara" data-layout-allow-overlap="true"></div>
+
+      <audio id="vo" class="clip" data-start="0" data-duration="@@vo@@" data-track-index="8" src="assets/audio/voiceover.mp3" data-volume="1" data-audio-group="voiceover"></audio>
+
+      <!-- sfx cues are written by scripts/add-sfx.py -->
+
