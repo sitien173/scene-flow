@@ -9,11 +9,11 @@ This guide is designed for creators and non-programmers. Follow the steps in seq
 3. Clone this repository into your Claude Code skills folder:
    - On Windows (PowerShell):
      ```powershell
-     git clone https://github.com/slimsoftvietnam/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
+     git clone https://github.com/sitien173/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
      ```
    - On macOS or Linux:
      ```bash
-     git clone https://github.com/slimsoftvietnam/scene-flow ~/.claude/skills/scene-flow
+     git clone https://github.com/sitien173/scene-flow ~/.claude/skills/scene-flow
      ```
    If Git is not installed yet, download the repository ZIP file (via GitHub **Code -> Download ZIP**) and extract it to your skills folder (`%USERPROFILE%\.claude\skills\scene-flow` on Windows, or `~/.claude/skills/scene-flow` on macOS or Linux).
 4. Install Python dependencies and HyperFrames skills as detailed in the [README installation section](../README.md#installation).

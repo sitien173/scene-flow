@@ -44,13 +44,13 @@ ASR and TTS features require a running Google Colab instance (`colab/server.py`)
 Clone into your Claude Code skills directory:
 
 ```bash
-git clone https://github.com/slimsoftvietnam/scene-flow ~/.claude/skills/scene-flow
+git clone https://github.com/sitien173/scene-flow ~/.claude/skills/scene-flow
 ```
 
 On Windows PowerShell:
 
 ```powershell
-git clone https://github.com/slimsoftvietnam/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
+git clone https://github.com/sitien173/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
 ```
 
 To install for a single project folder, clone into `<project-folder>/.claude/skills/scene-flow`.

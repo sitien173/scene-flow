@@ -140,8 +140,8 @@ The KayKit GLBs use the source packs' Y-up coordinate system. Their `rot` values
 
 Sample capture for the dark theme repo walkthrough opening. Captured 2026-11-17, signed out.
 
-- Source: public GitHub page [slimsoftvietnam/scene-flow](https://github.com/slimsoftvietnam/scene-flow). The page content belongs to the repository owner; verify the right to publish it before use in a video.
-- Command: `node scripts/cdp.mjs page https://github.com/slimsoftvietnam/scene-flow assets/walkthrough/h1-page.webp --targets "title=#repo-title-component,star=[data-testid=star-button],fork=[data-testid=fork-button],files=table[aria-labelledby=folders-and-files],readmeTitle=article.markdown-body h1"`
+- Source: public GitHub page [sitien173/scene-flow](https://github.com/sitien173/scene-flow). The page content belongs to the repository owner; verify the right to publish it before use in a video.
+- Command: `node scripts/cdp.mjs page https://github.com/sitien173/scene-flow assets/walkthrough/h1-page.webp --targets "title=#repo-title-component,star=[data-testid=star-button],fork=[data-testid=fork-button],files=table[aria-labelledby=folders-and-files],readmeTitle=article.markdown-body h1"`
 - Viewport: 1280 CSS px wide, 2000 CSS px tall (`--max-h` default), DPR 2, `prefers-color-scheme: dark`. Output: `h1-page.webp` at 2560 x 4000 px.
 - Rects in `h1-page.json` (page CSS px, `[x, y, w, h]`): `title`, `star`, `fork`, `files`, `readmeTitle`.
 - Target `readme` (`article.markdown-body`) is not in the sample. Its rect does not fit inside the 2000 px cap. With `--targets "readme=article.markdown-body"` alone, the command fails with `ERROR readme: outside (article.markdown-body)` and writes no file.
