@@ -164,7 +164,7 @@ plugin.json                           agy plugin manifest
 package.json                          Pi package manifest and npm file list
 LICENSE                               license text
 NOTICE                                copyright notice
-CHANGELOG.md                          release notes, written by release-please
+CHANGELOG.md                          release notes, created by the first release-please release
 THIRD_PARTY_NOTICES.md                attribution for bundled skills
 skills/scene-flow/                    the scene-flow skill, files listed below
 skills/scene-flow/SKILL.md            internal instructions for Claude Code
