@@ -38,7 +38,7 @@ Select one of three audio sources:
         ```python
         !pip install -q vieneu==3.8.4 openai-whisper fastapi uvicorn
         ```
-     3. Upload `colab/server.py` into `/content` using the Colab **Files** panel on the left.
+     3. Upload `skills/scene-flow/colab/server.py` into `/content` using the Colab **Files** panel on the left.
      4. Run the server cell:
         ```python
         !python server.py
@@ -88,7 +88,7 @@ Kịch bản:
 
 New projects default to the dark theme (`--theme dark`). To select the paper background theme, include `--theme paper` in your prompt. If the previous project used paper, Claude confirms before switching to dark.
 
-For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera moves through one 3D world, and each stop starts on a spoken word you choose. The project has a `world.json` file that lists the objects and the camera stops. The starter project explains how ChatGPT answers a question. See [the world3d theme guide](../references/themes/world3d.md).
+For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera moves through one 3D world, and each stop starts on a spoken word you choose. The project has a `world.json` file that lists the objects and the camera stops. The starter project explains how ChatGPT answers a question. See [the world3d theme guide](../skills/scene-flow/references/themes/world3d.md).
 
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 

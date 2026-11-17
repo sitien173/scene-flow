@@ -1,0 +1,17 @@
+{
+  "name": "scene-flow",
+  "owner": {
+    "name": "sitien173"
+  },
+  "plugins": [
+    {
+      "name": "scene-flow",
+      "source": "./",
+      "description": "Build a vertical narrated short in HyperFrames from a script and a voiceover, with picture and voice in sync.",
+      "version": "0.1.0",
+      "repository": "https://github.com/sitien173/scene-flow",
+      "license": "Apache-2.0"
+    }
+  ],
+  "description": "Scene-flow vertical narrated short skill for HyperFrames, with bundled dependency skills."
+}

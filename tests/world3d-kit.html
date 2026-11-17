@@ -4,7 +4,7 @@
   Run from a temporary project copy so HyperFrames sees a root composition:
     mkdir -p /tmp/world3d-kit/assets /tmp/world3d-kit/snapshots
     cp tests/world3d-kit.html /tmp/world3d-kit/index.html
-    cp -a assets/world3d assets/vendor/three /tmp/world3d-kit/assets/
+    cp -a skills/scene-flow/assets/world3d skills/scene-flow/assets/vendor/three /tmp/world3d-kit/assets/
     cd /tmp/world3d-kit
     CHROME_PATH=/home/ngosi/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-linux64/chrome-headless-shell \
       node /home/ngosi/.agents/skills/hyperframes/scripts/plugin-cli.mjs snapshot --at 0 --no-end --timeout 170000 -o snapshots/world3d-kit

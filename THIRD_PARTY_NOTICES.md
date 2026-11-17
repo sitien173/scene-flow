@@ -1,0 +1,40 @@
+# Third-Party Notices
+
+This repository bundles the skills listed below. Each bundled folder is an unmodified copy of the upstream source at the commit shown.
+
+## License files
+
+| File | Covers | License |
+|---|---|---|
+| `LICENSE` | Repository content that is not listed below | Apache License 2.0, standard text |
+| `skills/LICENSE-hyperframes` | Skills from heygen-com/hyperframes | Upstream root `LICENSE` at commit `06b632017c98824119c4a1ba755d3113108fbf45`. It is the Apache License 2.0, copied unchanged from upstream. It has minor wording differences from the apache.org text: section 1 reads "the Licensor" in two places where apache.org reads "Licensor", and section 4(d) reads "excluding any notices" where apache.org reads "excluding those notices". The APPENDIX heading and its instructions are omitted. The notice text after the terms remains, and its copyright line reads `Copyright 2026 HeyGen, Inc.` |
+| `skills/LICENSE-3dviz-pro-max` | Skill from viettranx/3dviz-pro-max | Upstream root `LICENSE` at commit `d077e0e68915c25be8e71d74684d3144fd1c2aca`. MIT License, Copyright 2026 Viettranx |
+
+## Bundled skills
+
+| Skill | Local path | Source URL | Commit | License |
+|---|---|---|---|---|
+| hyperframes | `skills/hyperframes` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/skills/hyperframes | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| hyperframes-cli | `skills/hyperframes-cli` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/skills/hyperframes-cli | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| hyperframes-registry | `skills/hyperframes-registry` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/skills/hyperframes-registry | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| media-use | `skills/media-use` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/skills/media-use | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| motion-doctrine | `skills/motion-doctrine` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/motion-doctrine | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| cut-the-curve | `skills/cut-the-curve` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/cut-the-curve | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| seam-craft | `skills/seam-craft` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/seam-craft | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| oversized-cursor | `skills/oversized-cursor` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/oversized-cursor | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
+| 3dviz-pro-max | `skills/3dviz-pro-max` | https://github.com/viettranx/3dviz-pro-max/tree/d077e0e68915c25be8e71d74684d3144fd1c2aca/skills/3dviz-pro-max | `d077e0e68915c25be8e71d74684d3144fd1c2aca` | MIT License, Copyright 2026 Viettranx, see `skills/LICENSE-3dviz-pro-max` |
+
+## Bundled fonts
+
+The folder `skills/hyperframes/assets/frame-presets/code-editorial/fonts/` contains three font families licensed under the SIL Open Font License, Version 1.1. Each family has its own license file in that folder.
+
+| Font | Files | Copyright line in license file | License file |
+|---|---|---|---|
+| Inter | `Inter-400.woff2`, `Inter-700.woff2` | Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter) | `OFL-inter.txt` |
+| EB Garamond | `EBGaramond-400.woff2`, `EBGaramond-700.woff2` | Copyright 2017 The EB Garamond Project Authors (https://github.com/octaviopardo/EBGaramond12) | `OFL-eb-garamond.txt` |
+| JetBrains Mono | `JetBrainsMono-400.woff2`, `JetBrainsMono-700.woff2` | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | `OFL-jetbrains-mono.txt` |
+
+## Notes
+
+- The bundled hyperframes skill folders carry no repository-level license file. Their license is the upstream repository root license, copied to `skills/LICENSE-hyperframes`. The fonts listed under Bundled fonts have their own license files.
+- `skills/LICENSE-hyperframes` is the Apache License 2.0, copied unchanged from upstream. It has minor wording differences from the apache.org text: section 1 reads "the Licensor" in two places where apache.org reads "Licensor", and section 4(d) reads "excluding any notices" where apache.org reads "excluding those notices". The APPENDIX heading and its instructions are omitted. The notice text after the terms remains, and its copyright line reads `Copyright 2026 HeyGen, Inc.`

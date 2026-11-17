@@ -3,7 +3,7 @@
 # usage: bash tests/theme-fixture.sh <out-dir> [new-project.py options, e.g. --theme paper]
 # Prints the sha256 of the built index.html. The project is <out-dir>/demo.
 set -euo pipefail
-SKILL="$(cd "$(dirname "$0")/.." && pwd)"
+SKILL="$(cd "$(dirname "$0")/../skills/scene-flow" && pwd)"
 OUT="$1"; shift
 ARGS=("$@")
 THEME=dark
