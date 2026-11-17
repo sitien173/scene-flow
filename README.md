@@ -1,5 +1,8 @@
 # AI Short Video Generator: Agent Skills Plugin (`scene-flow`)
 
+[![CI](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects default to the Soi Repo dark motion-graphics theme, with paper and world3d themes also selectable:
 
 - **Dark theme (default)**: Deep dark background with subtle drifting particles, Be Vietnam Pro typography, mint `#4ADE80` and cyan `#22D3EE` accents.
@@ -160,6 +163,8 @@ For step-by-step instructions designed for non-programmers, read [docs/user-guid
 plugin.json                           agy plugin manifest
 package.json                          Pi package manifest and npm file list
 LICENSE                               license text
+NOTICE                                copyright notice
+CHANGELOG.md                          release notes, written by release-please
 THIRD_PARTY_NOTICES.md                attribution for bundled skills
 skills/scene-flow/                    the scene-flow skill, files listed below
 skills/scene-flow/SKILL.md            internal instructions for Claude Code
@@ -171,7 +176,8 @@ skills/scene-flow/references/         rules: house style, dark, paper and world3
 skills/scene-flow/scripts/            pipeline: voice prep, ASR, syllable timing, scene build, captions, SFX mix
 skills/scene-flow/scripts/README.md   pipeline scripts reference
 skills/scene-flow/template/           starter project files, dark, paper and world3d themes
-tests/                                theme fixture tests
+tests/                                theme fixture, spec, version and bundled-skill checks
+.github/                              CI, release workflow, issue and PR templates
 skills/scene-flow/assets/SOURCES.md   asset licensing and source references
 skills/scene-flow/assets/audio/       house sound effects and background music bed
 skills/scene-flow/assets/background/  paper background video (124s) and still image
@@ -201,17 +207,29 @@ No mascot ships with the skill. If you have your own mascot (a transparent `.web
 
 ## Asset Licensing
 
-Skill code and documentation are freely usable. Bundled assets belong to their original creators, detailed in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md):
+Skill code and documentation are licensed under [Apache-2.0](LICENSE); see [NOTICE](NOTICE). Bundled assets belong to their original creators, detailed in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md):
 
 - **Fonts:** SIL Open Font License 1.1 ([K2D](skills/scene-flow/assets/fonts/OFL.txt), [Be Vietnam Pro](skills/scene-flow/assets/fonts/BeVietnamPro-OFL.txt)).
 - **Icons:** [Lucide](https://lucide.dev) under ISC license.
 - **Logos:** Trademarks of their respective owners, used solely for product reference within videos.
 - **Audio and background media:** Sourced from the author's library, mostly Pixabay. Check individual licenses in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md) prior to commercial use.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues as described in [SECURITY.md](SECURITY.md). This project follows the [Code of Conduct](CODE_OF_CONDUCT.md). Release notes are in [CHANGELOG.md](CHANGELOG.md).
+
 ## Release checklist
 
+Releases run through [release-please](https://github.com/googleapis/release-please). Each push to `main` updates an open release pull request from the conventional commit messages. Merging that pull request updates `CHANGELOG.md` and the version in all five manifests, tags `vX.Y.Z`, and publishes the GitHub Release.
+
+One-time setup by the owner:
+
 - [ ] Audio redistribution rights verified by the owner.
-- [ ] `LICENSE` copyright holder line set by the owner.
-- [ ] Version bumped to the same value in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.codex-plugin/plugin.json`, `plugin.json`, and `package.json`.
-- [ ] `claude plugin validate --strict .` and `agy plugin validate --strict .` pass.
-- [ ] `bash tests/theme-fixture.sh /tmp/sf-check | tail -1` prints `9bd8551cea28e48788b3400bf148b2c53d1054ec705a17e4db1c62e779daa2a2`.
+- [ ] In repository Settings, Actions, General: allow GitHub Actions to create and approve pull requests.
+- [ ] In repository Settings, Security: enable private vulnerability reporting.
+- [ ] Protect `main` and require the `CI` checks.
+
+Before merging a release pull request:
+
+- [ ] CI does not run on release pull requests opened with the default `GITHUB_TOKEN`. Run the CI workflow on the release branch with **Run workflow**, or close and reopen the pull request.
+- [ ] After the first release, remove `"release-as": "0.1.0"` from `release-please-config.json`.

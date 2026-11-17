@@ -11,6 +11,7 @@
     "skills/",
     "!skills/scene-flow/references/videos/",
     "LICENSE",
+    "NOTICE",
     "THIRD_PARTY_NOTICES.md",
     "README.md"
   ]

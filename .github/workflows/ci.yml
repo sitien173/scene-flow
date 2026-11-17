@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg jq
+          pip install -q pyyaml -r skills/scene-flow/requirements.txt
+          npm install -g @anthropic-ai/claude-code@2.1.326
+
+      - name: Agent Skills spec
+        run: python3 tests/spec-check.py
+
+      - name: Manifest versions agree
+        run: bash tests/check-versions.sh
+
+      - name: Bundled skills unchanged
+        run: bash tests/check-bundled.sh
+
+      - name: Claude Code plugin validation
+        run: claude plugin validate --strict .
+
+      - name: npm package contents
+        run: |
+          npm pack --dry-run 2>&1 | tee /tmp/pack.txt
+          grep -q "skills/scene-flow/SKILL.md" /tmp/pack.txt
+          grep -q " NOTICE" /tmp/pack.txt
+          ! grep -E " (tests|docs|\.github)/|references/videos/" /tmp/pack.txt
+
+      - name: Theme fixture hash
+        run: |
+          got="$(bash tests/theme-fixture.sh "$RUNNER_TEMP/sf-check" | tail -1)"
+          echo "$got"
+          test "$got" = 9bd8551cea28e48788b3400bf148b2c53d1054ec705a17e4db1c62e779daa2a2
+
+  actionlint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/914e7df21a07ef503a81201c76d2b11c789d3fca/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color

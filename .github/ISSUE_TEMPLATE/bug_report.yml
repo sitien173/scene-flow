@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in scene-flow does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not paste API keys, tokens, or private voiceover files. Remove personal data from logs.
+  - type: dropdown
+    id: host
+    attributes:
+      label: Agent host
+      options: [Claude Code, Codex, Pi, agy, Other]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: scene-flow version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options: [dark, paper, world3d, Not theme related]
+  - type: input
+    id: os
+    attributes:
+      label: OS, Node, Python, and ffmpeg versions
+      placeholder: "Ubuntu 24.04, Node 22.11, Python 3.12, ffmpeg 6.1"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual result
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      render: text
