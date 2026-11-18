@@ -53,6 +53,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
 | `colab.py` | **yes** | — shared client for the Colab server (requires `COLAB_URL` and `COLAB_TOKEN` in env) |
+| `postiz.py` | **yes** | — optional: uploads a finished render and creates a Postiz post (requires `POSTIZ_URL` and `POSTIZ_API_KEY` in env); run only when the author asks |
 | `plan-beats.py` | no | the `SCENES` table — sentence ranges per scene |
 | `align-asr.py` | **yes** | — |
 | `syl-times.py` | **yes** | — |

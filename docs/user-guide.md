@@ -116,7 +116,61 @@ When the preview looks right, enter **"render video"**. Claude renders a 1080x19
 
 A world3d video renders fastest on a computer with a graphics chip, about 2 to 3 minutes for 60 seconds. Without one, rendering takes about 16 minutes, on this computer or on Colab. Colab's T4 card does not speed up 3D rendering.
 
-## 6. Troubleshooting
+## 6. Publishing with Postiz
+
+This section is optional. The script uploads a finished render to your own Postiz instance and creates one post covering the channels listed in `postiz.json`. The default creates a draft. It publishes only when you pass `--schedule` or `--now`.
+
+### Setup
+
+1. **Connect the channels.** In your Postiz instance, connect the TikTok, Instagram, and YouTube accounts you want to post to.
+2. **Create an API key.** In Postiz, go to **Settings → Developers → Public API** and create a key.
+3. **Set the environment variables.** `POSTIZ_URL` is the base address of your Postiz instance. Use `https`; plain `http` is accepted only for `localhost` and `127.0.0.1`. The address must not contain a username or password. The script adds the `/public/v1` paths itself.
+   - On Windows PowerShell:
+     ```powershell
+     $env:POSTIZ_URL="<your Postiz address>"
+     $env:POSTIZ_API_KEY="<your API key>"
+     ```
+   - On macOS or Linux bash:
+     ```bash
+     export POSTIZ_URL="<your Postiz address>"
+     export POSTIZ_API_KEY="<your API key>"
+     ```
+   Set them in the terminal where you run Claude Code, as with the Colab variables. Never save them in files. The script never prints the key.
+4. **Fill `postiz.json`** in the project root:
+
+   | Field | What to enter |
+   |---|---|
+   | `caption` | Post text. The caption with hashtags is limited to 2,200 characters for TikTok and Instagram. The TikTok limit is unverified. |
+   | `hashtags` | A list of tags. The leading `#` is optional. Instagram accepts at most 5 hashtags (a conservative value; unverified). |
+   | `ai_generated` | `true` or `false`. The script refuses to run until it is set. It refuses `false` when `assets/SOURCES.md` lists an AI-generated picture. |
+   | `youtube_title` | 2 to 100 characters. Checked only when YouTube is in `channels`. |
+   | `channels` | A list of channel entries. Each entry is a Postiz integration ID, or a platform name (`tiktok`, `instagram`, or `youtube`) when exactly one connected channel matches it. |
+
+### Check and post
+
+5. **List the channels.** Run `python scripts/postiz.py channels`. Each line shows the integration ID, the identifier, the name, and `(disabled)` for a disabled channel. Disabled channels cannot be matched. If a platform name matches more than one channel, the script stops and lists the IDs. Put one ID in `postiz.json`.
+6. **Dry run.** Run `python scripts/postiz.py renders/<file>.mp4 --dry-run`. The script runs the video and channel checks and prints the planned post. It does not check the receipt. It uploads nothing and creates no post.
+7. **Create a draft (default).** Run `python scripts/postiz.py renders/<file>.mp4`. The script uploads the video to the Postiz server and creates a draft. Review and publish the draft in Postiz. The video stays on the Postiz server even for a draft.
+8. **Schedule or publish now.** Use `--schedule "2030-01-01T10:00:00+07:00"` to publish at a set time. The time must include a timezone offset. Use `--now` to publish immediately. Use either option only when you have decided to publish automatically.
+9. **Receipt and `--again`.** After every successful post, including a draft, the script writes `postiz-receipt.json` in the project root. The receipt stores the SHA-256 hash of the file, the post type, and the post IDs. The script then refuses another `--schedule` or `--now` of the same file. Pass `--again` to post it again. The guard does not block a file whose bytes have changed. A draft of an already posted file runs with a warning.
+
+### Platform notes
+
+- **TikTok.** The script requests public posting with direct posting. An unaudited TikTok app may be limited to private posts. Check the visibility in TikTok after posting.
+- **Instagram.** The script warns when the video is longer than 60 seconds. This threshold is unverified. The script sends the Instagram post type `post`; whether a video appears as a Reel is unverified.
+- **YouTube Shorts.** Shorts must be 180 seconds or shorter. The script warns above that length. Videos post as public.
+- **AI label.** When `ai_generated` is `true`, the script sets the AI setting for TikTok. Set the AI label for Instagram and YouTube by hand in Postiz.
+- **Drafts and uploads.** A draft still uploads the video to the Postiz server.
+
+### If the outcome is unknown
+
+If the script prints `Post outcome unknown, check Postiz before re-running`, the post may or may not exist. The script never retries a post. Open Postiz and check its posts before you run the script again. Running again first can create a duplicate.
+
+### Existing projects
+
+Projects created before this feature do not have the publisher. Copy `scripts/postiz.py` from the scene-flow skill's `scripts/` folder into your project's `scripts/` folder. Copy `postiz.json` from the skill's `template/` folder into the project root, then fill it in.
+
+## 7. Troubleshooting
 
 | Symptom | Resolution |
 |---|---|

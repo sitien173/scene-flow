@@ -10,9 +10,9 @@ description: >-
   sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
   "đây là voice", "giọng đọc", "tôi sẽ thu âm", sends a .wav/.mp3 of narration, asks to learn the
   previous video's style ("học phong cách video trước"), or says voice and picture do not line up
-  ("chưa khớp", "hình nhanh hơn voice", "mất voice"). Load it before designing the first frame.
+  ("chưa khớp", "hình nhanh hơn voice", "mất voice"). Load it before designing the first frame. Also "post via Postiz" or "post to TikTok via Postiz".
 license: Apache-2.0
-compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Set COLAB_URL and COLAB_TOKEN for each session.
+compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Set COLAB_URL and COLAB_TOKEN for each session. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY.
 ---
 
 # Narrated short pipeline
@@ -72,6 +72,13 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    The seams: `node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002` against preview (set `CHROME_PATH` to HyperFrames headless Chrome).
    Never verify sync against captions; compare against recording via `scripts/audit-sync.py`, rare-word check, or author ears ([references/verification.md](references/verification.md)).
 8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request.
+9. **Publish via Postiz** (optional). Run `scripts/postiz.py` only when the author explicitly asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
+   ```bash
+   python scripts/postiz.py channels
+   python scripts/postiz.py renders/<file>.mp4 --dry-run
+   python scripts/postiz.py renders/<file>.mp4
+   ```
+   `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, never from a file. `postiz.json` (from the template) holds `caption`, `hashtags`, `ai_generated` (set `true` or `false`), `youtube_title`, and `channels`. When `postiz-receipt.json` shows the same file was already posted, in any mode, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns. Setup: [docs/user-guide.md#6-publishing-with-postiz](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).
 
 ## Voice sources
 

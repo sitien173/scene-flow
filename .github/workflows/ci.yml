@@ -41,6 +41,10 @@ jobs:
       - name: Agent Skills spec
         run: python3 tests/spec-check.py
 
+      # Tests skills/scene-flow/scripts/postiz.py; ffmpeg and ffprobe come from Install tools.
+      - name: Postiz publisher tests
+        run: python3 tests/postiz-test.py
+
       - name: Manifest versions agree
         run: bash tests/check-versions.sh
 

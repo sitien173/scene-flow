@@ -26,6 +26,7 @@ PIPELINE = [
     "colab.py", "prep-voice.py", "tts.py", "asr.py", "plan-beats.py", "align-asr.py", "syl-times.py", "fix-syl.py", "silences.py",
     "karaoke.py", "add-sfx.py", "build.py", "make.sh", "make-media.py", "cdp.mjs", "sheet.py", "edit_helpers.py",
     "audit-sync.py", "word-times.py", "install-map.py", "recaption.py", "resfx.py", "synth-sfx.py",
+    "postiz.py",
 ]
 # (skill source, project destination)
 ASSETS = [
