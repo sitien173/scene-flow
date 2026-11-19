@@ -78,7 +78,12 @@ CLICK = [(t, "click", G_CLICK) for t in (
 POP = [
 ]                 # e.g. (1.42, 0), (15.16, 0), (42.36, 1), ... and the end-card logo at EC + 0.06
 
-rows = THUD + SWOOSH + RISER + LASER + CLICK + [(t, "pop", G_POP_SOFT if soft else G_POP) for t, soft in POP]
+# (time, name, gain) for a sound outside the house set, e.g. a Freesound download saved as
+# assets/audio/sfx-glass.mp3: add DURATION["glass"] = its length, gain from scripts/sfx-gain.py
+EXTRA = [
+]                 # e.g. (12.40, "glass", 0.45)
+
+rows = THUD + SWOOSH + RISER + LASER + CLICK + EXTRA + [(t, "pop", G_POP_SOFT if soft else G_POP) for t, soft in POP]
 rows.sort()
 
 s = io.open(P, encoding="utf-8").read()

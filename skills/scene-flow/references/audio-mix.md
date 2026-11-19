@@ -45,6 +45,43 @@ per-project edit is those lists.
 The cascade rule matters: three pops 0.7s apart at full level read as three
 interruptions; 4 dB down they read as one gesture.
 
+## Sounds outside the house set: Freesound
+
+When no house cue fits a moment (glass breaking, a crowd, a door, a different bed), search
+Freesound through the bundled `freesound` skill. Its CLI needs `FREESOUND_API_KEY` in the
+environment or in `~/.config/scene-flow/.env` (mode 600, shared with Postiz); the author applies for the key at
+https://freesound.org/apiv2/apply/ and sets it outside the chat. Read the `freesound` skill's
+rules before the first call.
+
+House license rule: **CC0 and CC BY only**. `--commercial-safe` filters exactly those two.
+Freesound's free API terms cover non-commercial use; that is separate from each sound's license,
+so tell the author once when the channel earns money.
+
+```bash
+FS="<freesound skill>/scripts/freesound.js"
+node "$FS" search "glass break" --commercial-safe --duration-max 3 --limit 10
+node "$FS" sound 123456                                   # license, creator, URL, gen_ai_preference
+node "$FS" download-preview 123456 --quality hq --format mp3 --output assets/audio/freesound
+#   prints the plan only; add --yes after the author approves that sound
+```
+
+The HQ MP3 preview is enough for a short; originals need an OAuth token. Every download
+updates `assets/audio/freesound/ATTRIBUTION.md` and `attribution.json`: keep both with the
+project.
+
+Then place it like a house cue:
+
+1. Copy the file to `assets/audio/sfx-<name>.mp3` (a bed: any path, set as `BED`).
+2. Compute the gain from the measured file mean, never by ear:
+   `python scripts/sfx-gain.py assets/audio/sfx-<name>.mp3 --cue swoosh` (or `--target <dB>`;
+   a bed: `--cue bed --seconds <film length>`, then set `G_BED`).
+3. In `scripts/add-sfx.py` add `DURATION["<name>"] = <seconds>` and a row
+   `(t, "<name>", gain)` to `EXTRA`.
+
+**Credit.** A CC BY sound must be credited where viewers see it: put
+`node "$FS" attribution <id> ... --format text` into the post caption (`caption` in
+`postiz.json` when publishing through Postiz). CC0 needs no credit; keep its record anyway.
+
 ## Levels (older recorded-voice projects)
 
 Measure both sides before choosing a gain — never guess from a filename.

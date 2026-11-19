@@ -9,6 +9,7 @@ This repository bundles the skills listed below. Each bundled folder is an unmod
 | `LICENSE` | Repository content that is not listed below | Apache License 2.0, standard text |
 | `skills/LICENSE-hyperframes` | Skills from heygen-com/hyperframes | Upstream root `LICENSE` at commit `06b632017c98824119c4a1ba755d3113108fbf45`. It is the Apache License 2.0, copied unchanged from upstream. It has minor wording differences from the apache.org text: section 1 reads "the Licensor" in two places where apache.org reads "Licensor", and section 4(d) reads "excluding any notices" where apache.org reads "excluding those notices". The APPENDIX heading and its instructions are omitted. The notice text after the terms remains, and its copyright line reads `Copyright 2026 HeyGen, Inc.` |
 | `skills/LICENSE-3dviz-pro-max` | Skill from viettranx/3dviz-pro-max | Upstream root `LICENSE` at commit `d077e0e68915c25be8e71d74684d3144fd1c2aca`. MIT License, Copyright 2026 Viettranx |
+| `skills/LICENSE-freesound` | Skill from MaksPyn/freesound-skill | Upstream root `LICENSE` at commit `a41a15a0d0a288d0cd48fd6d3e58245c6739aa10`. MIT License, Copyright 2026 MaksPyn |
 
 ## Bundled skills
 
@@ -23,6 +24,7 @@ This repository bundles the skills listed below. Each bundled folder is an unmod
 | seam-craft | `skills/seam-craft` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/seam-craft | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
 | oversized-cursor | `skills/oversized-cursor` | https://github.com/heygen-com/hyperframes/tree/06b632017c98824119c4a1ba755d3113108fbf45/.agents/skills/oversized-cursor | `06b632017c98824119c4a1ba755d3113108fbf45` | Apache License 2.0, Copyright 2026 HeyGen, Inc., see `skills/LICENSE-hyperframes` |
 | 3dviz-pro-max | `skills/3dviz-pro-max` | https://github.com/viettranx/3dviz-pro-max/tree/d077e0e68915c25be8e71d74684d3144fd1c2aca/skills/3dviz-pro-max | `d077e0e68915c25be8e71d74684d3144fd1c2aca` | MIT License, Copyright 2026 Viettranx, see `skills/LICENSE-3dviz-pro-max` |
+| freesound | `skills/freesound` | https://github.com/MaksPyn/freesound-skill/tree/a41a15a0d0a288d0cd48fd6d3e58245c6739aa10 | `a41a15a0d0a288d0cd48fd6d3e58245c6739aa10` | MIT License, Copyright 2026 MaksPyn, see `skills/LICENSE-freesound` |
 
 ## Bundled fonts
 
@@ -36,5 +38,6 @@ The folder `skills/hyperframes/assets/frame-presets/code-editorial/fonts/` conta
 
 ## Notes
 
+- `skills/freesound` holds the upstream repository's `SKILL.md`, `scripts/` and `references/`. One local change: the automatic credentials file moved from `pi-freesound/credentials.env` to the shared scene-flow file `~/.config/scene-flow/.env` on every platform, which must be owner-only outside Windows, in `scripts/freesound.js`, `SKILL.md`, `references/authentication.md` and `references/examples.md`. The upstream `README.md`, `CONTRIBUTING.md`, `tests/` and `.github/` are not bundled.
 - The bundled hyperframes skill folders carry no repository-level license file. Their license is the upstream repository root license, copied to `skills/LICENSE-hyperframes`. The fonts listed under Bundled fonts have their own license files.
 - `skills/LICENSE-hyperframes` is the Apache License 2.0, copied unchanged from upstream. It has minor wording differences from the apache.org text: section 1 reads "the Licensor" in two places where apache.org reads "Licensor", and section 4(d) reads "excluding any notices" where apache.org reads "excluding those notices". The APPENDIX heading and its instructions are omitted. The notice text after the terms remains, and its copyright line reads `Copyright 2026 HeyGen, Inc.`
