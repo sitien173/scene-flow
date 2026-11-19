@@ -32,7 +32,19 @@ Select one of three audio sources:
 1. **Self-recording (most natural)**: Record narration in a quiet room, saving as `.wav` or `.mp3`. Leave a short breath pause between sentences.
 2. **Third-party TTS service**: Use your existing TTS service (ElevenLabs, OpenAI). When Claude asks for an API key, provide it in the chat. Claude uses it for that session only and never writes it to disk.
 3. **VieNeu-TTS on Google Colab (free GPU voice generation and ASR)**:
-   - **Start the server:**
+   - **Start the server (automatic):**
+     1. Install the `colab` CLI and sign in to your Google account once.
+     2. Ask Claude to start the Colab server, or run:
+        ```bash
+        python skills/scene-flow/scripts/colab-session.py up
+        ```
+        This opens a T4 GPU session, installs the packages, starts `colab/server.py`, and waits until the server answers. The URL and token are saved to `~/.config/scene-flow/colab.json`, readable only by you, and are never printed. `tts.py` and `asr.py` read this file.
+     3. When the voice and ASR are done, stop the session so it stops using compute units:
+        ```bash
+        python skills/scene-flow/scripts/colab-session.py down
+        ```
+        `colab-session.py status` shows whether the server is reachable.
+   - **Start the server by hand (without the `colab` CLI):**
      1. Open Google Colab and select **Edit > Notebook settings**. Choose **T4 GPU**, check **"Omit code cell output when saving this notebook"**, and click **Save**.
      2. Connect the Colab runtime and run the installation cell:
         ```python
@@ -44,8 +56,8 @@ Select one of three audio sources:
         !python server.py
         ```
         *Note: Colab resets temporary files when a session ends. Repeat steps 2 through 4 for each new session.*
-   - **Set URL and token:**
-     Copy the `COLAB_URL=` and `COLAB_TOKEN=` outputs printed by Colab. Set them as environment variables in the terminal where you run Claude Code (these change every session; never save them in files):
+   - **Set URL and token (manual start only):**
+     Copy the `COLAB_URL=` and `COLAB_TOKEN=` outputs printed by Colab. Set them as environment variables in the terminal where you run Claude Code (these change every session; never commit them). Environment variables take precedence over the session file:
      - On Windows PowerShell:
        ```powershell
        $env:COLAB_URL="<the URL printed by Colab>"
@@ -70,6 +82,7 @@ Select one of three audio sources:
 - Brand logo image and slogan for the end card.
 - Specific keyword for the comment CTA box.
 - Mascot video (optional, if you have one; no mascot ships with the skill): your own transparent `.webm` clip for the opening hook.
+- Extra sound effects or music from Freesound. Apply for a free API key at https://freesound.org/apiv2/apply/ and add the line `FREESOUND_API_KEY=<key>` to `~/.config/scene-flow/.env`, the same file the Postiz key goes in, and run `chmod 600` on it. Never paste the key into the chat. Claude proposes CC0 or CC BY sounds and downloads one only after you approve it. CC BY sounds need a credit line in the post caption.
 
 ## 3. Creating a Video Project
 
@@ -126,18 +139,18 @@ This section is optional. The script uploads a finished render to your own Posti
 
 1. **Connect the channels.** In your Postiz instance, connect the TikTok, Instagram, and YouTube accounts you want to post to.
 2. **Create an API key.** In Postiz, go to **Settings → Developers → Public API** and create a key.
-3. **Set the environment variables.** `POSTIZ_URL` is the base address of your Postiz instance. Use `https`; plain `http` is accepted only for `localhost` and `127.0.0.1`. The address must not contain a username or password. The script adds the `/public/v1` paths itself.
-   - On Windows PowerShell:
-     ```powershell
-     $env:POSTIZ_URL="<your Postiz address>"
-     $env:POSTIZ_API_KEY="<your API key>"
-     ```
-   - On macOS or Linux bash:
-     ```bash
-     export POSTIZ_URL="<your Postiz address>"
-     export POSTIZ_API_KEY="<your API key>"
-     ```
-   Set them in the terminal where you run Claude Code, as with the Colab variables. Never save them in files. The script never prints the key.
+3. **Save the address and key.** `POSTIZ_URL` is the base address of your Postiz instance. Use `https`; plain `http` is accepted only for `localhost` and `127.0.0.1`. The address must not contain a username or password. The script adds the `/public/v1` paths itself.
+   Add both to `~/.config/scene-flow/.env`, the file that also holds your Freesound key, and make the file readable only by you. The script refuses the file otherwise. The commands below append, so an existing Freesound line stays.
+   ```bash
+   mkdir -p ~/.config/scene-flow
+   cat >> ~/.config/scene-flow/.env <<'EOF'
+   POSTIZ_URL=<your Postiz address>
+   POSTIZ_API_KEY=<your API key>
+   EOF
+   chmod 600 ~/.config/scene-flow/.env
+   ```
+   On Windows the file is `%USERPROFILE%\.config\scene-flow\.env`; add the same two lines in a text editor.
+   `POSTIZ_URL` or `POSTIZ_API_KEY` set in the environment overrides the file. Never paste the key into the chat. The script never prints the key.
 4. **Fill `postiz.json`** in the project root:
 
    | Field | What to enter |

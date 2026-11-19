@@ -12,7 +12,7 @@ description: >-
   previous video's style ("học phong cách video trước"), or says voice and picture do not line up
   ("chưa khớp", "hình nhanh hơn voice", "mất voice"). Load it before designing the first frame. Also "post via Postiz" or "post to TikTok via Postiz".
 license: Apache-2.0
-compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Set COLAB_URL and COLAB_TOKEN for each session. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY.
+compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Start it with scripts/colab-session.py up through the colab CLI. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
 ---
 
 # Narrated short pipeline
@@ -38,7 +38,7 @@ Read `/hyperframes` for routing and composition contracts, and load `/motion-doc
 
 No mascot ships with the skill. Add your own transparent `.webm` if you have one (§Bookends).
 
-**Requirements:** Node 22+, Python 3.10+ (`pip install -r requirements.txt`: numpy, Pillow), ffmpeg on PATH, running Colab server (`colab/server.py`) with `COLAB_URL` and `COLAB_TOKEN` set for ASR/TTS, and the HyperFrames skills bundled with this plugin. HyperFrames runs through `npx` pinned in project `package.json`; first run downloads headless Chrome. Run `npx --yes hyperframes@0.8.140 doctor` once per machine. Stop if Node, ffmpeg, ffprobe or Chrome fails. Ignore the upgrade notice and the optional engines whisper-cpp, Kokoro and MusicGen; the Colab server covers speech.
+**Requirements:** Node 22+, Python 3.10+ (`pip install -r requirements.txt`: numpy, Pillow), ffmpeg on PATH, Colab server (`colab/server.py`, started by `scripts/colab-session.py up` through the `colab` CLI) for ASR/TTS, and the HyperFrames skills bundled with this plugin. HyperFrames runs through `npx` pinned in project `package.json`; first run downloads headless Chrome. Run `npx --yes hyperframes@0.8.140 doctor` once per machine. Stop if Node, ffmpeg, ffprobe or Chrome fails. Ignore the upgrade notice and the optional engines whisper-cpp, Kokoro and MusicGen; the Colab server covers speech.
 
 ## The order of work
 
@@ -71,14 +71,14 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    `check` passing verifies structure only, not composition layout or sync.
    The seams: `node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002` against preview (set `CHROME_PATH` to HyperFrames headless Chrome).
    Never verify sync against captions; compare against recording via `scripts/audit-sync.py`, rare-word check, or author ears ([references/verification.md](references/verification.md)).
-8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request.
+8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000` for world3d and neon3d. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
 9. **Publish via Postiz** (optional). Run `scripts/postiz.py` only when the author explicitly asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
    ```bash
    python scripts/postiz.py channels
    python scripts/postiz.py renders/<file>.mp4 --dry-run
    python scripts/postiz.py renders/<file>.mp4
    ```
-   `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, never from a file. `postiz.json` (from the template) holds `caption`, `hashtags`, `ai_generated` (set `true` or `false`), `youtube_title`, and `channels`. When `postiz-receipt.json` shows the same file was already posted, in any mode, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns. Setup: [docs/user-guide.md#6-publishing-with-postiz](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).
+   `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, else from the shared `~/.config/scene-flow/.env`, which must be mode 600. Never ask the author to paste the key into the chat. `postiz.json` (from the template) holds `caption`, `hashtags`, `ai_generated` (set `true` or `false`), `youtube_title`, and `channels`. When `postiz-receipt.json` shows the same file was already posted, in any mode, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns. Setup: [docs/user-guide.md#6-publishing-with-postiz](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).
 
 ## Voice sources
 
@@ -86,15 +86,13 @@ When a script arrives without audio, present these three choices in order:
 
 1. **Self-recording**: Author records spoken narration. Provide script line by line and wait for audio.
 2. **Third-party TTS**: Author provides an API key (ElevenLabs, OpenAI). Pass key only via inline command environment variables, never write to disk, and advise key rotation.
-3. **VieNeu-TTS on Colab**: Run `colab/server.py` on a Colab GPU instance. `tts.py` reads `SCRIPT.md` sentence by sentence, requires internet, and writes `assets/audio/voiceover.mp3`. Voice should be handed over before picture is built. Never save `COLAB_TOKEN`, never commit it; URL and token change each session. Setup details in [docs/user-guide.md#2-preparing-content](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content). Set session variables:
-   PowerShell:
-   ```powershell
-   $env:COLAB_URL="<url>"; $env:COLAB_TOKEN="<token>"
-   ```
-   Bash:
+3. **VieNeu-TTS on Colab**: `tts.py` reads `SCRIPT.md` sentence by sentence, requires internet, and writes `assets/audio/voiceover.mp3`. Voice should be handed over before picture is built. Start the server from the skill folder; this needs the `colab` CLI signed in to the author's Google account:
    ```bash
-   export COLAB_URL="<url>" COLAB_TOKEN="<token>"
+   python "<skill>/scripts/colab-session.py" up       # T4 session, packages, colab/server.py, waits for /health
+   python "<skill>/scripts/colab-session.py" status
+   python "<skill>/scripts/colab-session.py" down     # stops the session, deletes the session file
    ```
+   `up` saves the URL and token to `~/.config/scene-flow/colab.json` (mode 0600); `tts.py` and `asr.py` read it. Never print, copy, or commit the token. Each session spends the author's Colab compute units: ask the author before `up`, and run `down` as soon as voice and ASR are done. `COLAB_URL` and `COLAB_TOKEN` in the environment take precedence, for a server started by hand per [docs/user-guide.md#2-preparing-content](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content).
    Synthesize speech:
    ```bash
    python scripts/tts.py --list
@@ -160,6 +158,7 @@ Voice normalizes to -21.0 LUFS (`prep-voice.py`). Sound effect levels use calcul
 - Shutter: key metric reveals, target -30 dB (gain 0.60)
 - Riser: opening hook climax, target -24 dB (gain 0.17)
 - Bed music: full duration under voice, target -31 to -33 dB (0.18 at -31 dB, 0.219 (shipped) at -33 dB)
+- A sound outside the house set: search Freesound through the bundled `freesound` skill, CC0 and CC BY only (`--commercial-safe`), download only after the author approves the sound, measure it with `scripts/sfx-gain.py`, place it in `EXTRA` in `add-sfx.py`, and credit CC BY sounds in the post caption ([audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound))
 
 Refer to [references/audio-mix.md](references/audio-mix.md) for audio guidelines.
 

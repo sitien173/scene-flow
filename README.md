@@ -12,7 +12,7 @@ This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertica
 - **Karaoke captions**: Spoken words highlight in sync with audio.
 - **Full prompts on cards**: Prompts light up word by word as spoken.
 - **Interactive CTA**: Chat comment input box before the end card.
-- **Audio suite**: Sound effects (thud, swoosh, pop, laser, camera shutter, riser) and background music bed.
+- **Audio suite**: Sound effects (thud, swoosh, pop, laser, camera shutter, riser) and background music bed. Other sounds come from Freesound through the bundled `freesound` skill.
 
 Supply a script and voice recording. If you do not have audio yet, the skill supports VieNeu-TTS running on a Google Colab GPU server (preset voices or cloned from a reference sample). Claude prompts you to select self-recording, your own TTS API, or the Colab server. Claude levels audio, aligns syllables, builds scenes, mixes sound, and provides a **local browser preview**. Renders export to MP4 only when requested.
 
@@ -38,7 +38,9 @@ Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skil
 - [Claude Code](https://claude.com/claude-code)
 - Disk space for the HyperFrames headless Chrome browser (downloaded automatically on the first run)
 
-ASR and TTS features require a running Google Colab instance (`skills/scene-flow/colab/server.py`) with `COLAB_URL` and `COLAB_TOKEN` environment variables configured.
+ASR and TTS features require a Google Colab server (`skills/scene-flow/colab/server.py`). `python skills/scene-flow/scripts/colab-session.py up` starts it through the `colab` CLI, and `down` stops it.
+
+Searching Freesound for extra sound effects or music needs a free API key from https://freesound.org/apiv2/apply/, set as `FREESOUND_API_KEY` or in `~/.config/scene-flow/.env`.
 
 ## Installation
 
@@ -186,6 +188,7 @@ skills/scene-flow/assets/fonts/       Be Vietnam Pro (dark) and K2D (paper)
 skills/scene-flow/assets/logos/       official product logos and theme marks
 skills/3dviz-pro-max/                 bundled dependency skill
 skills/cut-the-curve/                 bundled dependency skill
+skills/freesound/                     bundled dependency skill
 skills/hyperframes/                   bundled dependency skill
 skills/hyperframes-cli/               bundled dependency skill
 skills/hyperframes-registry/          bundled dependency skill
@@ -214,6 +217,7 @@ Skill code and documentation are licensed under [Apache-2.0](LICENSE); see [NOTI
 - **Icons:** [Lucide](https://lucide.dev) under ISC license.
 - **Logos:** Trademarks of their respective owners, used solely for product reference within videos.
 - **Audio and background media:** Sourced from the author's library, mostly Pixabay. Check individual licenses in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md) prior to commercial use.
+- **Freesound downloads:** CC0 or CC BY only, recorded per project in `assets/audio/freesound/ATTRIBUTION.md`. Credit CC BY sounds in the post caption.
 
 ## Contributing
 

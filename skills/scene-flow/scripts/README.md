@@ -52,8 +52,9 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
-| `colab.py` | **yes** | — shared client for the Colab server (requires `COLAB_URL` and `COLAB_TOKEN` in env) |
-| `postiz.py` | **yes** | — optional: uploads a finished render and creates a Postiz post (requires `POSTIZ_URL` and `POSTIZ_API_KEY` in env); run only when the author asks |
+| `colab.py` | **yes** | — shared client for the Colab server (reads `COLAB_URL` and `COLAB_TOKEN` from env, else the session file `colab-session.py up` writes) |
+| `colab-session.py` | **yes** | — run from the skill: `up` starts a T4 Colab session running `colab/server.py` through the `colab` CLI, `status`, `down` stops it and deletes the session file |
+| `postiz.py` | **yes** | — optional: uploads a finished render and creates a Postiz post (reads `POSTIZ_URL` and `POSTIZ_API_KEY` from env, else `~/.config/scene-flow/.env`); run only when the author asks |
 | `plan-beats.py` | no | the `SCENES` table — sentence ranges per scene |
 | `align-asr.py` | **yes** | — |
 | `syl-times.py` | **yes** | — |
@@ -63,7 +64,8 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 | `cdp.mjs` | **yes** | — `shot <url> <out.png> [--w --h --dpr --wait --js --clip --pad]`, `eval <url> <out.txt> --expr`, `page <url> <out.webp> --targets "name=selector,..." [--json --max-h --wait]` |
 | `build.py` | mostly | `SC` (cuts), `PROMPTS`, `CTA_WORD`, `STEPS`, `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`, `CHAPTERS`, `PARTS` |
 | `karaoke.py` | mostly | `SIDES`, `DARK`, `SKIP`; add `COMPOUNDS` for new two-syllable words |
-| `add-sfx.py` | mostly | `RISER`, `LASER`, `CLICK`, `POP`, `BED`. Duration, voice end and swooshes are read from the files |
+| `add-sfx.py` | mostly | `RISER`, `LASER`, `CLICK`, `POP`, `EXTRA`, `BED`. Duration, voice end and swooshes are read from the files |
+| `sfx-gain.py` | **yes** | — gain for a new sound file from its measured mean: `--cue thud|swoosh|pop|pop-soft|click|bed` or `--target <dB>`; `--seconds <n>` measures only the first n seconds |
 | `make.sh` | **yes** | Finds `motion-doctrine` in this order: `$HF_SKILLS_DIR`; the bundle named by `.skills-dir` (written by `new-project.py`); `.claude/skills` or `.agents/skills` in the project folder and each parent folder, except `/`; then the home folder (`~/.claude/skills` or `~/.agents/skills`) |
 | `render-colab.py` | **yes** | Run from the skill via `python "<skill>/scripts/render-colab.py" "<project>"`; it is not copied into each project. Uses a temporary Colab T4 session by default. `--seconds <n>` limits duration, `-o <file>` sets output, `--dry-run` prints the plan, and `--local` uses software WebGL without browser GPU. |
 | `sheet.py` | **yes** | — contact sheet of any video: `python scripts/sheet.py in.mp4 out.jpg 2.0` |
