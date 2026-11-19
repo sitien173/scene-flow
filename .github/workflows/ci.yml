@@ -70,6 +70,15 @@ jobs:
       - name: Neon3d build checks
         run: python3 tests/neon3d-build-test.py
 
+      - name: Terra3d build checks
+        run: python3 tests/terra3d-build-test.py
+
+      - name: Terra3d fixture hash
+        run: |
+          got="$(bash tests/theme-fixture.sh "$RUNNER_TEMP/sf-check-terra3d" --theme terra3d | tail -1)"
+          echo "$got"
+          test "$got" = 3365b1e3f7613fd97bbc1fe4675e395a3136835488f77cdf5472af1d241d54af
+
   actionlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

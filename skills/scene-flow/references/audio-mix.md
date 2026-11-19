@@ -45,6 +45,24 @@ per-project edit is those lists.
 The cascade rule matters: three pops 0.7s apart at full level read as three
 interruptions; 4 dB down they read as one gesture.
 
+### Ambience (terra3d)
+
+Terra3d has no sound on cuts, so `scripts/add-sfx.py` writes no swoosh for it, the seams into the CTA and
+the end card included. In place of cues it mixes ambience: a Freesound file looped under each vignette
+that names one in `vignettes.json`, with a 0.25 s fade in and out. Unlike the house cues, the file is
+different in every project, so `add-sfx.py` measures the file and computes the gain with the model above.
+The `gain` field names a category, which sets the target mean level:
+
+| category | target | under the bed (-33 dB) | typical use |
+|---|---|---|---|
+| soft | -42 dB | 9 dB | `jungle`, `wind`, `crowd` |
+| medium | -39 dB | 6 dB | `ocean`, `rain`, `machinery`, `train` |
+| strong | -36 dB | 3 dB | `water-rush` |
+
+Every category sits under the bed and so under the voice at -21 LUFS. The Freesound query for each
+ambience and the license rule (CC0 only, attribution recorded per project) are in
+[themes/terra3d.md](themes/terra3d.md#sound-map).
+
 ## Sounds outside the house set: Freesound
 
 When no house cue fits a moment (glass breaking, a crowd, a door, a different bed), search

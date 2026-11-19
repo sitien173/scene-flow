@@ -4,9 +4,9 @@ description: >-
   Build a vertical narrated short (TikTok/Reels/Shorts, 1080x1920) in HyperFrames from a script and
   a voiceover, with picture and voice exactly in sync. The voice can be the author's recording, a
   TTS API, or VieNeu-TTS on a Colab server. The default theme is the Soi Repo dark motion-graphics
-  theme. Paper, world3d, and neon3d themes are optional. It uses real logos and real footage instead of
+  theme. Optional themes: paper, world3d, neon3d, terra3d. It uses real logos and real footage instead of
   text, karaoke captions, a comment-box CTA, the house sound set, and a theme-matched end card.
-  Ships the project template, pipeline, and assets. Use this for ANY narrated short: when the user
+  Ships the template, pipeline, and assets. Use this for ANY narrated short: when the user
   sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
   "đây là voice", "giọng đọc", "tôi sẽ thu âm", sends a .wav/.mp3 of narration, asks to learn the
   previous video's style ("học phong cách video trước"), or says voice and picture do not line up
@@ -28,8 +28,8 @@ Read `/hyperframes` for routing and composition contracts, and load `/motion-doc
 
 | folder | what |
 |---|---|
-| `template/` | shared starter files in `parts/` plus `themes/dark/`, `themes/paper/`, `themes/world3d/`, and `themes/neon3d/`; `new-project.py` copies the selected theme into `parts/` |
-| `references/themes/` | [dark.md](references/themes/dark.md) default, [paper.md](references/themes/paper.md), [world3d.md](references/themes/world3d.md), and [neon3d.md](references/themes/neon3d.md) selectable themes |
+| `template/` | shared starter files in `parts/` plus `themes/dark/`, `themes/paper/`, `themes/world3d/`, `themes/neon3d/`, and `themes/terra3d/`; `new-project.py` copies the selected theme into `parts/` |
+| `references/themes/` | [dark.md](references/themes/dark.md) default, [paper.md](references/themes/paper.md), [world3d.md](references/themes/world3d.md), [neon3d.md](references/themes/neon3d.md), and [terra3d.md](references/themes/terra3d.md) selectable themes |
 | `scripts/` | pipeline copied into each project by `new-project.py` ([scripts/README.md](scripts/README.md)) |
 | `assets/audio/` | house sound set: `sfx-thud`, `sfx-swoosh`, `sfx-pop`, `sfx-laser`, `sfx-click` (shutter), `sfx-riser`, `sfx-risercut3`, `bgm-little-things.mp3` |
 | `assets/background/` | paper only: `paper-bg.mp4` (moving plate, 124s, 1080x1920) and `paper.webp` (still plate) |
@@ -47,7 +47,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    ```bash
    python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme dark
    ```
-   `--theme dark|paper|world3d|neon3d` selects the theme (dark default). Paper projects get paper background assets only. World3d projects include `world.json` and the local 3D kit. Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
+   `--theme dark|paper|world3d|neon3d|terra3d` selects the theme (dark default). Paper projects get paper background assets only. World3d projects include `world.json` and the local 3D kit. Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Terra3d projects include `vignettes.json`, `vignettes/`, and the terra kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
 3. **The script** goes in `SCRIPT.md`, one sentence per plain line, exactly as spoken. Group sentences into scenes in `scripts/plan-beats.py` (`SCENES`). `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|` (a markdown table script yields zero sentences).
 4. **Align** (every cue is written in recorded seconds):
    ```bash
@@ -71,7 +71,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    `check` passing verifies structure only, not composition layout or sync.
    The seams: `node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002` against preview (set `CHROME_PATH` to HyperFrames headless Chrome).
    Never verify sync against captions; compare against recording via `scripts/audit-sync.py`, rare-word check, or author ears ([references/verification.md](references/verification.md)).
-8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000` for world3d and neon3d. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
+8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000` for world3d, neon3d, and terra3d. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
 9. **Publish via Postiz** (optional). Run `scripts/postiz.py` only when the author explicitly asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
    ```bash
    python scripts/postiz.py channels
@@ -176,6 +176,7 @@ Review [references/traps.md](references/traps.md) before composition authoring:
 - DOM sequence determines visual layering (z-order).
 - World3d labels and camera stops come from spoken-word anchors in `world.json`. Read [references/themes/world3d.md](references/themes/world3d.md) before editing that theme.
 - Neon3d vignettes start on spoken-word anchors in `vignettes.json`. Read [references/themes/neon3d.md](references/themes/neon3d.md) before writing a vignette.
+- Terra3d has hard cuts only and no sound on cuts. Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
 
 ## Troubleshooting author feedback
 

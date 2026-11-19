@@ -31,6 +31,20 @@ Licenses belong to each file's original creator: verify individual licenses befo
 
 - **Dark theme:** Be Vietnam Pro, from Google Fonts via Fontsource, split into latin / latin-ext / vietnamese subsets, woff2, weights 600, 700, and 800. Files: `BeVietnamPro-{latin,latin-ext,vietnamese}-{600,700,800}.woff2`. SIL Open Font License 1.1: [fonts/BeVietnamPro-OFL.txt](fonts/BeVietnamPro-OFL.txt).
 - **Paper theme:** K2D (Cadson Demak), split into latin / latin-ext / vietnamese subsets, woff2, weights 400–800. SIL Open Font License 1.1: [fonts/OFL.txt](fonts/OFL.txt).
+- **Terra3d theme:** Nunito, from Google Fonts via Fontsource (`@fontsource/nunito` 5.3.0), split into latin / latin-ext / vietnamese subsets, woff2, weights 800 and 900. SIL Open Font License 1.1: [fonts/Nunito-OFL.txt](fonts/Nunito-OFL.txt), copied from the package `LICENSE`.
+  - Source: [fontsource.org/fonts/nunito](https://fontsource.org/fonts/nunito), tarball `https://registry.npmjs.org/@fontsource/nunito/-/nunito-5.3.0.tgz`, downloaded 2026-11-20. Tarball SHA-256: `4d8e1fb4f4a40c125c7a302b21e5c6810b86569b60bac0fa0405c04380f4c77b`. Its SHA-512 matched the registry `dist.integrity` value `sha512-vw9TaTQJ/zpEpKrsODuPmOvaVjXgdda6B+xXA4YqjrdeJ62MLgVoDerdRXFQHyBnSCt2yQ2nHKCHPP/Pv7Xq4Q==`.
+  - Author: The Nunito Project Authors ([googlefonts/nunito](https://github.com/googlefonts/nunito)). Licence line from the package `LICENSE`, checked 2026-11-20: `This Font Software is licensed under the SIL Open Font License, Version 1.1.` The package metadata also states `OFL-1.1`.
+  - Vietnamese check, run with `fonttools` 4.68.0 in a throwaway venv under `/tmp`: every precomposed glyph U+1EA0 to U+1EF9 (90 code points) is present across the three subset files at weight 800 and at weight 900. Latin and latin-ext alone cover 8 of the 90, so the vietnamese subset is required.
+
+| Path | Source URL | Author | License | Date checked | SHA-256 |
+|---|---|---|---|---|---|
+| `assets/fonts/Nunito-latin-800.woff2` | `files/nunito-latin-800-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `2363d3ed037283ebb961e8c4b4917e40a8bc8853cf9965cf1ea7b4daa1df630a` |
+| `assets/fonts/Nunito-latin-900.woff2` | `files/nunito-latin-900-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `9ca32f5d8334579387361096944286df451272a557bb09bd906254a623aba99e` |
+| `assets/fonts/Nunito-latin-ext-800.woff2` | `files/nunito-latin-ext-800-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `39f54b55b83547df294894bdf68d75c11e2ac626bc0c88b73ba8993422de2fe7` |
+| `assets/fonts/Nunito-latin-ext-900.woff2` | `files/nunito-latin-ext-900-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `f7e97aafcd3aa2d08b9410f147e9bde44fe8c11f6f6bd4e71199f5d89067bff6` |
+| `assets/fonts/Nunito-vietnamese-800.woff2` | `files/nunito-vietnamese-800-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `fac6740eb7a0d5627c287a8283dd91649f31261c81f4bf965b1403c74fb1fcd8` |
+| `assets/fonts/Nunito-vietnamese-900.woff2` | `files/nunito-vietnamese-900-normal.woff2` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `97f0651f726034fc130a9e0c26dddfa5634b657f98a385a022bf24e888f73ec3` |
+| `assets/fonts/Nunito-OFL.txt` | `LICENSE` in the Fontsource package | The Nunito Project Authors | OFL 1.1 | 2026-11-20 | `40991bfa02ac620aae16dc527f3c47765a25e43f270d4c301ee6ab663a8d9015` |
 
 ## Logos: `assets/logos/`
 
@@ -137,6 +151,41 @@ The KayKit GLBs use the source packs' Y-up coordinate system. Their `rot` values
 `GLTFLoader.js`, `BufferGeometryUtils.js`, and `SkeletonUtils.js` were copied byte-identically from the Three.js `0.187.0` npm tarball (`https://registry.npmjs.org/three/-/three-0.187.0.tgz`). The package's MIT licence is `assets/vendor/three/LICENSE`.
 
 For the neon3d theme, `addons/postprocessing/EffectComposer.js`, `Pass.js`, `RenderPass.js`, `ShaderPass.js`, `MaskPass.js`, `UnrealBloomPass.js`, `OutputPass.js` and `addons/shaders/CopyShader.js`, `LuminosityHighPassShader.js`, `OutputShader.js` were copied byte-identically from the same tarball's `examples/jsm/` folder.
+
+## Terra3d assets
+
+Static files for the terra3d theme. Each file is CC0 or public domain, checked on the source page on the date shown. Pillow resized and converted the sources: textures to WebP at quality 85 (long side at most 2048 px), the sky map to JPEG at quality 88 (1024 x 512 px). Nothing is fetched at build or run time.
+
+### Textures and sky map
+
+Poly Haven licence line, quoted from [polyhaven.com/license](https://polyhaven.com/license): `Our assets are all licensed as CC0, which is effectively Public Domain even in jurisdictions that do not support the Public Domain.` The captured excerpt is in `assets/terra3d/LICENSES/PolyHaven-CC0.txt`.
+
+NASA usage line, quoted from [nasa.gov media usage guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/): `NASA content - images, audio, video, and media files used in the rendition of 3-dimensional models, such as texture maps and polygon data in any format - generally are not subject to copyright in the United States.` The excerpt and the creator credit are in `assets/terra3d/LICENSES/NASA-BlueMarble-usage.txt`. NASA is not a CC0 publisher. The terms are public domain in the United States, with no endorsement implied.
+
+| Path | Source URL | Author | License | Date checked | SHA-256 |
+|---|---|---|---|---|---|
+| `assets/terra3d/textures/earth-day.webp` | [NASA Blue Marble: Next Generation with Topography](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography), file `world.topo.200408.3x5400x2700.jpg` (August 2004, 5400 x 2700 px, resized to 2048 x 1024) | Reto Stöckli and Robert Simmon, NASA Earth Observatory | Public domain (NASA content, not subject to copyright in the United States) | 2026-11-20 | `139d14c69eec1200b2e9336b1485b548dce18d949e86124c72d69e159e6d8f30` |
+| `assets/terra3d/textures/ground-grass.webp` | [Poly Haven Grass Path 2](https://polyhaven.com/a/grass_path_2), file `grass_path_2_diff_2k.jpg` (2048 x 2048 px) | Rob Tuytel | CC0 | 2026-11-20 | `3f820e724820de7103bd73f98dcb86875745492c2b6aa378637328d08563650e` |
+| `assets/terra3d/textures/ground-red-earth.webp` | [Poly Haven Red Laterite Soil Stones](https://polyhaven.com/a/red_laterite_soil_stones), file `red_laterite_soil_stones_diff_2k.jpg` (2048 x 2048 px) | Amal Kumar | CC0 | 2026-11-20 | `3a7a05b2eee88d7228805c7d5f646b9bd44b3c8e12d9d0d63610cfaf2fd591a3` |
+| `assets/terra3d/textures/ground-rock.webp` | [Poly Haven Rock Boulder Dry](https://polyhaven.com/a/rock_boulder_dry), file `rock_boulder_dry_diff_2k.jpg` (2048 x 2048 px) | Dimitrios Savva (photography), Rico Cilliers (processing) | CC0 | 2026-11-20 | `329f910fcec785df1125a1f0b82c479d12876a62eb3d99f6db2158e440de509a` |
+| `assets/terra3d/env/sky-day.jpg` | [Poly Haven Kloofendal 43d Clear (Pure Sky)](https://polyhaven.com/a/kloofendal_43d_clear_puresky), Tonemapped JPG (24576 x 12288 px, resized to 1024 x 512) | Greg Zaal | CC0 | 2026-11-20 | `9992a76bb8bf6469e5d3003cc352f7396f026dd5fb6ab27f75843e365713d243` |
+
+Download integrity: each Poly Haven source file matched the MD5 in the Poly Haven files API (`https://api.polyhaven.com/files/<id>`) before conversion.
+
+### Models
+
+`assets/terra3d/models/ship-large.glb` was packed from Kenney's source GLB, which referenced `Textures/colormap.png` as an external file. The packer kept the glTF JSON and the geometry buffer, appended the PNG to the binary buffer as a buffer view, pointed the image at that view with `mimeType` `image/png`, and wrote GLB 2.0 JSON and BIN chunks. It did not change mesh data. The embedded PNG is byte-identical to the source `colormap.png`. The KayKit characters ship as single GLB files with the image already embedded, so they are copied byte-identically. No GLB uses Draco, meshopt, or KTX2. Clip names and durations are in `assets/terra3d/assets.json`, read from the animation samplers in each GLB.
+
+Licence line, quoted from each downloaded licence file: `License: (Creative Commons Zero, CC0)`. The full files are `assets/terra3d/LICENSES/Kenney-PirateKit-CC0.txt` and `assets/terra3d/LICENSES/KayKit-Character-Pack-Adventures-CC0.txt`.
+
+- Ship: Kenney Pirate Kit 2.1, creation date 17-02-2026. Page checked 2026-11-20: [kenney.nl/assets/pirate-kit](https://kenney.nl/assets/pirate-kit) states `License Creative Commons CC0`, and [OpenGameArt Pirate Kit](https://opengameart.org/content/pirate-kit) states `License(s): CC0`. Kenney's own download is a script-driven donation prompt, so the zip came from the OpenGameArt copy, `https://opengameart.org/sites/default/files/kenney_pirate-kit_2.1.zip`, downloaded 2026-11-20. Source zip SHA-256: `667ed2caf92954ddb98f7b7cede831fe99ab75063c26b25e23d32715bee9c943`. Source file: `Models/GLB format/ship-large.glb`.
+- Humans: [KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0), downloaded 2026-11-20 from `https://codeload.github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/zip/refs/heads/main`. Commit: `672074b73ba276876a19e8816ecdc5241817ab47`. Source zip SHA-256: `e19176d799036452bc783c00dd1036e158c66c5a43b7285ccbfea3466d6f57bf`. Source files: `addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb` and `Mage.glb`. Each has a skinned rig and 76 clips, for example `Idle`, `Walking_A`, `Running_A`, and `Cheer`.
+
+| Path | Source URL | Author | License | Date checked | SHA-256 |
+|---|---|---|---|---|---|
+| `assets/terra3d/models/ship-large.glb` | [Kenney Pirate Kit](https://kenney.nl/assets/pirate-kit) via [OpenGameArt](https://opengameart.org/content/pirate-kit) | Kenney | CC0 | 2026-11-20 | `8567386c64faf3a73832f77a0dcfcc44208487c34b46440b9a3fa8d452068579` |
+| `assets/terra3d/models/Knight.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168` |
+| `assets/terra3d/models/Mage.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `cf898585da33fab50c724d31605fb931eb2912e6d2280092141e98ca81ad507d` |
 
 ## Walkthrough: `assets/walkthrough/`
 

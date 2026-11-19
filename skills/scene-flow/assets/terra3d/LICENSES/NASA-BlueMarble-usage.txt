@@ -1,0 +1,20 @@
+NASA media usage and credit evidence (captured excerpt, not a file shipped with the asset)
+
+Date checked: 2026-11-20
+
+1. Usage guidelines page: https://www.nasa.gov/nasa-brand-center/images-and-media/
+   Exact wording:
+
+  NASA content - images, audio, video, and media files used in the rendition of 3-dimensional models, such as texture maps and polygon data in any format - generally are not subject to copyright in the United States. You may use this material for educational or informational purposes, including photo collections, textbooks, public exhibits, computer graphical simulations and Internet Web pages.
+
+  The same page states that the NASA Insignia, Logotype and identifiers are not in the public domain. The Earth texture contains none of them.
+
+2. Creator credit page: https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation
+   Exact wording:
+
+  Blue Marble: Next Generation was produced by Reto Stöckli, NASA Earth Observatory (NASA Goddard Space Flight Center).
+
+  Image credit used by NASA: "NASA image by Reto Stöckli and Robert Simmon".
+
+3. Download page: https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography
+   File: world.topo.200408.3x5400x2700.jpg (August 2004, land surface, shallow water and shaded topography).

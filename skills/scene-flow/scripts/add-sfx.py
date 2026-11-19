@@ -59,8 +59,9 @@ DURATION = {"thud": 3.11, "swoosh": 1.12, "pop": 0.72, "laser": 0.37, "risercut3
 #           is the riser's first 3.20 s, so a cue at t peaks at t + 3.20 — put that peak on the last word
 #           of the hook's first sentence, where the picture stops dead (flash + snap)
 THUD = [(0.00, "thud", G_THUD)]
-SWOOSH = [(float(r["cut"]), "swoosh", G_SWOOSH)
-          for r in json.load(io.open("ledger.json", encoding="utf-8"))["seams"]]
+LEDGER = json.load(io.open("ledger.json", encoding="utf-8"))
+# terra3d has no sound on cuts, its seams into the CTA and end card included
+SWOOSH = [] if LEDGER.get("theme") == "terra3d" else [(float(r["cut"]), "swoosh", G_SWOOSH) for r in LEDGER["seams"]]
 
 # ── PER-PROJECT ─────────────────────────────────────────────────────────────
 BED = "assets/audio/bgm-little-things.mp3"     # the house bed; any track works — the gain below assumes
@@ -82,6 +83,22 @@ POP = [
 # assets/audio/sfx-glass.mp3: add DURATION["glass"] = its length, gain from scripts/sfx-gain.py
 EXTRA = [
 ]                 # e.g. (12.40, "glass", 0.45)
+
+# Ambience (terra3d): the ledger's per-vignette {file, gain} loops under its vignette span, fading in and out over
+# AMBIENCE_FADE. gain names a category; its target is a mean level under the bed (-33 dB) and so under the voice, and
+# the file's gain follows the model above. Neighbouring vignettes that share a file and category are one span, so the
+# loop does not restart or dip at the cut between them.
+AMBIENCE_DB = {"soft": -42, "medium": -39, "strong": -36}
+AMBIENCE_FADE = 0.25
+AMBIENCE = []     # (start, end, file, category)
+for v in LEDGER.get("vignettes", []):
+    a = v.get("ambience")
+    if not a:
+        continue
+    if AMBIENCE and AMBIENCE[-1][1] == v["t"] and AMBIENCE[-1][2:] == (a["file"], a["gain"]):
+        AMBIENCE[-1] = (AMBIENCE[-1][0], v["end"]) + AMBIENCE[-1][2:]
+    else:
+        AMBIENCE.append((v["t"], v["end"], a["file"], a["gain"]))
 
 rows = THUD + SWOOSH + RISER + LASER + CLICK + EXTRA + [(t, "pop", G_POP_SOFT if soft else G_POP) for t, soft in POP]
 rows.sort()
@@ -117,6 +134,7 @@ bed = "" if not os.path.exists(BED) else ('      <audio id="music-bed" class="cl
 # audio elements (voice, bed, effects) instead of ~100. sfx-cues.json keeps the list.
 # Set PREMIX = False to go back to one element per cue.
 PREMIX = True
+assert PREMIX or not AMBIENCE, "ambience is mixed into the premix: leave PREMIX = True"
 MIX = "assets/audio/sfx-mix.mp3"
 
 block = []
@@ -137,6 +155,20 @@ if PREMIX:
         a = int(round(t * SR))
         b = min(len(mix), a + len(clip))
         mix[a:b] += g * clip[:b - a]
+    ambience_cues = []
+    for t0, t1, f, cat in AMBIENCE:
+        raw = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", f, "-f", "f32le", "-ac", "2",
+                              "-ar", str(SR), "-"], check=True, capture_output=True).stdout
+        loop = np.frombuffer(raw, dtype=np.float32).reshape(-1, 2)
+        rms = float(np.sqrt((loop.astype(np.float64) ** 2).mean()))
+        assert rms > 0, "ambience file is silent: " + f
+        g = 10 ** (AMBIENCE_DB[cat] / 20) / rms     # gain = 10^((target - file mean dB) / 20)
+        a = int(round(t0 * SR))
+        b = min(len(mix), int(round(t1 * SR)))
+        i = np.arange(b - a)
+        fade = np.minimum(np.minimum(i, b - a - 1 - i) / (AMBIENCE_FADE * SR), 1.0)
+        mix[a:b] += g * fade[:, None] * np.resize(loop, (b - a, 2))
+        ambience_cues.append({"t": round(t0, 3), "sound": f, "gain": round(g, 4), "dur": round(t1 - t0, 3)})
     peak = float(np.abs(mix).max())
     assert peak < 1.0, "effects mix clips (peak %.3f) — lower the gains" % peak
     wav = "assets/audio/sfx-mix.wav"
@@ -149,7 +181,10 @@ if PREMIX:
     import os
     os.remove(wav)
     print("  effects premix: %d cues -> %s (peak %.2f)" % (len(rows), MIX, peak))
-    json.dump([{"t": round(t, 3), "sound": snd, "gain": g, "dur": DURATION[snd]} for t, snd, g in rows],
+    if AMBIENCE:
+        print("  ambience: %d spans, %s" % (len(AMBIENCE), ", ".join("%s %.1f-%.1f s %s" % (f, t0, t1, cat)
+                                                                  for t0, t1, f, cat in AMBIENCE)))
+    json.dump([{"t": round(t, 3), "sound": snd, "gain": g, "dur": DURATION[snd]} for t, snd, g in rows] + ambience_cues,
               io.open("sfx-cues.json", "w", encoding="utf-8"), indent=1)
     block.append(
         '      <audio id="sx000" class="clip" data-start="0" data-duration="%.1f"\n'
