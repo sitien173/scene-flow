@@ -57,6 +57,8 @@ INTEGRATIONS = [
 ]
 
 FAKE = None
+# Empty config home so a real ~/.config/scene-flow/.env never leaks into the tests.
+NO_CONFIG = tempfile.mkdtemp(prefix="postiz-config-")
 FAKE_HOST = None
 FIXTURE_DIR = None
 
@@ -202,7 +204,7 @@ def make_project(root, fixture=None, config=None, sources=None):
 def run_cli(project, *args, **env):
     """Run postiz.py in project. Keyword arguments override environment variables; None removes one."""
     base = {k: v for k, v in os.environ.items() if not k.startswith("POSTIZ_")}
-    base.update(POSTIZ_URL=FAKE.url, POSTIZ_API_KEY=KEY)
+    base.update(POSTIZ_URL=FAKE.url, POSTIZ_API_KEY=KEY, XDG_CONFIG_HOME=NO_CONFIG)
     base.update(env)
     base = {k: v for k, v in base.items() if v is not None}
     return subprocess.run(
@@ -212,6 +214,7 @@ def run_cli(project, *args, **env):
 
 def env_with(**values):
     env = {k: v for k, v in os.environ.items() if not k.startswith("POSTIZ_")}
+    env["XDG_CONFIG_HOME"] = NO_CONFIG
     env.update({k: v for k, v in values.items() if v is not None})
     return mock.patch.dict(os.environ, env, clear=True)
 
@@ -305,6 +308,45 @@ class ConfigTests(unittest.TestCase):
         self.assertIn("POSTIZ_URL", message)
         self.assertNotIn("hunter2", message)
         self.assertNotIn("user:", message)
+
+
+class ConfigFileTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.home = tmp.name
+        os.makedirs(os.path.join(self.home, "scene-flow"))
+        self.path = os.path.join(self.home, "scene-flow", ".env")
+
+    def write(self, text, mode=0o600):
+        with open(self.path, "w", encoding="utf-8") as out:
+            out.write(text)
+        os.chmod(self.path, mode)
+
+    def config(self, **env):
+        with env_with(XDG_CONFIG_HOME=self.home, **env):
+            return postiz.get_config()
+
+    def test_file_used_when_environment_is_empty(self):
+        self.write(f'FREESOUND_API_KEY=other\n# Postiz\nPOSTIZ_URL="https://api.example.com/"\nexport POSTIZ_API_KEY={KEY}\n')
+        self.assertEqual(self.config(), ("https://api.example.com", KEY))
+
+    def test_environment_overrides_file(self):
+        self.write(f"POSTIZ_URL=https://file.example.com\nPOSTIZ_API_KEY=file-key\n")
+        self.assertEqual(self.config(POSTIZ_API_KEY=KEY), ("https://file.example.com", KEY))
+
+    @unittest.skipUnless(os.name == "posix", "permission bits are POSIX only")
+    def test_file_readable_by_others_refused(self):
+        self.write(f"POSTIZ_URL=https://api.example.com\nPOSTIZ_API_KEY={KEY}\n", mode=0o644)
+        with self.assertRaises(SystemExit) as caught:
+            self.config()
+        self.assertIn("chmod 600", caught.exception.args[0])
+        self.assertNotIn(KEY, caught.exception.args[0])
+
+    def test_missing_message_names_file(self):
+        with self.assertRaises(SystemExit) as caught:
+            self.config()
+        self.assertIn(self.path, caught.exception.args[0])
 
 
 class ResolutionTests(unittest.TestCase):

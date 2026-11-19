@@ -1,8 +1,9 @@
 # Postiz publisher for scene-flow renders. Uploads a finished 9:16 MP4 to the author's own Postiz
 # instance and creates one post covering the channels listed in postiz.json.
 #
-# Reads POSTIZ_URL and POSTIZ_API_KEY from the environment only. The key is never printed, logged,
-# written to disk, or accepted as an argument. Uses the standard library only (urllib, json) and
+# Reads POSTIZ_URL and POSTIZ_API_KEY from the environment, else from ~/.config/scene-flow/.env
+# (KEY=VALUE lines shared with Freesound, owner-only permissions). The key is never printed, logged, written to disk by this
+# script, or accepted as an argument. Uses the standard library only (urllib, json) and
 # ffprobe for media checks.
 #
 # usage (from the project root):
@@ -77,12 +78,33 @@ class PostizHttpError(PostizError):
         self.status = status
 
 
+def credentials_path():
+    """The shared scene-flow credentials file, also read by the freesound skill."""
+    base = os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config")
+    return os.path.join(base, "scene-flow", ".env")
+
+
+def read_credentials():
+    """POSTIZ_URL and POSTIZ_API_KEY: each from the environment, else from credentials_path()."""
+    values = {}
+    path = credentials_path()
+    if os.path.isfile(path):
+        if os.name == "posix" and os.stat(path).st_mode & 0o077:
+            sys.exit(f"{path} is readable by other users. Run: chmod 600 {path}")
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                name, sep, value = line.strip().removeprefix("export ").partition("=")
+                if sep and not name.startswith("#"):
+                    values[name.strip()] = value.strip().strip("\"'")
+    return (os.environ.get("POSTIZ_URL") or values.get("POSTIZ_URL"),
+            os.environ.get("POSTIZ_API_KEY") or values.get("POSTIZ_API_KEY"))
+
+
 def get_config():
-    """Read POSTIZ_URL and POSTIZ_API_KEY from the environment. Exit cleanly if missing or unsafe."""
-    url = os.environ.get("POSTIZ_URL")
-    key = os.environ.get("POSTIZ_API_KEY")
+    """Read POSTIZ_URL and POSTIZ_API_KEY via read_credentials(). Exit cleanly if missing or unsafe."""
+    url, key = read_credentials()
     if not url or not key:
-        sys.exit("POSTIZ_URL and POSTIZ_API_KEY must be set in the environment.")
+        sys.exit(f"POSTIZ_URL and POSTIZ_API_KEY must be set in the environment or in {credentials_path()}.")
     parsed = urllib.parse.urlparse(url)
     if "@" in parsed.netloc:
         sys.exit("POSTIZ_URL must not contain a username or password.")
@@ -476,7 +498,7 @@ class RedactingStream:
 
 
 def main(argv):
-    key = os.environ.get("POSTIZ_API_KEY")
+    key = read_credentials()[1]
     stdout, stderr = sys.stdout, sys.stderr
     sys.stdout, sys.stderr = RedactingStream(stdout, key), RedactingStream(stderr, key)
     try:
