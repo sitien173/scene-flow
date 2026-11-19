@@ -9,7 +9,7 @@
 # way to arbitrate between them.
 #
 # Transcribes audio on Google Colab using OpenAI Whisper via colab/server.py.
-# Requires COLAB_URL and COLAB_TOKEN in the environment. Output is words with start/end
+# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN. Output is words with start/end
 # times, which the map can then be built from as measurement instead of inference.
 import io
 import json

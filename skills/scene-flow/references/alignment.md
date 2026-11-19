@@ -38,7 +38,7 @@ there is nothing left to arbitrate with. That is the moment to stop tuning.
 
 ## Use ASR
 
-ASR runs on the author's Google Colab server (`colab/server.py`) with OpenAI Whisper behind a cloudflared quick tunnel. Start the server in Colab (enable "Omit code cell output when saving this notebook"), copy the printed `COLAB_URL` and `COLAB_TOKEN` lines, and set both as environment variables for the session (never in a file, never committed; URL and token change every session). `hyperframes transcribe` exists but needs whisper.cpp built locally, which may not be present.
+ASR runs on the author's Google Colab server (`colab/server.py`) with OpenAI Whisper behind a cloudflared quick tunnel. Start the server with `python "<skill>/scripts/colab-session.py" up` and stop it with `down` when ASR is done; `colab.py` reads the URL and token from the mode 0600 session file that `up` writes. A server started by hand in Colab also works: set its printed `COLAB_URL` and `COLAB_TOKEN` as environment variables (never committed; URL and token change every session). `hyperframes transcribe` exists but needs whisper.cpp built locally, which may not be present.
 
 ```bash
 python scripts/asr.py small     # or medium/large-v3 if the match rate is poor

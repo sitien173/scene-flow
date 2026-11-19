@@ -1,7 +1,10 @@
-# Upload this file to Colab, run it in one cell, then copy the COLAB_URL and
-# COLAB_TOKEN lines. Enable "Omit code cell output when saving this notebook".
+# Started by scripts/colab-session.py up, which runs it with --state and reads the URL and
+# token from that file. Manual use: upload this file to Colab, run it in one cell, then copy
+# the COLAB_URL and COLAB_TOKEN lines. Enable "Omit code cell output when saving this notebook".
+import argparse
 import hmac
 import json
+import os
 import queue
 import re
 import secrets
@@ -363,10 +366,17 @@ def warm_vieneu():
 
 def main():
     global TOKEN
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--state", help="write the URL and token to this file (mode 0600) instead of printing the token")
+    args = parser.parse_args()
     TOKEN = secrets.token_urlsafe(32)
     process, _, url = _start_cloudflared()
     print(f"COLAB_URL={url}", flush=True)
-    print(f"COLAB_TOKEN={TOKEN}", flush=True)
+    if args.state:
+        with os.fdopen(os.open(args.state, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as state:
+            json.dump({"url": url, "token": TOKEN}, state)
+    else:
+        print(f"COLAB_TOKEN={TOKEN}", flush=True)
     try:
         warm_vieneu()
         import uvicorn

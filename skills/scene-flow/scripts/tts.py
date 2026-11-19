@@ -12,7 +12,7 @@
 #   python scripts/tts.py --gap 0.35                       # gap between sentences (s)
 #   python scripts/tts.py --list                           # list available preset voices
 #
-# Requires COLAB_URL and COLAB_TOKEN in the environment.
+# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in the environment.
 import argparse
 import io
 import os
