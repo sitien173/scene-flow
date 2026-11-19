@@ -147,7 +147,8 @@ watermarks, or the frame edge. Use snapshots to inspect the rendered scene and a
 npx --yes hyperframes@0.8.140 snapshot --at "<stop-time>" --no-end --timeout 170000 -o snapshots/world3d
 ```
 
-Use `--player-ready-timeout 180000` for a full render. The model contact sheet is
+Use `--browser-gpu --player-ready-timeout 180000` for a full render and check that the render summary
+says `hardware gpu`. The model contact sheet is
 [`tests/world3d-kit.html`](https://github.com/sitien173/scene-flow/blob/main/tests/world3d-kit.html). World3d render measurements and the Colab
 limitation are in [the theme guide](themes/world3d.md).
 

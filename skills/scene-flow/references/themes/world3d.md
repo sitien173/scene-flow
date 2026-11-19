@@ -98,8 +98,11 @@ The main path is a local HyperFrames render on a machine with a usable GPU. Hype
 hardware GPU when available:
 
 ```bash
-npx --yes hyperframes@0.8.140 render "<project>" --player-ready-timeout 180000 -o out.mp4
+npx --yes hyperframes@0.8.140 render "<project>" --browser-gpu --player-ready-timeout 180000 -o out.mp4
 ```
+
+The second line of the render summary must say `hardware gpu`. `software gpu` means Chrome fell back to
+SwiftShader and the capture runs on the CPU.
 
 On this machine with Intel Iris Xe, a test measured about 137 seconds per 60-second video. Use
 `--player-ready-timeout 180000` for rendering. Use `--timeout 170000` for snapshots because WebGL
