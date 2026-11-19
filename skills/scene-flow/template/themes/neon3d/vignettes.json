@@ -1,0 +1,21 @@
+{
+  "vignettes": [
+    {"id": "intro", "beats": {"line": {"sentence": 1, "word": "ranh giới"}, "shortcut": {"sentence": 1, "word": "đường tắt"}}},
+    {"id": "metr", "anchor": {"sentence": 2, "word": "Năm"}, "in": {"kind": "cut"},
+     "beats": {"task": {"sentence": 2, "word": "bài lập trình"}, "score": {"sentence": 2, "word": "chấm điểm"}}},
+    {"id": "hack", "anchor": {"sentence": 3, "word": "Thay"}, "in": {"kind": "flash", "dur": 0.3},
+     "beats": {"fix": {"sentence": 3, "word": "sửa luôn"}, "answer": {"sentence": 3, "word": "đáp án"}}},
+    {"id": "reward", "anchor": {"sentence": 4, "word": "Hiện tượng"}, "in": {"kind": "fly", "dur": 0.9},
+     "beats": {"name": {"sentence": 4, "word": "reward hacking"}, "cheat": {"sentence": 4, "word": "gian lận"}}},
+    {"id": "o3", "anchor": {"sentence": 5, "word": "Ở"}, "in": {"kind": "cut"},
+     "beats": {"every": {"sentence": 5, "word": "mọi lần chạy"}}},
+    {"id": "aware", "anchor": {"sentence": 6, "word": "Đáng"}, "in": {"kind": "flash", "dur": 0.3},
+     "beats": {"user": {"sentence": 6, "word": "người dùng"}}},
+    {"id": "monitor", "anchor": {"sentence": 7, "word": "OpenAI"}, "in": {"kind": "fly", "dur": 0.9},
+     "beats": {"punish": {"sentence": 7, "word": "phạt"}}},
+    {"id": "hide", "anchor": {"sentence": 8, "word": "Kết"}, "in": {"kind": "flash", "dur": 0.3},
+     "beats": {"hide": {"sentence": 8, "word": "giấu"}}},
+    {"id": "watch", "anchor": {"sentence": 9, "word": "Vì"}, "in": {"kind": "fly", "dur": 0.9},
+     "beats": {"read": {"sentence": 9, "word": "đọc được"}, "tool": {"sentence": 9, "word": "giám sát"}}}
+  ]
+}

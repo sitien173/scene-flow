@@ -4,7 +4,7 @@ description: >-
   Build a vertical narrated short (TikTok/Reels/Shorts, 1080x1920) in HyperFrames from a script and
   a voiceover, with picture and voice exactly in sync. The voice can be the author's recording, a
   TTS API, or VieNeu-TTS on a Colab server. The default theme is the Soi Repo dark motion-graphics
-  theme. Paper and world3d themes are selectable. It uses real logos and real footage instead of
+  theme. Paper, world3d, and neon3d themes are optional. It uses real logos and real footage instead of
   text, karaoke captions, a comment-box CTA, the house sound set, and a theme-matched end card.
   Ships the project template, pipeline, and assets. Use this for ANY narrated short: when the user
   sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
@@ -28,8 +28,8 @@ Read `/hyperframes` for routing and composition contracts, and load `/motion-doc
 
 | folder | what |
 |---|---|
-| `template/` | shared starter files in `parts/` plus `themes/dark/`, `themes/paper/`, and `themes/world3d/`; `new-project.py` copies the selected theme into `parts/` |
-| `references/themes/` | [dark.md](references/themes/dark.md) default, [paper.md](references/themes/paper.md), and [world3d.md](references/themes/world3d.md) selectable themes |
+| `template/` | shared starter files in `parts/` plus `themes/dark/`, `themes/paper/`, `themes/world3d/`, and `themes/neon3d/`; `new-project.py` copies the selected theme into `parts/` |
+| `references/themes/` | [dark.md](references/themes/dark.md) default, [paper.md](references/themes/paper.md), [world3d.md](references/themes/world3d.md), and [neon3d.md](references/themes/neon3d.md) selectable themes |
 | `scripts/` | pipeline copied into each project by `new-project.py` ([scripts/README.md](scripts/README.md)) |
 | `assets/audio/` | house sound set: `sfx-thud`, `sfx-swoosh`, `sfx-pop`, `sfx-laser`, `sfx-click` (shutter), `sfx-riser`, `sfx-risercut3`, `bgm-little-things.mp3` |
 | `assets/background/` | paper only: `paper-bg.mp4` (moving plate, 124s, 1080x1920) and `paper.webp` (still plate) |
@@ -47,7 +47,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    ```bash
    python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme dark
    ```
-   `--theme dark|paper|world3d` selects the theme (dark default). Paper projects get paper background assets only. World3d projects include `world.json` and the local 3D kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
+   `--theme dark|paper|world3d|neon3d` selects the theme (dark default). Paper projects get paper background assets only. World3d projects include `world.json` and the local 3D kit. Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
 3. **The script** goes in `SCRIPT.md`, one sentence per plain line, exactly as spoken. Group sentences into scenes in `scripts/plan-beats.py` (`SCENES`). `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|` (a markdown table script yields zero sentences).
 4. **Align** (every cue is written in recorded seconds):
    ```bash
@@ -176,6 +176,7 @@ Review [references/traps.md](references/traps.md) before composition authoring:
 - Timed `<video>` elements inside timed scenes produce lint errors. Keep container scenes untimed.
 - DOM sequence determines visual layering (z-order).
 - World3d labels and camera stops come from spoken-word anchors in `world.json`. Read [references/themes/world3d.md](references/themes/world3d.md) before editing that theme.
+- Neon3d vignettes start on spoken-word anchors in `vignettes.json`. Read [references/themes/neon3d.md](references/themes/neon3d.md) before writing a vignette.
 
 ## Troubleshooting author feedback
 

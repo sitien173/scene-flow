@@ -58,6 +58,13 @@ THEME_SETTINGS = {
         "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
         "minu": 3,
     },
+    "neon3d": {
+        "maxu": 5, "maxc": 30, "maxc_side": 30,
+        "lit_color": "#FFC247", "lit_shadow": "DHALO",
+        "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
+        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
+        "minu": 3,
+    },
 }
 if THEME not in THEME_SETTINGS:
     raise SystemExit("unknown theme: " + THEME)

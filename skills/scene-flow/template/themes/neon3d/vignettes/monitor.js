@@ -1,0 +1,26 @@
+// Sentence 7: the chain of thought as a graph; a penalty pulse hits the cheating thoughts.
+export function build(kit) {
+  const { THREE, PALETTE } = kit;
+  const scene = kit.stage({ fog: "#0E0A30", top: "#16205A" });
+  const camera = kit.camera(40);
+  const graph = kit.network({ color: PALETTE.cyan, accent: PALETTE.magenta, nodes: 16, radius: 1.5, center: [0, 1.9, 0], seed: 17 });
+  const pulse = new THREE.Mesh(new THREE.TorusGeometry(1, 0.03, 8, 96), kit.glow(PALETTE.red, 2.6, { opacity: 1 }));
+  pulse.position.set(0, 1.9, 0);
+  const hero = kit.blob({ shape: "bean", color: PALETTE.teal, size: 0.6, seed: 18 });
+  hero.group.position.set(0, 0, 0.6);
+  scene.add(graph.group, pulse, hero.group);
+  const label = kit.type("CHUỖI LẬP LUẬN", { y: 300, start: 0.5, glowColor: PALETTE.cyan });
+  const punishAt = kit.beat("punish");
+  function update(t) {
+    kit.orbit(camera, t, { center: [0, 1.5, 0], radius: 10, height: 1.2, angle: 0.4, speed: -0.12, look: [0, 0.55, 0] });
+    graph.update(t);
+    const p = kit.progress(t, punishAt, 1.1);
+    pulse.visible = p > 0 && p < 1;
+    pulse.scale.setScalar(0.2 + 2.2 * kit.ease(p, "out"));
+    pulse.material.opacity = 1 - p;
+    pulse.lookAt(camera.position);
+    hero.update(t, { popAt: 0.3, look: [0, 0.9], squint: p > 0 && p < 1 ? 1 - p : 0 });
+    label.update(t);
+  }
+  return { scene, camera, update, hero: graph.group };
+}

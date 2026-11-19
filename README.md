@@ -27,7 +27,7 @@ Supply a script and voice recording. If you do not have audio yet, the skill sup
 | **Verification** | Frame snapshots for instant visual validation, seam gate audits, and sync checks. |
 | **Output** | HyperFrames Studio preview (`localhost`). Full 1080x1920 30fps MP4 render on request. |
 
-Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md), [skills/scene-flow/references/themes/dark.md](skills/scene-flow/references/themes/dark.md), [skills/scene-flow/references/themes/paper.md](skills/scene-flow/references/themes/paper.md), and [skills/scene-flow/references/themes/world3d.md](skills/scene-flow/references/themes/world3d.md).
+Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md), [skills/scene-flow/references/themes/dark.md](skills/scene-flow/references/themes/dark.md), [skills/scene-flow/references/themes/paper.md](skills/scene-flow/references/themes/paper.md), [skills/scene-flow/references/themes/world3d.md](skills/scene-flow/references/themes/world3d.md), and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
 
 ## Requirements
 
@@ -142,6 +142,7 @@ Kịch bản:
 Additional prompt options:
 - `"Dùng theme paper"` *(Use the paper theme)*
 - `"Dùng theme world3d"` *(Use the world3d theme)*
+- `"Dùng theme neon3d"` *(Use the neon3d theme)*
 - `"Dùng giọng AI từ Colab"` *(Synthesize voiceover via Colab)*
 
 Workflow steps executed by Claude:
@@ -172,10 +173,10 @@ README.md                             this overview and setup guide
 docs/user-guide.md                    non-programmer step-by-step user guide
 skills/scene-flow/requirements.txt    Python libraries (numpy, Pillow)
 skills/scene-flow/colab/server.py     Colab Whisper ASR and VieNeu-TTS server
-skills/scene-flow/references/         rules: house style, dark, paper and world3d themes, traps, alignment, audio mixing
+skills/scene-flow/references/         rules: house style, dark, paper, world3d and neon3d themes, traps, alignment, audio mixing
 skills/scene-flow/scripts/            pipeline: voice prep, ASR, syllable timing, scene build, captions, SFX mix
 skills/scene-flow/scripts/README.md   pipeline scripts reference
-skills/scene-flow/template/           starter project files, dark, paper and world3d themes
+skills/scene-flow/template/           starter project files, dark, paper, world3d and neon3d themes
 tests/                                theme fixture, spec, version and bundled-skill checks
 .github/                              CI, release workflow, issue and PR templates
 skills/scene-flow/assets/SOURCES.md   asset licensing and source references

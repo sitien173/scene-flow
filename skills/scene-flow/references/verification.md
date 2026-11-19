@@ -151,6 +151,19 @@ Use `--player-ready-timeout 180000` for a full render. The model contact sheet i
 [`tests/world3d-kit.html`](https://github.com/sitien173/scene-flow/blob/main/tests/world3d-kit.html). World3d render measurements and the Colab
 limitation are in [the theme guide](themes/world3d.md).
 
+## Neon3d checks
+
+Build with `bash scripts/make.sh` and check the printed neon3d vignette table. Then run the check from a
+scene-flow source checkout:
+
+```bash
+CHROME_PATH="<path-to-chrome-headless-shell>" node "<checkout>/tests/neon3d-check.mjs" "<project>"
+```
+
+It fails on banned APIs, frames that change when the same time is seeked twice, blank frames, heroes or
+labels that touch captions, watermarks, or the 24 px frame margin, and console errors. A pass does not
+judge image quality; review a snapshot contact sheet as described in [the theme guide](themes/neon3d.md).
+
 ## Reporting
 
 State what was measured and what was not. "The render measures clean at both windows;

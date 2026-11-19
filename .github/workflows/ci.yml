@@ -67,6 +67,9 @@ jobs:
           echo "$got"
           test "$got" = 9bd8551cea28e48788b3400bf148b2c53d1054ec705a17e4db1c62e779daa2a2
 
+      - name: Neon3d build checks
+        run: python3 tests/neon3d-build-test.py
+
   actionlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

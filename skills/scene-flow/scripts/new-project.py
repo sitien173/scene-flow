@@ -3,7 +3,7 @@
 # K2D fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme dark|paper|world3d]
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme dark|paper|world3d|neon3d]
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -40,6 +40,9 @@ PAPER_ASSETS = [
     ("assets/background/paper.webp", "assets/img/paper.webp"),
 ]
 WORLD3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/world3d", "assets/world3d")]
+NEON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/neon3d", "assets/neon3d")]
+# neon3d only: the vignette list and modules live at the project root, read by build.py and the page
+NEON3D_ROOT = ("vignettes.json", "vignettes", "SCRIPT.md")
 # dark only: the h1 walkthrough capture and its layout JSON, read by build.py
 DARK_ASSETS = [("assets/walkthrough/h1-page.webp", "assets/img/h1-page.webp"), ("assets/walkthrough/h1-page.json", "h1-page.json")]
 
@@ -67,7 +70,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["dark", "paper", "world3d"], default="dark")
+ap.add_argument("--theme", choices=["dark", "paper", "world3d", "neon3d"], default="dark")
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 
@@ -87,10 +90,17 @@ for entry in os.listdir(os.path.join(SKILL, "template")):
 for entry in os.listdir(THEME_DIR):
     if a.theme == "world3d" and entry == "world.json":
         continue
+    if a.theme == "neon3d" and entry in NEON3D_ROOT:
+        target = os.path.join(dest, entry)
+        # the theme's sample script replaces the shared one, never an author's script
+        fresh = entry == "SCRIPT.md" and io.open(target, encoding="utf-8").read() == \
+            io.open(os.path.join(SKILL, "template", "SCRIPT.md"), encoding="utf-8").read()
+        put(os.path.join(THEME_DIR, entry), target, a.force or fresh)
+        continue
     put(os.path.join(THEME_DIR, entry), os.path.join(dest, "parts", entry), a.force)
 for f in PIPELINE:
     put(os.path.join(SKILL, "scripts", f), os.path.join(dest, "scripts", f), a.force)
-for src, dst in ASSETS + (PAPER_ASSETS if a.theme == "paper" else []) + (WORLD3D_ASSETS if a.theme == "world3d" else []) + (DARK_ASSETS if a.theme == "dark" else []):
+for src, dst in ASSETS + (PAPER_ASSETS if a.theme == "paper" else []) + (WORLD3D_ASSETS if a.theme == "world3d" else []) + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (DARK_ASSETS if a.theme == "dark" else []):
     put(os.path.join(SKILL, src), os.path.join(dest, dst), a.force)
 if a.theme == "world3d":
     put(os.path.join(THEME_DIR, "world.json"), os.path.join(dest, "world.json"), a.force)

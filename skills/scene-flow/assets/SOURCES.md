@@ -136,6 +136,8 @@ The KayKit GLBs use the source packs' Y-up coordinate system. Their `rot` values
 
 `GLTFLoader.js`, `BufferGeometryUtils.js`, and `SkeletonUtils.js` were copied byte-identically from the Three.js `0.187.0` npm tarball (`https://registry.npmjs.org/three/-/three-0.187.0.tgz`). The package's MIT licence is `assets/vendor/three/LICENSE`.
 
+For the neon3d theme, `addons/postprocessing/EffectComposer.js`, `Pass.js`, `RenderPass.js`, `ShaderPass.js`, `MaskPass.js`, `UnrealBloomPass.js`, `OutputPass.js` and `addons/shaders/CopyShader.js`, `LuminosityHighPassShader.js`, `OutputShader.js` were copied byte-identically from the same tarball's `examples/jsm/` folder.
+
 ## Walkthrough: `assets/walkthrough/`
 
 Sample capture for the dark theme repo walkthrough opening. Captured 2026-11-17, signed out.

@@ -21,12 +21,13 @@ python3 "$SKILL/scripts/new-project.py" "$OUT/demo" --name "Demo" "${ARGS[@]}" >
 cd "$OUT/demo"
 VOICE_SECONDS=26.95
 if [[ "$THEME" == "world3d" ]]; then VOICE_SECONDS=54.45; fi
+if [[ "$THEME" == "neon3d" ]]; then VOICE_SECONDS=81.00; fi
 # PCM WAV content keeps the probed duration exact on every ffmpeg version; MP3 padding is not.
 ffmpeg -v error -y -f lavfi -i anullsrc=r=44100:cl=mono -t "$VOICE_SECONDS" -c:a pcm_s16le -f wav assets/audio/voiceover.mp3
 python3 - <<'PY'
 import json
 import os
-if os.environ["THEME"] == "world3d":
+if os.environ["THEME"] in ("world3d", "neon3d"):
     out = []
     time = 0.3
     for sentence, line in enumerate(open("SCRIPT.md", encoding="utf-8"), 1):

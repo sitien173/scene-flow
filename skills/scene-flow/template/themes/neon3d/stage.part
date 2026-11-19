@@ -1,0 +1,264 @@
+      <div id="neon3d-overlay" aria-hidden="true"></div>
+      <script type="importmap">
+        {"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/addons/","neon3d/kit":"./assets/neon3d/kit/index.js"}}
+      </script>
+      <script>
+        window.__hf = window.__hf || {};
+        window.__hf.buildReady = window.__hf.buildReady || {};
+        let resolveNeon3dReady, rejectNeon3dReady;
+        window.__hf.buildReady.neon3d = new Promise((resolve, reject) => { resolveNeon3dReady = resolve; rejectNeon3dReady = reject; });
+      </script>
+      <script type="module">
+        import * as THREE from "three";
+        import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+        import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+        import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+        import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+        import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+        import { createKit } from "neon3d/kit";
+
+        // Resolved by build.py from vignettes.json: [{ id, t, end, in: { kind, dur }, beats }], times in seconds.
+        const VIGNETTES = @@vignettes@@;
+        const WIDTH = 1080;
+        const HEIGHT = 1920;
+        const PULLBACK = 0.7;
+        const FLASH_CAP = 0.6;
+        const canvas = document.getElementById("neon3d-canvas");
+        const overlay = document.getElementById("neon3d-overlay");
+        document.getElementById("w-neon").append(overlay);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(1);
+        renderer.setSize(WIDTH, HEIGHT, false);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.info.autoReset = false;
+        const gl = renderer.getContext();
+        let contextLost = false;
+        canvas.addEventListener("webglcontextlost", () => { contextLost = true; });
+
+        // Screen effects in linear light before tone mapping: vignette, color fill for fly, capped flash, glitch slices.
+        const FX = {
+          uniforms: { tDiffuse: { value: null }, uTint: { value: new THREE.Color() }, uTintAmount: { value: 0 },
+            uFlash: { value: 0 }, uGlitch: { value: 0 }, uTime: { value: 0 }, uVignette: { value: 0.55 } },
+          vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+          fragmentShader: `
+            uniform sampler2D tDiffuse; uniform vec3 uTint; uniform float uTintAmount, uFlash, uGlitch, uTime, uVignette;
+            varying vec2 vUv;
+            float hash(float n) { return fract(sin(n) * 43758.5453); }
+            void main() {
+              vec2 uv = vUv;
+              float frame = floor(uTime * 30.0);
+              if (uGlitch > 0.0) {
+                float row = floor(uv.y * 26.0);
+                if (hash(row * 13.1 + frame * 7.7) > 1.0 - 0.4 * uGlitch) uv.x += (hash(row + frame * 3.3) - 0.5) * 0.14 * uGlitch;
+              }
+              vec4 color = texture2D(tDiffuse, uv);
+              if (uGlitch > 0.0) {
+                color.r = texture2D(tDiffuse, uv + vec2(0.008 * uGlitch, 0.0)).r;
+                color.b = texture2D(tDiffuse, uv - vec2(0.008 * uGlitch, 0.0)).b;
+              }
+              color.rgb *= mix(1.0, smoothstep(0.98, 0.32, distance(vUv, vec2(0.5, 0.46))), uVignette);
+              color.rgb = mix(color.rgb, uTint, clamp(uTintAmount, 0.0, 1.0));
+              color.rgb += vec3(clamp(uFlash, 0.0, ${FLASH_CAP.toFixed(2)}));
+              gl_FragColor = color;
+            }`,
+        };
+        const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(WIDTH, HEIGHT, { type: THREE.HalfFloatType, samples: 4 }));
+        const renderPass = new RenderPass(new THREE.Scene(), new THREE.PerspectiveCamera());
+        const fx = new ShaderPass(FX);
+        composer.addPass(renderPass);
+        composer.addPass(new UnrealBloomPass(new THREE.Vector2(WIDTH, HEIGHT), 0.6, 0.35, 1.0));
+        composer.addPass(fx);
+        composer.addPass(new OutputPass());
+
+        const slots = [];
+        let ready = false;
+        let shown = -1;
+        const smooth = (a, b, x) => { const k = Math.min(1, Math.max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
+        const look = new THREE.Camera();
+        const target = new THREE.Vector3();
+
+        function activeIndex(time) {
+          let k = 0;
+          while (k + 1 < VIGNETTES.length && time >= VIGNETTES[k + 1].t) k++;
+          return k;
+        }
+
+        function renderAt(time) {
+          if (!ready) return;
+          time = Number.isFinite(time) ? Math.max(0, time) : 0;
+          const k = activeIndex(time);
+          const v = VIGNETTES[k];
+          const next = VIGNETTES[k + 1];
+          const slot = slots[k];
+          if (shown !== k) {
+            slots.forEach((s, i) => { s.layer.style.display = i === k ? "block" : "none"; });
+            shown = k;
+          }
+          slot.update(time - v.t);
+          const camera = slot.camera;
+          const savedPosition = camera.position.clone();
+          const savedQuaternion = camera.quaternion.clone();
+          let tint = 0;
+          let tintColor = null;
+          if (next && next.in.kind === "fly" && time > next.t - next.in.dur) {
+            // dive into the portal object until its color fills the frame
+            const u = (time - (next.t - next.in.dur)) / next.in.dur;
+            slot.portal().getWorldPosition(target);
+            look.position.copy(camera.position);
+            look.lookAt(target);
+            camera.quaternion.slerp(look.quaternion, smooth(0, 0.45, u));
+            camera.position.lerp(target, 0.97 * u * u * u);
+            tint = smooth(0.6, 1, u);
+            tintColor = slot.portalColor;
+          } else if (k > 0 && v.in.kind === "fly" && time < v.t + PULLBACK) {
+            // pull back out of a field of the previous portal's color
+            const u = (time - v.t) / PULLBACK;
+            const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            camera.position.addScaledVector(forward, 2.6 * (1 - u) ** 3);
+            tint = 1 - smooth(0, 0.55, u);
+            tintColor = slots[k - 1].portalColor;
+          }
+          let flash = 0;
+          let glitch = 0;
+          for (const j of [k, k + 1]) {
+            const w = VIGNETTES[j];
+            if (!j || !w || w.in.kind !== "flash") continue;
+            const d = Math.abs(time - w.t) / (w.in.dur / 2);
+            if (d >= 1) continue;
+            flash = Math.max(flash, FLASH_CAP * (1 - d) ** 2);
+            if (w.in.glitch !== false) glitch = Math.max(glitch, 1 - d);
+          }
+          fx.uniforms.uTintAmount.value = tint;
+          if (tintColor) fx.uniforms.uTint.value.copy(tintColor);
+          fx.uniforms.uFlash.value = flash;
+          fx.uniforms.uGlitch.value = glitch;
+          fx.uniforms.uTime.value = time;
+          renderPass.scene = slot.scene;
+          renderPass.camera = camera;
+          renderer.info.reset();
+          composer.render(0);
+          camera.position.copy(savedPosition);
+          camera.quaternion.copy(savedQuaternion);
+        }
+
+        function portalColor(object) {
+          // userData.portalColor wins; otherwise the object's material color, normalized to a bright fill
+          const color = object.userData.portalColor ? new THREE.Color(object.userData.portalColor)
+            : (object.material && object.material.color ? object.material.color : new THREE.Color(1, 1, 1)).clone();
+          const top = Math.max(color.r, color.g, color.b, 1e-3);
+          return color.multiplyScalar(1.1 / top);
+        }
+
+        async function setupNeon() {
+          if (!renderer.extensions.has("EXT_color_buffer_float") && !renderer.extensions.has("EXT_color_buffer_half_float")) {
+            throw new Error("neon3d: this GPU cannot render the half-float targets that bloom needs");
+          }
+          await document.fonts.ready;
+          await Promise.all(["600", "700", "800"].map(weight => document.fonts.load(weight + ' 40px "Be Vietnam Pro"', "Aà Ạ Đ Ư")));
+          for (const v of VIGNETTES) {
+            const fail = error => new Error("neon3d: vignette " + v.id + ": " + (error && error.message ? error.message : error));
+            const layer = document.createElement("div");
+            layer.className = "nv-layer";
+            layer.dataset.vignette = v.id;
+            overlay.append(layer);
+            let built;
+            try {
+              const module = await import("./vignettes/" + v.id + ".js");
+              if (typeof module.build !== "function") throw new Error("vignettes/" + v.id + ".js exports no build(kit)");
+              const beats = Object.fromEntries(Object.entries(v.beats || {}).map(([name, t]) => [name, t - v.t]));
+              built = await module.build(createKit({ id: v.id, beats, layer }));
+              if (!built || !built.scene || !built.scene.isScene) throw new Error("build must return { scene } with a THREE.Scene");
+              if (!built.camera || !built.camera.isCamera) throw new Error("build must return { camera } with a THREE camera");
+              if (typeof built.update !== "function") throw new Error("build must return update(localTime)");
+            } catch (error) {
+              throw fail(error);
+            }
+            slots.push({ ...built, layer, portalColor: null });
+          }
+          slots.forEach((slot, k) => {
+            const next = VIGNETTES[k + 1];
+            if (next && next.in.kind === "fly") {
+              if (typeof slot.portal !== "function") throw new Error("neon3d: vignette " + VIGNETTES[k].id + ": " + next.id + " flies in, so its build must return portal()");
+              slot.portalColor = portalColor(slot.portal());
+            }
+          });
+          for (const [k, slot] of slots.entries()) {
+            try {
+              slot.update(0);
+              await renderer.compileAsync(slot.scene, slot.camera);
+            } catch (error) {
+              throw new Error("neon3d: vignette " + VIGNETTES[k].id + ": " + error.message);
+            }
+          }
+          ready = true;
+          renderAt(0);
+          const pixel = new Uint8Array(4);
+          renderer.setRenderTarget(null);
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+          if (contextLost || gl.isContextLost()) throw new Error("neon3d: WebGL context lost");
+          resolveNeon3dReady();
+        }
+
+        window.addEventListener("hf-seek", event => renderAt(event.detail.time));
+        window.__neon3d = {
+          vignettes: VIGNETTES,
+          renderAt,
+          // FNV-1a over every byte of the frame, with mean and spread of the luminance.
+          pixels(time) {
+            renderAt(time);
+            renderer.setRenderTarget(null);
+            const data = new Uint8Array(WIDTH * HEIGHT * 4);
+            gl.readPixels(0, 0, WIDTH, HEIGHT, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            let hash = 0x811c9dc5;
+            for (let i = 0; i < data.length; i++) hash = Math.imul(hash ^ data[i], 0x01000193);
+            let sum = 0, sq = 0, n = 0;
+            for (let i = 0; i < data.length; i += 64) {
+              const y = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+              sum += y; sq += y * y; n++;
+            }
+            const mean = sum / n;
+            return { hash: (hash >>> 0).toString(16), mean, std: Math.sqrt(Math.max(0, sq / n - mean * mean)) };
+          },
+          // Screen rectangles of the active vignette's hero and its visible typed text.
+          heroRects(time) {
+            renderAt(time);
+            const k = activeIndex(time);
+            const slot = slots[k];
+            const rects = [];
+            const heroes = [].concat(slot.hero || []);
+            for (const hero of heroes) {
+              hero.updateWorldMatrix(true, true);
+              const box = new THREE.Box3().setFromObject(hero);
+              if (box.isEmpty()) continue;
+              let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+              for (let c = 0; c < 8; c++) {
+                const p = new THREE.Vector3(c & 1 ? box.max.x : box.min.x, c & 2 ? box.max.y : box.min.y, c & 4 ? box.max.z : box.min.z).project(slot.camera);
+                const x = (p.x + 1) / 2 * WIDTH;
+                const y = (1 - p.y) / 2 * HEIGHT;
+                x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+              }
+              rects.push({ id: VIGNETTES[k].id, kind: "hero", x: x0, y: y0, width: x1 - x0, height: y1 - y0 });
+            }
+            for (const el of slot.layer.querySelectorAll(".nv-text")) {
+              const r = el.getBoundingClientRect();
+              if (r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden") {
+                rects.push({ id: VIGNETTES[k].id, kind: "text", x: r.x, y: r.y, width: r.width, height: r.height });
+              }
+            }
+            return rects;
+          },
+          info() {
+            return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+              textures: renderer.info.memory.textures, geometries: renderer.info.memory.geometries };
+          },
+        };
+        setupNeon().catch(error => { console.error("neon3d: setup failed", error); rejectNeon3dReady(error); });
+      </script>
+      <div class="watermark" id="watermark-top" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>
+      <div class="watermark" id="watermark-bottom" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>

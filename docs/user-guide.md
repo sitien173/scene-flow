@@ -90,6 +90,8 @@ New projects default to the dark theme (`--theme dark`). To select the paper bac
 
 For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera moves through one 3D world, and each stop starts on a spoken word you choose. The project has a `world.json` file that lists the objects and the camera stops. The starter project explains how ChatGPT answers a question. See [the world3d theme guide](../skills/scene-flow/references/themes/world3d.md).
 
+For short neon 3D scenes with one idea each, include `--theme neon3d` in your prompt. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
+
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 
 If screen recordings contain private information (conversation names, emails, filesystem paths), Claude automatically blurs or cuts them, and tells you.
