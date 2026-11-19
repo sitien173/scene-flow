@@ -1,6 +1,6 @@
 {
   "name": "scene-flow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Build a vertical narrated short in HyperFrames from a script and a voiceover, with picture and voice in sync.",
   "keywords": [
     "pi-package"

@@ -49,7 +49,6 @@
   "packages": {
     ".": {
       "package-name": "scene-flow",
-      "release-as": "0.1.0",
       "extra-files": [
         {
           "type": "json",
