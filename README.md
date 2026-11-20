@@ -101,6 +101,44 @@ scene-flow cũng chạy trong Codex, Pi, agy và Antigravity IDE. Cài các côn
 
 Các lệnh và agent hỗ trợ ở phần dưới chỉ chạy trong Claude Code.
 
+## Dựng kênh TikTok nhiều video
+
+Khi làm đều đặn cho một kênh, gom mọi video vào một thư mục kênh để Claude nhớ thương hiệu và phong cách giữa các video. Gõ `/scene-flow:channel`, hoặc nói:
+
+```text
+Tạo kênh TikTok mới cho tôi.
+```
+
+Nếu bạn chưa có ý tưởng, Claude hỏi bạn thích chủ đề gì, muốn nói với ai, dùng giọng nào, rồi gợi ý ba hướng kênh. Mỗi hướng gồm lĩnh vực, người xem, phong cách hợp, gợi ý tên và ba chủ đề cho video đầu. Sau đó Claude hỏi tên kênh, slogan, logo và thư mục muốn tạo kênh, cho bạn xem đường dẫn đầy đủ, và chỉ tạo khi bạn đồng ý:
+
+```text
+<tên-kênh>/
+├── AGENTS.md              # quy tắc chung của kênh: giọng văn, thương hiệu, hashtag
+├── CLAUDE.md              # chỉ một dòng: @AGENTS.md
+├── brand/
+│   ├── brand.json         # tên kênh, file logo, slogan
+│   └── logos/             # logo chính thức của kênh
+├── new-video.sh           # tạo một video mới và gắn thương hiệu; trên Windows là new-video.ps1
+├── videos/
+│   └── <yyyy-mm>-<slug>/  # mỗi video là một project scene-flow riêng
+└── publish/
+    └── <yyyy-mm>-<slug>.mp4
+```
+
+Tạo video mới cho kênh:
+
+```bash
+./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
+```
+
+Trên Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
+```
+
+Ghi vào `AGENTS.md` những điều áp dụng cho mọi video của kênh, ví dụ màu thương hiệu, cách xưng hô, câu kết cố định, hoặc "tối đa 5 hashtag, luôn có #xuhuong". Mỗi lần làm video, mở Claude Code trong thư mục của video đó, không mở ở thư mục kênh. Nếu dùng Git, bỏ qua `publish/` và các thư mục `renders/`, `snapshots/`, `assets/audio/src/` của từng video vì chúng nặng.
+
 ## Làm video bằng prompt
 
 Bạn không cần nhớ lệnh. Mỗi bước dưới đây có một prompt mẫu để gõ vào Claude Code, và một lệnh tắt nếu bạn muốn gọi thẳng. Claude chỉ làm một bước mỗi lần rồi chờ bạn duyệt.
@@ -167,44 +205,6 @@ Claude hỏi bạn chọn `neon3d`, `terra3d` hay `atlas3d`, căn hình theo gi�
 - Nói **"render video"** để nhận file MP4.
 - Nói "viết caption và hashtag" để có tiêu đề, mô tả và hashtag.
 - Nói "gửi lên Postiz" để tạo bản nháp. Claude chỉ đăng ngay hoặc hẹn giờ khi bạn yêu cầu rõ.
-
-### Dựng kênh TikTok nhiều video
-
-Khi làm đều đặn cho một kênh, gom mọi video vào một thư mục kênh để Claude nhớ thương hiệu và phong cách giữa các video. Gõ `/scene-flow:channel`, hoặc nói:
-
-```text
-Tạo kênh TikTok mới cho tôi.
-```
-
-Nếu bạn chưa có ý tưởng, Claude hỏi bạn thích chủ đề gì, muốn nói với ai, dùng giọng nào, rồi gợi ý ba hướng kênh. Mỗi hướng gồm lĩnh vực, người xem, phong cách hợp, gợi ý tên và ba chủ đề cho video đầu. Sau đó Claude hỏi tên kênh, slogan, logo và thư mục muốn tạo kênh, cho bạn xem đường dẫn đầy đủ, và chỉ tạo khi bạn đồng ý:
-
-```text
-<tên-kênh>/
-├── AGENTS.md              # quy tắc chung của kênh: giọng văn, thương hiệu, hashtag
-├── CLAUDE.md              # chỉ một dòng: @AGENTS.md
-├── brand/
-│   ├── brand.json         # tên kênh, file logo, slogan
-│   └── logos/             # logo chính thức của kênh
-├── new-video.sh           # tạo một video mới và gắn thương hiệu; trên Windows là new-video.ps1
-├── videos/
-│   └── <yyyy-mm>-<slug>/  # mỗi video là một project scene-flow riêng
-└── publish/
-    └── <yyyy-mm>-<slug>.mp4
-```
-
-Tạo video mới cho kênh:
-
-```bash
-./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
-```
-
-Trên Windows:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
-```
-
-Ghi vào `AGENTS.md` những điều áp dụng cho mọi video của kênh, ví dụ màu thương hiệu, cách xưng hô, câu kết cố định, hoặc "tối đa 5 hashtag, luôn có #xuhuong". Mỗi lần làm video, mở Claude Code trong thư mục của video đó, không mở ở thư mục kênh. Nếu dùng Git, bỏ qua `publish/` và các thư mục `renders/`, `snapshots/`, `assets/audio/src/` của từng video vì chúng nặng.
 
 [Hướng dẫn sử dụng](docs/user-guide.md) giải thích chi tiết từng bước: các cách có giọng đọc, góp ý, đăng bài và xử lý sự cố. Hướng dẫn hiện chỉ có bản tiếng Anh.
 

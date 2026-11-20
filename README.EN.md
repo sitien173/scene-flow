@@ -136,6 +136,44 @@ python install-agy-ide.py --uninstall
 
 The script replaces or removes only a folder it created. It prints one line: `installed`, `updated`, `removed`, `not installed`, or `refused:` with the reason.
 
+## A TikTok channel with many videos
+
+When you post regularly for one channel, keep every video in one channel folder so Claude remembers your branding and style between videos. Type `/scene-flow:channel`, or say:
+
+```text
+Set up a new TikTok channel for me.
+```
+
+If you have no idea yet, Claude asks what you like, who you want to talk to, and which voice you will use, then suggests three channel ideas. Each idea has a niche, an audience, a matching look, name ideas, and three first-video topics. Claude then asks for the channel name, slogan, logo, and the folder to create it in, shows you the full path, and creates it only after you agree:
+
+```text
+<channel-name>/
+├── AGENTS.md              # channel-wide rules: voice, branding, hashtags
+├── CLAUDE.md              # one line: @AGENTS.md
+├── brand/
+│   ├── brand.json         # channel name, logo file, slogan
+│   └── logos/             # the channel's official logos
+├── new-video.sh           # creates a new video and applies the branding; new-video.ps1 on Windows
+├── videos/
+│   └── <yyyy-mm>-<slug>/  # each video is its own scene-flow project
+└── publish/
+    └── <yyyy-mm>-<slug>.mp4
+```
+
+Create a new video for the channel:
+
+```bash
+./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
+```
+
+On Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
+```
+
+Put what applies to every video of the channel in `AGENTS.md`, for example brand colors, address terms, a fixed closing line, or "at most 5 hashtags, always include #xuhuong". For each video, open Claude Code in that video's folder, not in the channel folder. If you use Git, ignore `publish/` and each video's `renders/`, `snapshots/`, and `assets/audio/src/` folders, since they are large.
+
 ## Make a video with prompts
 
 You do not need to remember commands. Each step below has a sample prompt to type into Claude Code, and a shortcut command if you prefer to call it directly. Claude does one step at a time and waits for your approval. Prompts work in Vietnamese or English.
@@ -202,44 +240,6 @@ Claude asks you to pick `neon3d`, `terra3d`, or `atlas3d`, lines up the pictures
 - Say **"render video"** to get the MP4.
 - Say "write the caption and hashtags" for a title, description, and hashtags.
 - Say "send it to Postiz" to create a draft. Claude posts immediately or schedules only when you ask for it explicitly.
-
-### A TikTok channel with many videos
-
-When you post regularly for one channel, keep every video in one channel folder so Claude remembers your branding and style between videos. Type `/scene-flow:channel`, or say:
-
-```text
-Set up a new TikTok channel for me.
-```
-
-If you have no idea yet, Claude asks what you like, who you want to talk to, and which voice you will use, then suggests three channel ideas. Each idea has a niche, an audience, a matching look, name ideas, and three first-video topics. Claude then asks for the channel name, slogan, logo, and the folder to create it in, shows you the full path, and creates it only after you agree:
-
-```text
-<channel-name>/
-├── AGENTS.md              # channel-wide rules: voice, branding, hashtags
-├── CLAUDE.md              # one line: @AGENTS.md
-├── brand/
-│   ├── brand.json         # channel name, logo file, slogan
-│   └── logos/             # the channel's official logos
-├── new-video.sh           # creates a new video and applies the branding; new-video.ps1 on Windows
-├── videos/
-│   └── <yyyy-mm>-<slug>/  # each video is its own scene-flow project
-└── publish/
-    └── <yyyy-mm>-<slug>.mp4
-```
-
-Create a new video for the channel:
-
-```bash
-./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
-```
-
-On Windows:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
-```
-
-Put what applies to every video of the channel in `AGENTS.md`, for example brand colors, address terms, a fixed closing line, or "at most 5 hashtags, always include #xuhuong". For each video, open Claude Code in that video's folder, not in the channel folder. If you use Git, ignore `publish/` and each video's `renders/`, `snapshots/`, and `assets/audio/src/` folders, since they are large.
 
 The [user guide](docs/user-guide.md) covers each step in detail, including voice options, feedback, publishing, and troubleshooting.
 
