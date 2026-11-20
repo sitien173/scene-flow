@@ -3,7 +3,7 @@
 [![CI](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects default to the Soi Repo dark motion-graphics theme, with paper and world3d themes also selectable:
+This Agent Skills plugin for Claude Code, Codex, Pi, agy, and the Antigravity IDE generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects default to the Soi Repo dark motion-graphics theme, with paper and world3d themes also selectable:
 
 - **Dark theme (default)**: Deep dark background with subtle drifting particles, Be Vietnam Pro typography, mint `#4ADE80` and cyan `#22D3EE` accents.
 - **Paper theme (selectable)**: Moving textured paper plate, K2D typography, violet `#7657FF` accents.
@@ -88,6 +88,41 @@ Replace `<dir>` with the path to the `scene-flow` folder that `git clone` create
 
 **Note:** If you also install the HyperFrames plugin or skills separately, they duplicate the bundled skills. Keep one copy.
 
+#### Antigravity IDE
+
+If you installed scene-flow with `agy plugin install`, the Antigravity IDE already loads it. Skip this section. The script refuses that folder.
+
+Otherwise, clone the repository and run the install script from the clone folder. It needs Python 3.10 or later:
+
+```bash
+git clone https://github.com/sitien173/scene-flow
+cd scene-flow
+python install-agy-ide.py
+```
+
+This copies the plugin to `~/.gemini/config/plugins/scene-flow` for every workspace. To install it for one project only, pass the project folder. The plugin goes to `<project>/.agents/plugins/scene-flow`:
+
+```bash
+python install-agy-ide.py --project <project>
+```
+
+Restart the Antigravity IDE after you install, update, or uninstall.
+
+To update, pull the clone and run the same command again:
+
+```bash
+git pull
+python install-agy-ide.py
+```
+
+To uninstall, add `--uninstall`. For a project install, also pass `--project <project>`:
+
+```bash
+python install-agy-ide.py --uninstall
+```
+
+The script replaces or removes only a folder it created. It prints one line: `installed`, `updated`, `removed`, `not installed`, or `refused:` with the reason.
+
 ### Install dependencies
 
 **Windows (winget):**
@@ -164,6 +199,7 @@ For step-by-step instructions designed for non-programmers, read [docs/user-guid
 .claude-plugin/                       Claude Code plugin and marketplace manifests
 .codex-plugin/                        Codex plugin manifest
 plugin.json                           agy plugin manifest
+install-agy-ide.py                    Antigravity IDE install script
 package.json                          Pi package manifest and npm file list
 LICENSE                               license text
 NOTICE                                copyright notice

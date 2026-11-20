@@ -22,6 +22,7 @@ Run the same checks as CI from the repository root:
 
 ```bash
 python3 tests/spec-check.py
+python3 tests/agy-ide-install-test.py
 bash tests/check-versions.sh
 bash tests/check-bundled.sh
 claude plugin validate --strict .

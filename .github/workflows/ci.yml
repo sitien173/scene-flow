@@ -45,6 +45,9 @@ jobs:
       - name: Postiz publisher tests
         run: python3 tests/postiz-test.py
 
+      - name: Antigravity IDE installer tests
+        run: python3 tests/agy-ide-install-test.py
+
       - name: Manifest versions agree
         run: bash tests/check-versions.sh
 
