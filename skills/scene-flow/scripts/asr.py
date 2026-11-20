@@ -9,11 +9,12 @@
 # way to arbitrate between them.
 #
 # Transcribes audio on Google Colab using OpenAI Whisper via colab/server.py.
-# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN. Output is words with start/end
+# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in ~/.config/scene-flow/.env. Output is words with start/end
 # times, which the map can then be built from as measurement instead of inference.
 #
 # --local runs whisper.cpp on this machine through hyperframes transcribe instead; gpu-check.py says
 # when that is worth it. The words then carry no confidence, which nothing downstream reads.
+# A whisper-cli built with CUDA is passed to hyperframes from HYPERFRAMES_WHISPER_PATH in that .env.
 #   python scripts/asr.py [model] [audio] [--local]
 import io
 import json
@@ -26,6 +27,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import colab
+import settings
 
 LOCAL = "--local" in sys.argv
 ARGS = [x for x in sys.argv[1:] if x != "--local"]
@@ -42,9 +44,12 @@ if LOCAL:
     # --engine whisper: Parakeet does not cover Vietnamese. --dir in a temp folder, because transcribe
     # rewrites caption arrays in every HTML file under --dir.
     tmp = tempfile.mkdtemp(prefix="asr-")
+    env = {k: v for k, v in os.environ.items() if k != "HYPERFRAMES_WHISPER_PATH"}
+    if settings.get("HYPERFRAMES_WHISPER_PATH"):
+        env["HYPERFRAMES_WHISPER_PATH"] = settings.get("HYPERFRAMES_WHISPER_PATH")
     done = subprocess.run([shutil.which("npx") or "npx", "--yes", "hyperframes@0.8.140", "transcribe",
                            os.path.abspath(AUDIO), "--engine", "whisper", "--model", MODEL, "--language", "vi",
-                           "--json", "--dir", tmp], stdout=subprocess.PIPE, text=True, encoding="utf-8")
+                           "--json", "--dir", tmp], stdout=subprocess.PIPE, text=True, encoding="utf-8", env=env)
     if done.returncode:
         sys.exit("local ASR failed: %s" % done.stdout.strip()[-500:])
     info = json.loads(done.stdout.strip().splitlines()[-1])

@@ -17,12 +17,24 @@ Write your script in plain text with **one sentence per line**, exactly as it wi
 Select one of four audio sources:
 
 1. **Self-recording (most natural)**: Record narration in a quiet room, saving as `.wav` or `.mp3`. Leave a short breath pause between sentences.
-2. **Third-party TTS service**: Use your existing TTS service (ElevenLabs, OpenAI). When Claude asks for an API key, provide it in the chat. Claude uses it for that session only and never writes it to disk.
+2. **Third-party TTS service**: Use your existing TTS service (ElevenLabs, OpenAI). Add the key yourself to `~/.config/scene-flow/.env`, the file every scene-flow script reads credentials and config from, and make it readable only by you. Scripts do not read environment variables. Never paste the key into the chat.
+   ```bash
+   mkdir -p ~/.config/scene-flow
+   echo 'ELEVENLABS_API_KEY=<your key>' >> ~/.config/scene-flow/.env   # or VIBI_API_KEY=<your key>
+   chmod 600 ~/.config/scene-flow/.env
+   ```
+   On Windows the file is `%USERPROFILE%\.config\scene-flow\.env`; add the line in a text editor.
    - **Vibi (`api.vibi.pro`)**: `tts.py` generates the whole voice through Vibi's ElevenLabs voices. Vibi charges credits per character of the script.
      ```bash
-     VIBI_API_KEY=<your key> python scripts/tts.py --provider vibi --voice <ElevenLabs voice id> --lang vi
+     python scripts/tts.py --provider vibi --voice <ElevenLabs voice id> --lang vi
      ```
      Without `--voice`, the voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). `--model` sets the model, default `eleven_v3`. All sentences are queued at once, so the voice takes about as long as the slowest sentence.
+   - **ElevenLabs API**: `tts.py` calls ElevenLabs directly with your own key. ElevenLabs charges credits per character of the script.
+     ```bash
+     python scripts/tts.py --provider elevenlabs --list
+     python scripts/tts.py --provider elevenlabs --voice <voice id> --lang vi
+     ```
+     `--list` shows the voices in your ElevenLabs account. Add a Voice Library voice to your account before you use its id. `--voice` and `--model` have the same defaults as Vibi.
 3. **VieNeu-TTS on Google Colab (free GPU voice generation and ASR)**:
    - **Start the server (automatic):**
      1. Install the `colab` CLI and sign in to your Google account once.
@@ -49,17 +61,11 @@ Select one of four audio sources:
         ```
         *Note: Colab resets temporary files when a session ends. Repeat steps 2 through 4 for each new session.*
    - **Set URL and token (manual start only):**
-     Copy the `COLAB_URL=` and `COLAB_TOKEN=` outputs printed by Colab. Set them as environment variables in the terminal where you run Claude Code (these change every session; never commit them). Environment variables take precedence over the session file:
-     - On Windows PowerShell:
-       ```powershell
-       $env:COLAB_URL="<the URL printed by Colab>"
-       $env:COLAB_TOKEN="<the token printed by Colab>"
-       ```
-     - On macOS or Linux bash:
-       ```bash
-       export COLAB_URL="<the URL printed by Colab>"
-       export COLAB_TOKEN="<the token printed by Colab>"
-       ```
+     Copy the `COLAB_URL=` and `COLAB_TOKEN=` lines printed by Colab into `~/.config/scene-flow/.env` (on Windows `%USERPROFILE%\.config\scene-flow\.env`). They change every session, so replace them each time and delete them when the session ends; never commit them. Values in this file take precedence over the session file. Environment variables are not read:
+     ```
+     COLAB_URL=<the URL printed by Colab>
+     COLAB_TOKEN=<the token printed by Colab>
+     ```
    - **Voice generation commands (`scripts/tts.py`):**
      - `python scripts/tts.py --list` (list preset voices)
      - `python scripts/tts.py` (generate with default voice `Hải Đăng`)
@@ -70,7 +76,7 @@ Select one of four audio sources:
      ```bash
      python skills/scene-flow/scripts/gpu-check.py
      ```
-     It looks for an NVIDIA GPU or Apple Silicon. On `recommendation: local`, it prints the install steps that are still missing: `vieneu` for the voice, and whisper.cpp for ASR. With an NVIDIA GPU, whisper.cpp must be built with CUDA and `HYPERFRAMES_WHISPER_PATH` set to its `whisper-cli`; otherwise `hyperframes transcribe` builds a copy that runs on the CPU only.
+     It looks for an NVIDIA GPU or Apple Silicon. On `recommendation: local`, it prints the install steps that are still missing: `vieneu` for the voice, and whisper.cpp for ASR. With an NVIDIA GPU, whisper.cpp must be built with CUDA and the line `HYPERFRAMES_WHISPER_PATH=<path of its whisper-cli>` added to `~/.config/scene-flow/.env`; otherwise `hyperframes transcribe` builds a copy that runs on the CPU only.
    - Generate the voice and run ASR on this machine. The options are the same as on Colab:
      ```bash
      python scripts/tts.py --provider local --voice "<name>"
@@ -175,7 +181,7 @@ This section is optional. The script uploads a finished render to your own Posti
    chmod 600 ~/.config/scene-flow/.env
    ```
    On Windows the file is `%USERPROFILE%\.config\scene-flow\.env`; add the same two lines in a text editor.
-   `POSTIZ_URL` or `POSTIZ_API_KEY` set in the environment overrides the file. Never paste the key into the chat. The script never prints the key.
+   `POSTIZ_URL` and `POSTIZ_API_KEY` in environment variables are ignored. Never paste the key into the chat. The script never prints the key.
 4. **Fill `postiz.json`** in the project root:
 
    | Field | What to enter |

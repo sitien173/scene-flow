@@ -10,10 +10,13 @@ SLUG="$1" NAME="$2" THEME="$3" VOICE="${4:-}"
 DEST="videos/$(date +%Y-%m)-$SLUG"
 [ -e "$DEST" ] && { echo "$DEST already exists" >&2; exit 1; }
 
-# The scene-flow skill: $SCENE_FLOW_SKILL, else the newest Claude Code plugin cache, else the path written at setup.
-SKILL="${SCENE_FLOW_SKILL:-$(ls -d "$HOME"/.claude/plugins/cache/scene-flow/scene-flow/*/skills/scene-flow 2>/dev/null | sort -V | tail -1)}"
+# The scene-flow skill: SCENE_FLOW_SKILL in ~/.config/scene-flow/.env, else the newest Claude Code plugin cache,
+# else the path written at setup. The environment is not read.
+SKILL="$( { sed -n 's/^[[:space:]]*\(export[[:space:]]*\)\{0,1\}SCENE_FLOW_SKILL[[:space:]]*=//p' "$HOME/.config/scene-flow/.env" 2>/dev/null || true; } \
+  | tail -1 | tr -d "\"'\r" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+SKILL="${SKILL:-$(ls -d "$HOME"/.claude/plugins/cache/scene-flow/scene-flow/*/skills/scene-flow 2>/dev/null | sort -V | tail -1)}"
 SKILL="${SKILL:-__SCENE_FLOW_SKILL__}"
-[ -f "$SKILL/scripts/new-project.py" ] || { echo "scene-flow skill not found; set SCENE_FLOW_SKILL" >&2; exit 1; }
+[ -f "$SKILL/scripts/new-project.py" ] || { echo "scene-flow skill not found; set SCENE_FLOW_SKILL in ~/.config/scene-flow/.env" >&2; exit 1; }
 
 python3 "$SKILL/scripts/new-project.py" "$DEST" --name "$NAME" --theme "$THEME" ${VOICE:+--voice "$VOICE"}
 cp -R brand/logos/. "$DEST/assets/logos/"

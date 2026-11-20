@@ -19,6 +19,7 @@ import threading
 import time
 import unittest
 import urllib.parse
+from pathlib import Path
 from unittest import mock
 
 sys.dont_write_bytecode = True
@@ -57,8 +58,6 @@ INTEGRATIONS = [
 ]
 
 FAKE = None
-# Empty config home so a real ~/.config/scene-flow/.env never leaks into the tests.
-NO_CONFIG = tempfile.mkdtemp(prefix="postiz-config-")
 FAKE_HOST = None
 FIXTURE_DIR = None
 
@@ -201,22 +200,31 @@ def make_project(root, fixture=None, config=None, sources=None):
     return root
 
 
+def write_env(home, values, mode=0o600):
+    """Write values to the .env that settings.py reads under home. None leaves a name out."""
+    path = os.path.join(home, ".config", "scene-flow", ".env")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as out:
+        out.writelines(f"{k}={v}\n" for k, v in values.items() if v is not None)
+    os.chmod(path, mode)
+    return path
+
+
 def run_cli(project, *args, **env):
-    """Run postiz.py in project. Keyword arguments override environment variables; None removes one."""
-    base = {k: v for k, v in os.environ.items() if not k.startswith("POSTIZ_")}
-    base.update(POSTIZ_URL=FAKE.url, POSTIZ_API_KEY=KEY, XDG_CONFIG_HOME=NO_CONFIG)
-    base.update(env)
-    base = {k: v for k, v in base.items() if v is not None}
-    return subprocess.run(
-        [sys.executable, SCRIPT, *args], cwd=project, env=base, capture_output=True, text=True, timeout=120
-    )
+    """Run postiz.py in project with a temp home. Keyword arguments override .env values; None removes one."""
+    with tempfile.TemporaryDirectory() as home:
+        write_env(home, {"POSTIZ_URL": FAKE.url, "POSTIZ_API_KEY": KEY, **env})
+        base = {k: v for k, v in os.environ.items() if not k.startswith("POSTIZ_")}
+        base.update(HOME=home, USERPROFILE=home)
+        return subprocess.run(
+            [sys.executable, SCRIPT, *args], cwd=project, env=base, capture_output=True, text=True, timeout=120
+        )
 
 
 def env_with(**values):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("POSTIZ_")}
-    env["XDG_CONFIG_HOME"] = NO_CONFIG
-    env.update({k: v for k, v in values.items() if v is not None})
-    return mock.patch.dict(os.environ, env, clear=True)
+    """Point settings.PATH at a temp .env holding values; None leaves a name out."""
+    path = write_env(tempfile.mkdtemp(prefix="postiz-home-"), values)
+    return mock.patch.object(postiz.settings, "PATH", Path(path))
 
 
 class ProjectTestCase(unittest.TestCase):
@@ -314,9 +322,7 @@ class ConfigFileTests(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
-        self.home = tmp.name
-        os.makedirs(os.path.join(self.home, "scene-flow"))
-        self.path = os.path.join(self.home, "scene-flow", ".env")
+        self.path = write_env(tmp.name, {})
 
     def write(self, text, mode=0o600):
         with open(self.path, "w", encoding="utf-8") as out:
@@ -324,16 +330,21 @@ class ConfigFileTests(unittest.TestCase):
         os.chmod(self.path, mode)
 
     def config(self, **env):
-        with env_with(XDG_CONFIG_HOME=self.home, **env):
+        with mock.patch.object(postiz.settings, "PATH", Path(self.path)), mock.patch.dict(os.environ, env):
             return postiz.get_config()
 
-    def test_file_used_when_environment_is_empty(self):
+    def test_file_parsed(self):
         self.write(f'FREESOUND_API_KEY=other\n# Postiz\nPOSTIZ_URL="https://api.example.com/"\nexport POSTIZ_API_KEY={KEY}\n')
         self.assertEqual(self.config(), ("https://api.example.com", KEY))
 
-    def test_environment_overrides_file(self):
+    def test_environment_ignored(self):
         self.write(f"POSTIZ_URL=https://file.example.com\nPOSTIZ_API_KEY=file-key\n")
-        self.assertEqual(self.config(POSTIZ_API_KEY=KEY), ("https://file.example.com", KEY))
+        self.assertEqual(self.config(POSTIZ_URL="https://env.example.com", POSTIZ_API_KEY=KEY),
+                         ("https://file.example.com", "file-key"))
+
+    def test_environment_alone_is_not_enough(self):
+        with self.assertRaises(SystemExit):
+            self.config(POSTIZ_URL="https://api.example.com", POSTIZ_API_KEY=KEY)
 
     @unittest.skipUnless(os.name == "posix", "permission bits are POSIX only")
     def test_file_readable_by_others_refused(self):

@@ -100,7 +100,7 @@ if the author asks.
   and replace `__SCENE_FLOW_SKILL__` with the absolute path of the `scene-flow` skill directory.
   On macOS and Linux, make `new-video.sh` executable. Write `new-video.ps1` as UTF-8 with a BOM,
   so Windows PowerShell 5.1 reads a non-ASCII path correctly.
-  The script finds the skill in this order: the `SCENE_FLOW_SKILL` environment variable, the
+  The script finds the skill in this order: `SCENE_FLOW_SKILL` in `~/.config/scene-flow/.env`, the
   newest version in the Claude Code plugin cache, then the path written at setup. It copies
   `brand/logos/` into the new project and sets `BRAND_NAME`, `BRAND_LOGO`, and `SLOGAN` in the
   project's `scripts/build.py` from `brand/brand.json`.
@@ -108,7 +108,7 @@ if the author asks.
 ## Rules
 
 - Ask before writing anything, and write only inside the confirmed folder.
-- Never put API keys, tokens, or passwords in any channel file. Keys stay in environment variables.
+- Never put API keys, tokens, or passwords in any channel file. Keys stay in `~/.config/scene-flow/.env`.
 - Record later feedback that applies to every video of the channel in the channel's `AGENTS.md`,
   following the scene-flow skill's "Recording feedback" section.
 - Final renders go to `publish/<yyyy-mm>-<slug>.mp4` when the author asks to publish or archive

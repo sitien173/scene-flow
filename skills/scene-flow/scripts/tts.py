@@ -14,10 +14,14 @@
 #   python scripts/tts.py --provider local                 # VieNeu-TTS in this Python (gpu-check.py)
 #   python scripts/tts.py --provider vibi                  # Vibi (api.vibi.pro) ElevenLabs voices
 #   python scripts/tts.py --provider vibi --voice <id> --lang vi --model eleven_v3
+#   python scripts/tts.py --provider elevenlabs           # ElevenLabs API directly, same options as vibi
+#   python scripts/tts.py --provider elevenlabs --list    # voices in the ElevenLabs account
 #
-# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in the environment.
+# Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in ~/.config/scene-flow/.env.
 # --provider local needs vieneu installed here and runs on CUDA when torch sees a GPU, else on CPU.
-# --provider vibi needs VIBI_API_KEY in the environment instead; --ref and --list are VieNeu only.
+# --provider vibi needs VIBI_API_KEY in that .env instead; --ref and --list are VieNeu only.
+# --provider elevenlabs needs ELEVENLABS_API_KEY in that .env; --list works, --ref does not.
+# Keys come from the .env only (settings.py), never from the environment.
 import argparse
 import io
 import json
@@ -32,11 +36,14 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import colab
+import settings
 
 VIBI_API = "https://api.vibi.pro/v1"
+ELEVENLABS_API = "https://api.elevenlabs.io/v1"
 
 
-def vibi_call(url, key, body=None):
+def xi_call(url, key, body=None):
+    # Vibi and ElevenLabs both take the key in the xi-api-key header
     headers = {"User-Agent": "scene-flow-tts"}
     if key:
         headers.update({"xi-api-key": key, "Content-Type": "application/json"})
@@ -59,7 +66,7 @@ def vibi_synthesize(texts, voice, lang, model, key):
     url = "%s/text-to-speech/%s" % (VIBI_API, urllib.parse.quote(voice, safe=""))
     ids = []
     for i, text in enumerate(texts):
-        task = json.loads(vibi_call(url, key, {"text": text, "language_code": lang, "model_id": model}))
+        task = json.loads(xi_call(url, key, {"text": text, "language_code": lang, "model_id": model}))
         if not task.get("id"):
             raise RuntimeError("sentence %d (%s): no task id in response" % (i + 1, text[:40]))
         ids.append(task["id"])
@@ -73,7 +80,7 @@ def vibi_synthesize(texts, voice, lang, model, key):
         for i, task_id in enumerate(ids):
             if i in done:
                 continue
-            task = json.loads(vibi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
+            task = json.loads(xi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
             if task.get("status") == "failed":
                 raise RuntimeError("sentence %d (%s): task %s failed: %s"
                                    % (i + 1, texts[i][:40], task_id, task.get("error") or "no reason"))
@@ -81,26 +88,52 @@ def vibi_synthesize(texts, voice, lang, model, key):
                 done[i] = (task.get("result") or {}).get("audio_url") or task.get("audio_url")
                 if not done[i]:
                     raise RuntimeError("sentence %d: task %s returned no audio_url" % (i + 1, task_id))
-    return [vibi_call(done[i], None) for i in range(len(ids))]
+    return [xi_call(done[i], None) for i in range(len(ids))]
+
+
+def elevenlabs_synthesize(texts, voice, lang, model, key):
+    # synchronous: each request returns the MP3 bytes of one sentence
+    url = "%s/text-to-speech/%s?output_format=mp3_44100_128" % (ELEVENLABS_API, urllib.parse.quote(voice, safe=""))
+    out = []
+    for i, text in enumerate(texts):
+        try:
+            out.append(xi_call(url, key, {"text": text, "language_code": lang, "model_id": model}))
+        except RuntimeError as e:
+            raise RuntimeError("sentence %d (%s): %s" % (i + 1, text[:40], e))
+    return out
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--provider", choices=["colab", "local", "vibi"], default="colab")
+ap.add_argument("--provider", choices=["colab", "local", "vibi", "elevenlabs"], default="colab")
 group = ap.add_mutually_exclusive_group()
 group.add_argument("--voice", help="preset voice label or id (default: Hải Đăng); "
-                                   "with vibi an ElevenLabs voice id (default: Quang Toan)")
+                                   "with vibi or elevenlabs an ElevenLabs voice id (default: Quang Toan)")
 group.add_argument("--ref", help="reference audio clip for voice cloning")
-ap.add_argument("--lang", default="vi", help="vibi language_code (default: vi)")
-ap.add_argument("--model", default="eleven_v3", help="vibi model_id (default: eleven_v3)")
+ap.add_argument("--lang", default="vi", help="vibi or elevenlabs language_code (default: vi)")
+ap.add_argument("--model", default="eleven_v3", help="vibi or elevenlabs model_id (default: eleven_v3)")
 ap.add_argument("--gap", type=float, default=0.35, help="silence between sentences (s); 0.55 after a question")
 ap.add_argument("--script", default="SCRIPT.md")
 ap.add_argument("--no-prep", action="store_true")
 ap.add_argument("--list", action="store_true")
 a = ap.parse_args()
-a.voice = a.voice or ("ZsjEJaLQy3sgvwxicmDx" if a.provider == "vibi" else "Hải Đăng")
+a.voice = a.voice or ("ZsjEJaLQy3sgvwxicmDx" if a.provider in ("vibi", "elevenlabs") else "Hải Đăng")
 
 if a.provider == "vibi" and (a.ref or a.list):
     sys.exit("--ref and --list need the colab or local provider")
+if a.provider == "elevenlabs":
+    if a.ref:
+        sys.exit("--ref needs the colab or local provider")
+    elevenlabs_key = settings.get("ELEVENLABS_API_KEY")
+    if not elevenlabs_key:
+        sys.exit("--provider elevenlabs needs ELEVENLABS_API_KEY in %s" % settings.PATH)
+    if a.list:
+        try:
+            voices = json.loads(xi_call(ELEVENLABS_API + "/voices", elevenlabs_key))["voices"]
+        except RuntimeError as e:
+            sys.exit("listing voices failed: %s" % e)
+        for v in voices:
+            print("%-24s %s" % (v.get("name", ""), v.get("voice_id", "")))
+        sys.exit(0)
 
 engine = None
 if a.provider == "local":
@@ -131,11 +164,16 @@ ref_id = None
 ref_bytes = None
 
 if a.provider == "vibi":
-    vibi_key = os.environ.get("VIBI_API_KEY")
+    vibi_key = settings.get("VIBI_API_KEY")
     if not vibi_key:
-        sys.exit("--provider vibi needs VIBI_API_KEY in the environment")
+        sys.exit("--provider vibi needs VIBI_API_KEY in %s" % settings.PATH)
     try:
-        vibi_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
+        remote_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
+    except RuntimeError as e:
+        sys.exit("TTS failed: %s" % e)
+elif a.provider == "elevenlabs":
+    try:
+        remote_audio = elevenlabs_synthesize(SENT, a.voice, a.lang, a.model, elevenlabs_key)
     except RuntimeError as e:
         sys.exit("TTS failed: %s" % e)
 elif engine and a.ref:
@@ -159,10 +197,10 @@ else:
 files = []
 for i, s in enumerate(SENT):
     dl_path = os.path.join(tmp, "s%03d.dl.wav" % i)
-    if a.provider == "vibi":
-        dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format Vibi serves
+    if a.provider in ("vibi", "elevenlabs"):
+        dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format the service serves
         with io.open(dl_path, "wb") as f:
-            f.write(vibi_audio[i])
+            f.write(remote_audio[i])
         files.append(dl_path)
         continue
     if engine:

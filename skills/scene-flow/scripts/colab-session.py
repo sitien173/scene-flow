@@ -5,7 +5,7 @@
 #   python "<skill>/scripts/colab-session.py" down     # stop the session, delete the session file
 #
 # up reuses a healthy server. The URL and token go to colab.STATE_PATH (mode 0600), which colab.py
-# reads when COLAB_URL and COLAB_TOKEN are not set. The token is never printed. Each session spends
+# reads when COLAB_URL and COLAB_TOKEN are not set in ~/.config/scene-flow/.env. The token is never printed. Each session spends
 # Colab compute units until down runs.
 import argparse
 import json

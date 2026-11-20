@@ -19,12 +19,13 @@ Claude không tự vẽ logo. Logo luôn lấy từ file bạn đưa. Chưa có 
 
 ### 2. Giọng đọc
 
-Chọn một giọng và giữ cố định cho mọi video của kênh. scene-flow hỗ trợ ba nguồn giọng:
+Chọn một giọng và giữ cố định cho mọi video của kênh. scene-flow hỗ trợ bốn nguồn giọng:
 
 | Nguồn giọng | Cần chuẩn bị | Giọng mặc định |
 |---|---|---|
 | Tự thu giọng | Micro và một chỗ yên tĩnh. Đây là cách tạo dấu ấn rõ nhất. | Không có |
-| Vibi, giọng ElevenLabs | Biến môi trường `VIBI_API_KEY`. Vibi tính credit theo số ký tự của kịch bản. | Quang Toan |
+| Vibi, giọng ElevenLabs | Dòng `VIBI_API_KEY` trong `~/.config/scene-flow/.env`. Vibi tính credit theo số ký tự của kịch bản. | Quang Toan |
+| ElevenLabs API | Dòng `ELEVENLABS_API_KEY` trong `~/.config/scene-flow/.env`. ElevenLabs tính credit theo số ký tự của kịch bản. | Quang Toan |
 | VieNeu-TTS trên Google Colab | Lệnh `colab` đã đăng nhập tài khoản Google. Không tính phí theo ký tự, nhưng tốn compute unit của Colab. | Hải Đăng |
 
 Chưa biết chọn giọng nào thì chỉ cần chọn nguồn giọng, scene-flow dùng giọng mặc định của nguồn đó. Muốn giọng AI giống giọng thật của bạn thì nhờ Claude nhái giọng từ một đoạn thu mẫu. Chỉ nhái giọng của chính bạn hoặc của người đã đồng ý. Cách chọn giọng chi tiết ở [Chọn giọng đọc](#3-chọn-giọng-đọc).
@@ -50,7 +51,7 @@ Claude hỏi bạn chọn phong cách cho mỗi video. Một kênh nên giữ m�
 
 ### 5. Hình ảnh và video thật
 
-Dùng hình và video thật thay cho chữ. Tự quay màn hình khi thao tác công cụ. Claude cắt đoạn, chỉnh tốc độ và làm mờ dữ liệu riêng tư trong clip. Gửi link trang web để Claude chụp ảnh trang. Logo sản phẩm luôn lấy từ file chính thức. Với hình minh họa ý tưởng, Claude ưu tiên ảnh stock có giấy phép, và chỉ tạo ảnh bằng AI khi bạn đã cấu hình `IMAGE_API_URL`, `IMAGE_API_KEY` và `IMAGE_MODEL`.
+Dùng hình và video thật thay cho chữ. Tự quay màn hình khi thao tác công cụ. Claude cắt đoạn, chỉnh tốc độ và làm mờ dữ liệu riêng tư trong clip. Gửi link trang web để Claude chụp ảnh trang. Logo sản phẩm luôn lấy từ file chính thức. Với hình minh họa ý tưởng, Claude ưu tiên ảnh stock có giấy phép, và chỉ tạo ảnh bằng AI khi bạn đã thêm `IMAGE_API_URL`, `IMAGE_API_KEY` và `IMAGE_MODEL` vào `~/.config/scene-flow/.env`.
 
 ### 6. Thương hiệu và cách nói
 
@@ -175,24 +176,27 @@ Lệnh tắt: `/scene-flow:script` để viết hoặc sửa, `/scene-flow:revie
 
 ### 3. Chọn giọng đọc
 
-Nếu bạn chưa có file giọng, Claude đưa ra ba lựa chọn theo thứ tự sau:
+Nếu bạn chưa có file giọng, Claude đưa ra bốn lựa chọn theo thứ tự sau:
 
 | Lựa chọn | Cách nói với Claude | Cần chuẩn bị |
 |---|---|---|
 | Tự thu giọng | `File giọng đọc: recordings/voice.wav` | Thu theo đúng `SCRIPT.md`. Claude có thể đưa từng câu để bạn đọc. |
-| Vibi, giọng ElevenLabs | `Dùng giọng Vibi` | Biến môi trường `VIBI_API_KEY`. Vibi tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. |
+| Vibi, giọng ElevenLabs | `Dùng giọng Vibi` | Dòng `VIBI_API_KEY` trong `~/.config/scene-flow/.env`. Vibi tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. |
+| ElevenLabs API | `Dùng giọng ElevenLabs` | Dòng `ELEVENLABS_API_KEY` trong `~/.config/scene-flow/.env`. ElevenLabs tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. Giọng lấy từ Voice Library phải được thêm vào tài khoản trước. |
 | VieNeu-TTS trên Google Colab | `Dùng giọng AI miễn phí` | Lệnh `colab` đã đăng nhập tài khoản Google của bạn. Không tính phí theo ký tự, nhưng tốn compute unit của Colab, nên Claude hỏi trước khi mở phiên. |
 
-Muốn để mặc định thì không cần nêu tên giọng. Giọng mặc định của VieNeu-TTS là Hải Đăng, của Vibi là Quang Toan. Muốn chọn giọng khác:
+Muốn để mặc định thì không cần nêu tên giọng. Giọng mặc định của VieNeu-TTS là Hải Đăng, của Vibi và ElevenLabs là Quang Toan. Muốn chọn giọng khác:
 
 ```text
 Liệt kê các giọng VieNeu có sẵn.
 Dùng giọng "<tên giọng>".
 Nhái giọng theo file mau-giong.wav.
 Dùng Vibi với voice id <id ElevenLabs>.
+Liệt kê các giọng trong tài khoản ElevenLabs.
+Dùng ElevenLabs với voice id <id ElevenLabs>.
 ```
 
-Đặt `VIBI_API_KEY` trong terminal trước khi mở Claude Code. Đừng dán key vào khung chat. Lệnh tắt cho VieNeu-TTS: `/scene-flow:voice`.
+Tự thêm `VIBI_API_KEY=<key>` hoặc `ELEVENLABS_API_KEY=<key>` vào `~/.config/scene-flow/.env` rồi chạy `chmod 600 ~/.config/scene-flow/.env`. scene-flow chỉ đọc key và cấu hình từ file này, không đọc biến môi trường. Đừng dán key vào khung chat. Lệnh tắt cho VieNeu-TTS: `/scene-flow:voice`.
 
 ### 4. Chọn phong cách và dựng video
 

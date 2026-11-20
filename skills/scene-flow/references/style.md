@@ -204,16 +204,17 @@ or Unsplash, comes in by direct URL:
 Never take a picture from a search-engine results page or a site with no stated licence.
 
 Generate only when the author has set `IMAGE_API_URL` (base URL ending in `/v1`),
-`IMAGE_API_KEY` and `IMAGE_MODEL` for the session. Without them, draw the icon. The author
-exports the three variables in their own shell before the session starts. Never ask for the key
-in chat, never type it into a command, never write it to disk, never commit it. Require
+`IMAGE_API_KEY` and `IMAGE_MODEL` in `~/.config/scene-flow/.env`. Without them, draw the icon.
+`python scripts/settings.py IMAGE_API_KEY > /dev/null` exits non-zero when one is missing. Never
+ask for the key in chat, never type it into a command, never print it, never commit it. Require
 `IMAGE_API_URL` to start with `https://`.
 ```bash
 mkdir -p research/gen
-jq -n --arg m "$IMAGE_MODEL" --arg p "<theme prefix> <subject>" \
-  '{model: $m, prompt: $p, n: 1, size: "1024x1536"}' > research/gen/<name>.req.json
-printf 'header = "Authorization: Bearer %s"\n' "$IMAGE_API_KEY" \
-| curl -sS --fail-with-body -K - "$IMAGE_API_URL/images/generations" \
+url=$(python scripts/settings.py IMAGE_API_URL) && model=$(python scripts/settings.py IMAGE_MODEL) &&
+jq -n --arg m "$model" --arg p "<theme prefix> <subject>" \
+  '{model: $m, prompt: $p, n: 1, size: "1024x1536"}' > research/gen/<name>.req.json &&
+python scripts/settings.py IMAGE_API_KEY | sed 's/.*/header = "Authorization: Bearer &"/' \
+| curl -sS --fail-with-body -K - "$url/images/generations" \
     -H "Content-Type: application/json" -d @research/gen/<name>.req.json \
     -o research/gen/<name>.json
 ```
@@ -281,11 +282,11 @@ silent. Aim for roughly one pop every 3 to 4 seconds.
 
 ## 8. Content and accuracy
 
-**API keys never enter a project.** Read a key only from the environment, such as
-`OPENAI_API_KEY`; if it is absent, fall back to native SVG and CSS and never error. Never
-hardcode a key, store it in source, or show it in a video. If the author pastes a key into chat,
-use it only as an inline environment variable on the one command that needs it, never write it
-to a file, and tell the author once that it is now in the transcript and should be rotated.
+**API keys never enter a project.** Read a key only from `~/.config/scene-flow/.env` through
+`scripts/settings.py`, never from the environment; if it is absent, fall back to native SVG and
+CSS and never error. Never hardcode a key, store it in source, or show it in a video. If the
+author pastes a key into chat, do not use it: ask them to add it to that file, and tell them once
+that it is now in the transcript and should be rotated.
 
 **Plain language.** No jargon on screen, such as "Critical threshold" or a benchmark's internal
 name. Say what it means.

@@ -12,15 +12,22 @@ try {
   $dest = Join-Path 'videos' ("{0}-{1}" -f (Get-Date -Format 'yyyy-MM'), $Slug)
   if (Test-Path $dest) { throw "$dest already exists" }
 
-  # The scene-flow skill: $env:SCENE_FLOW_SKILL, else the newest Claude Code plugin cache, else the path written at setup.
-  $skill = $env:SCENE_FLOW_SKILL
+  # The scene-flow skill: SCENE_FLOW_SKILL in ~/.config/scene-flow/.env, else the newest Claude Code plugin cache,
+  # else the path written at setup. The environment is not read.
+  $skill = $null
+  $envFile = Join-Path $HOME '.config/scene-flow/.env'
+  if (Test-Path $envFile) {
+    foreach ($line in Get-Content $envFile -Encoding UTF8) {
+      if (($line.Trim() -replace '^export\s+', '') -match '^SCENE_FLOW_SKILL\s*=(.*)$') { $skill = $Matches[1].Trim().Trim('"', "'") }
+    }
+  }
   if (-not $skill) {
     $skill = Get-ChildItem (Join-Path $HOME '.claude/plugins/cache/scene-flow/scene-flow/*/skills/scene-flow') -Directory -ErrorAction SilentlyContinue |
       Sort-Object { try { [version]$_.Parent.Parent.Name } catch { [version]'0.0' } } |
       Select-Object -Last 1 -ExpandProperty FullName
   }
   if (-not $skill) { $skill = '__SCENE_FLOW_SKILL__' }
-  if (-not (Test-Path (Join-Path $skill 'scripts/new-project.py'))) { throw 'scene-flow skill not found; set SCENE_FLOW_SKILL' }
+  if (-not (Test-Path (Join-Path $skill 'scripts/new-project.py'))) { throw 'scene-flow skill not found; set SCENE_FLOW_SKILL in ~/.config/scene-flow/.env' }
 
   $projectArgs = @((Join-Path $skill 'scripts/new-project.py'), $dest, '--name', $Name, '--theme', $Theme)
   if ($Voice) { $projectArgs += @('--voice', $Voice) }

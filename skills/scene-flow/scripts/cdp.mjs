@@ -8,13 +8,26 @@
 // `eval` writes a page value straight to disk (e.g. a logo's inline <svg> outerHTML), so nothing is
 // ever transcribed by hand. The browser runs with its own default user agent: no bot-check evasion.
 import { spawn } from "node:child_process";
-import { writeFileSync, mkdtempSync, readdirSync, statSync } from "node:fs";
+import { writeFileSync, mkdtempSync, readdirSync, statSync, readFileSync } from "node:fs";
 import { tmpdir, homedir } from "node:os";
 import { join } from "node:path";
 
-// The headless Chrome HyperFrames downloads (~/.cache/hyperframes/chrome/...), or CHROME_PATH.
+// One NAME=value from ~/.config/scene-flow/.env, the file settings.py reads; never the environment.
+function setting(name) {
+  let value = null;
+  try {
+    for (const line of readFileSync(join(homedir(), ".config", "scene-flow", ".env"), "utf8").split(/\r?\n/)) {
+      const [key, ...rest] = line.trim().replace(/^export /, "").split("=");
+      if (rest.length && key.trim() === name) value = rest.join("=").trim().replace(/^["']+|["']+$/g, "") || null;
+    }
+  } catch {}
+  return value;
+}
+
+// CHROME_PATH from that .env, else the headless Chrome HyperFrames downloads (~/.cache/hyperframes/chrome/...).
 function findChrome() {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const configured = setting("CHROME_PATH");
+  if (configured) return configured;
   const want = process.platform === "win32" ? "chrome-headless-shell.exe" : "chrome-headless-shell";
   const walk = (dir, depth) => {
     let hits = [];
@@ -30,7 +43,7 @@ function findChrome() {
     return hits;
   };
   const hits = walk(join(homedir(), ".cache", "hyperframes", "chrome"), 5).sort((a, b) => b.t - a.t);
-  if (!hits.length) throw new Error("no headless Chrome: run any `npx hyperframes snapshot` once, or set CHROME_PATH");
+  if (!hits.length) throw new Error("no headless Chrome: run any `npx hyperframes snapshot` once, or set CHROME_PATH in ~/.config/scene-flow/.env");
   return hits[0].p;
 }
 const CHROME = findChrome();

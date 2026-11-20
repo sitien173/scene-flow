@@ -19,12 +19,13 @@ Claude never draws a logo. The logo always comes from the file you provide. With
 
 ### 2. Voice
 
-Pick one voice and keep it for every video on the channel. scene-flow supports three voice sources:
+Pick one voice and keep it for every video on the channel. scene-flow supports four voice sources:
 
 | Voice source | What you need | Default voice |
 |---|---|---|
 | Your own recording | A microphone and a quiet room. This is the most distinctive choice. | None |
-| Vibi, ElevenLabs voices | The `VIBI_API_KEY` environment variable. Vibi charges credits per character of the script. | Quang Toan |
+| Vibi, ElevenLabs voices | A `VIBI_API_KEY` line in `~/.config/scene-flow/.env`. Vibi charges credits per character of the script. | Quang Toan |
+| ElevenLabs API | An `ELEVENLABS_API_KEY` line in `~/.config/scene-flow/.env`. ElevenLabs charges credits per character of the script. | Quang Toan |
 | VieNeu-TTS on Google Colab | The `colab` command signed in to your Google account. No per-character charge, but it uses Colab compute units. | Hải Đăng |
 
 If you are not sure which voice to use, just pick a source and scene-flow uses that source's default voice. For an AI voice that sounds like you, ask Claude to clone it from a sample recording. Clone only your own voice or the voice of someone who has agreed. Details are in [Choose a voice](#3-choose-a-voice).
@@ -50,7 +51,7 @@ Claude asks which look to use for each video. Keep a channel to one or two looks
 
 ### 5. Real pictures and footage
 
-Use real pictures and footage instead of text. Record your screen while you use a tool. Claude trims the clips, retimes them, and blurs private data. Send a web link and Claude captures the page. Product logos always come from official files. For pictures of an idea, Claude prefers licensed stock and uses AI images only when you have set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
+Use real pictures and footage instead of text. Record your screen while you use a tool. Claude trims the clips, retimes them, and blurs private data. Send a web link and Claude captures the page. Product logos always come from official files. For pictures of an idea, Claude prefers licensed stock and uses AI images only when you have added `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` to `~/.config/scene-flow/.env`.
 
 ### 6. Branding and voice of the channel
 
@@ -210,24 +211,27 @@ Shortcuts: `/scene-flow:script` to write or revise, `/scene-flow:review` to fact
 
 ### 3. Choose a voice
 
-If you have no voice file yet, Claude offers three options in this order:
+If you have no voice file yet, Claude offers four options in this order:
 
 | Option | What to tell Claude | What you need |
 |---|---|---|
 | Your own recording | `Voice file: recordings/voice.wav` | Record from `SCRIPT.md`. Claude can give you the script one sentence at a time. |
-| Vibi, ElevenLabs voices | `Use a Vibi voice` | The `VIBI_API_KEY` environment variable. Vibi charges credits per character of the script, so Claude asks before running it. |
+| Vibi, ElevenLabs voices | `Use a Vibi voice` | A `VIBI_API_KEY` line in `~/.config/scene-flow/.env`. Vibi charges credits per character of the script, so Claude asks before running it. |
+| ElevenLabs API | `Use an ElevenLabs voice` | An `ELEVENLABS_API_KEY` line in `~/.config/scene-flow/.env`. ElevenLabs charges credits per character of the script, so Claude asks before running it. A Voice Library voice must be added to your account first. |
 | VieNeu-TTS on Google Colab | `Use the free AI voice` | The `colab` CLI signed in to your Google account. No per-character charge, but it spends Colab compute units, so Claude asks before starting a session. |
 
-To keep the default, do not name a voice. The VieNeu-TTS default is Hải Đăng; the Vibi default is Quang Toan. To pick another voice:
+To keep the default, do not name a voice. The VieNeu-TTS default is Hải Đăng; the Vibi and ElevenLabs default is Quang Toan. To pick another voice:
 
 ```text
 List the available VieNeu voices.
 Use the voice "<voice name>".
 Clone the voice from voice-sample.wav.
 Use Vibi with voice id <ElevenLabs id>.
+List the voices in my ElevenLabs account.
+Use ElevenLabs with voice id <ElevenLabs id>.
 ```
 
-Set `VIBI_API_KEY` in your terminal before opening Claude Code. Do not paste the key into the chat. Shortcut for VieNeu-TTS: `/scene-flow:voice`.
+Add `VIBI_API_KEY=<key>` or `ELEVENLABS_API_KEY=<key>` to `~/.config/scene-flow/.env` yourself, then run `chmod 600 ~/.config/scene-flow/.env`. scene-flow reads keys and config only from this file, never from environment variables. Do not paste the key into the chat. Shortcut for VieNeu-TTS: `/scene-flow:voice`.
 
 ### 4. Pick a look and build the video
 

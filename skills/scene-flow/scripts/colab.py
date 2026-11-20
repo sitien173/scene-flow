@@ -1,8 +1,8 @@
 # Shared client for the Google Colab Whisper and VieNeu-TTS server.
 #
 # Connects to colab/server.py running behind a cloudflared quick tunnel. Reads COLAB_URL
-# and COLAB_TOKEN from the environment, else the session file that colab-session.py up
-# writes. All routes except /health require the token as a Bearer token in the Authorization header.
+# and COLAB_TOKEN from ~/.config/scene-flow/.env (settings.py), else the session file that
+# colab-session.py up writes. All routes except /health require the token as a Bearer token in the Authorization header.
 #
 # Handles HTTP communication using the standard library only. Maps transient connection
 # failures and timeouts to helpful diagnostic messages, and handles voice resolution,
@@ -11,16 +11,18 @@ import json
 import os
 import sys
 import time
-from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import settings
 
 TIMEOUT_DEFAULT = 30
 TIMEOUT_POLL = 15
 TIMEOUT_TTS = 120
 TIMEOUT_UPLOAD = 300
-STATE_PATH = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "scene-flow" / "colab.json"
+STATE_PATH = settings.DIR / "colab.json"
 
 
 class ColabError(Exception):
@@ -44,15 +46,15 @@ class ColabHttpError(ColabError):
 
 
 def get_config():
-    """Read COLAB_URL and COLAB_TOKEN from the environment, else STATE_PATH. Exit cleanly if missing."""
-    url = os.environ.get("COLAB_URL")
-    token = os.environ.get("COLAB_TOKEN")
+    """Read COLAB_URL and COLAB_TOKEN from settings.PATH, else STATE_PATH. Exit cleanly if missing."""
+    url = settings.get("COLAB_URL")
+    token = settings.get("COLAB_TOKEN")
     if (not url or not token) and STATE_PATH.is_file():
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
         url, token = state.get("url"), state.get("token")
     if not url or not token:
         sys.exit("No Colab server configured. Run scripts/colab-session.py up from the scene-flow skill, "
-                 "or set COLAB_URL and COLAB_TOKEN.")
+                 "or set COLAB_URL and COLAB_TOKEN in %s." % settings.PATH)
     return url.rstrip("/"), token
 
 

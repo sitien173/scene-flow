@@ -51,6 +51,8 @@ Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/
 
 Install `pip install -r requirements.txt` (numpy, Pillow). Run `npx --yes hyperframes@0.8.140 doctor` once per machine; HyperFrames runs through `npx`, pinned in each project's `package.json`, and the first run downloads headless Chrome. Stop if Node, ffmpeg, ffprobe, or Chrome fails. Ignore the upgrade notice and the optional engines Kokoro and MusicGen.
 
+Credentials and machine config live only in `~/.config/scene-flow/.env` (mode 600, one `NAME=value` per line), read through `scripts/settings.py`; scripts never read them from environment variables. The author adds each key to that file. Never ask for a key in chat, never print the file or a key, and never copy a key into a project. If the author pastes a key into chat, do not use it: ask them to add it to the file and tell them once to rotate it.
+
 Run `python "<skill>/scripts/gpu-check.py"` once per machine. On `recommendation: local`, an NVIDIA GPU or Apple Silicon was found: suggest local speech to the author before any Colab session, for example "Máy bạn có GPU, dùng whisper.cpp và VieNeu-TTS ngay trên máy thay vì Colab nhé?", and give the install steps it prints. Once the author agrees and the steps are done, use `asr.py --local` and `tts.py --provider local`. On `recommendation: colab`, the Colab server covers speech.
 
 ## What ships with this skill
@@ -87,7 +89,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
    python scripts/silences.py           # cut points in silence
    ```
    Trust the map only at 90% exact match or better; below that, rerun ASR with a larger model. Cross-check distinct brand names and numbers directly in `asr-words.json`.
-6. **Prepare media.** Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
+6. **Prepare media.** Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
 7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. Per-project settings:
 
    | File | Settings |
@@ -119,8 +121,9 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 When a script arrives without audio, offer these three options in this order. If the author says "dùng giọng AI miễn phí" or "tạo giọng luôn", go straight to option 3.
 
 1. **Self-recording.** Give the author the script line by line and wait for the audio.
-2. **Third-party TTS** such as ElevenLabs or OpenAI. Pass the author's key only as an inline environment variable on the one command that needs it. Never write it to disk, and advise the author to rotate it.
-   For Vibi (`api.vibi.pro`, ElevenLabs voices), `tts.py` does the whole voice with `VIBI_API_KEY=<key> python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
+2. **Third-party TTS** such as ElevenLabs or OpenAI. The key goes in `~/.config/scene-flow/.env` (see [Setup](#setup)).
+   For Vibi (`api.vibi.pro`, ElevenLabs voices), with `VIBI_API_KEY` in that file, `tts.py` does the whole voice with `python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
+   For ElevenLabs directly, with `ELEVENLABS_API_KEY` in that file, run `python scripts/tts.py --provider elevenlabs` with the same `--voice`, `--lang`, and `--model` options and the same default voice. `--list` prints the voices in the author's ElevenLabs account. A Voice Library voice must be added to that account first. ElevenLabs also charges credits per character; confirm with the author before running.
 3. **VieNeu-TTS on this machine or on Colab.** With local speech set up (see [Setup](#setup)), run `python scripts/tts.py --provider local [--voice "<name>" | --ref "<clip.wav>"]`; `--list` works too, and no Colab session is needed. Otherwise use Colab. Ask the author before starting a session, because it spends their Colab compute units. The `colab` CLI must be signed in to the author's Google account.
    ```bash
    python "<skill>/scripts/colab-session.py" up       # T4 session; waits for /health
@@ -128,7 +131,7 @@ When a script arrives without audio, offer these three options in this order. If
    python scripts/tts.py [--voice "<name>" | --ref "<clip.wav>"]
    python "<skill>/scripts/colab-session.py" down     # as soon as voice and ASR are done
    ```
-   `up` saves the URL and token to `~/.config/scene-flow/colab.json` (mode 0600), which `tts.py` and `asr.py` read. Never print, copy, or commit the token. `COLAB_URL` and `COLAB_TOKEN` in the environment take precedence, for a server started by hand ([user guide](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content)). `tts.py` writes `assets/audio/voiceover.mp3`.
+   `up` saves the URL and token to `~/.config/scene-flow/colab.json` (mode 0600), which `tts.py` and `asr.py` read. Never print, copy, or commit the token. `COLAB_URL` and `COLAB_TOKEN` in `~/.config/scene-flow/.env` take precedence, for a server started by hand ([user guide](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content)). `tts.py` writes `assets/audio/voiceover.mp3`.
 
 ## Voice last
 
@@ -156,7 +159,7 @@ python scripts/postiz.py renders/<file>.mp4 --dry-run
 python scripts/postiz.py renders/<file>.mp4
 ```
 
-- `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, else from `~/.config/scene-flow/.env` (mode 600). Never ask the author to paste the key into the chat.
+- `POSTIZ_URL` and `POSTIZ_API_KEY` come from `~/.config/scene-flow/.env` (mode 600). Never ask the author to paste the key into the chat.
 - `postiz.json` holds `caption`, `hashtags`, `ai_generated` (`true` or `false`), `youtube_title`, and `channels`. The `caption-writer` sub-agent drafts the copy.
 - When `postiz-receipt.json` shows the file was already posted, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns.
 - Setup: [user guide §6](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).

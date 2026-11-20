@@ -6,11 +6,12 @@
 # steps that are still missing. Local means asr.py --local (whisper.cpp through hyperframes transcribe)
 # and tts.py --provider local (VieNeu-TTS in this Python). Run from the skill; not copied into projects.
 import importlib.util
-import os
 import platform
 import shutil
 import subprocess
 import sys
+
+import settings
 
 
 def nvidia():
@@ -27,7 +28,7 @@ def nvidia():
 
 gpus = nvidia()
 apple = sys.platform == "darwin" and platform.machine() == "arm64"
-whisper = os.environ.get("HYPERFRAMES_WHISPER_PATH") or shutil.which("whisper-cli")
+whisper = settings.get("HYPERFRAMES_WHISPER_PATH") or shutil.which("whisper-cli")
 vieneu = importlib.util.find_spec("vieneu") is not None
 
 if gpus:
@@ -52,7 +53,7 @@ if not whisper:
         print("  whisper.cpp with CUDA:")
         print("    git clone https://github.com/ggml-org/whisper.cpp && cd whisper.cpp")
         print("    cmake -B build -DGGML_CUDA=1 && cmake --build build -j --config Release")
-        print("    then set HYPERFRAMES_WHISPER_PATH to the full path of build/bin/whisper-cli")
+        print("    then add HYPERFRAMES_WHISPER_PATH=<full path of build/bin/whisper-cli> to %s" % settings.PATH)
 if not vieneu:
     if apple:
         print('  VieNeu-TTS (ONNX, faster than MPS on Apple Silicon):  pip install "vieneu==3.8.4"')
