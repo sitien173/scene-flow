@@ -4,20 +4,7 @@ This guide is designed for creators and non-programmers. Follow the steps in seq
 
 ## 1. Installation
 
-1. Install [Claude Code](https://claude.com/claude-code) and sign in.
-2. Install required system tools (Python 3.12, Node.js 22+, FFmpeg, and Git) following the platform instructions in the [README installation section](../README.md#installation).
-3. Clone this repository into your Claude Code skills folder:
-   - On Windows (PowerShell):
-     ```powershell
-     git clone https://github.com/sitien173/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
-     ```
-   - On macOS or Linux:
-     ```bash
-     git clone https://github.com/sitien173/scene-flow ~/.claude/skills/scene-flow
-     ```
-   If Git is not installed yet, download the repository ZIP file (via GitHub **Code -> Download ZIP**) and extract it to your skills folder (`%USERPROFILE%\.claude\skills\scene-flow` on Windows, or `~/.claude/skills/scene-flow` on macOS or Linux).
-4. Install Python dependencies and HyperFrames skills as detailed in the [README installation section](../README.md#installation).
-5. Restart Claude Code.
+Run the one-line installer from the [README](../README.EN.md#install). It checks Git, Python, Node.js, FFmpeg, the Python packages, Claude Code, and the scene-flow plugin, and asks before installing anything that is missing. When it finishes, open a new terminal and run `claude` once to sign in.
 
 ## 2. Preparing Content
 
@@ -210,7 +197,7 @@ Projects created before this feature do not have the publisher. Copy `scripts/po
 
 | Symptom | Resolution |
 |---|---|
-| `motion-doctrine not found` | Re-run HyperFrames skill installation from the [README installation section](../README.md#installation). |
-| `ffmpeg` / `node` / `python` not found | Install missing tools per the [README installation section](../README.md#installation) and restart terminal. |
+| `motion-doctrine not found` | The plugin is incomplete. Run the [installer](../README.EN.md#install) again, or run `claude plugin update scene-flow@scene-flow`, then restart Claude Code. |
+| `ffmpeg` / `node` / `python` not found | Run the [installer](../README.EN.md#install) again, then open a new terminal. |
 | ASR alignment match rate low (< 90%) | Ask Claude to run alignment using a larger Whisper model (`medium` or `large-v3`). |
-| Video exceeds 2 minutes and paper background cuts off | Tell Claude to "extend paper background plate" (see [README notes](../README.md#notes)). |
+| Video exceeds 2 minutes and paper background cuts off | Tell Claude to "extend paper background plate". |

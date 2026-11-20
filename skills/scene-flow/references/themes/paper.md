@@ -26,6 +26,9 @@ control being tapped and other overlays sit above the recording. Paper captions 
 K2D in the lower band, in uppercase. Unlit text is dark. The spoken word is white in a
 violet box and scales to 1.08. Over black app footage, use white text with a dark halo.
 
+The bundled moving paper plate is 124 s long. For a longer video, loop it to full length before
+building: `ffmpeg -stream_loop 1 -i paper-bg.mp4 -c copy paper-bg-long.mp4`.
+
 ## Transitions
 
 Paper cuts follow the `LEFT` motion default. Chapter openers use `UP`; the bundled
