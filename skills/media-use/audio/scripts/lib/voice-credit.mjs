@@ -3,6 +3,7 @@ const VENDORS = {
   heygen: "HeyGen",
   elevenlabs: "ElevenLabs",
   gemini: "Google Gemini",
+  vibi: "Vibi",
   kokoro: "Kokoro (open-source, run locally)",
 };
 

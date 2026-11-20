@@ -115,6 +115,25 @@ node <SKILL_DIR>/audio/scripts/heygen-voice.mjs delete <voice_id>
 | Directed delivery with Gemini prebuilt or custom voices   | **Gemini** (explicit selection; transcription for timing) |
 | Non-English multilingual with deterministic phonemization | **Kokoro** (`ef_dora`, `jf_alpha`, `zf_xiaobei`, …)       |
 
+## Vibi narration
+
+Vibi (`api.vibi.pro`) serves ElevenLabs, MiniMax and CapCut voices through its own
+asynchronous API; the engine uses its default ElevenLabs provider.
+It is explicit-only: set `"provider": "vibi"` (or `--provider vibi`) and
+`$VIBI_API_KEY`. It is never picked automatically.
+
+- **Flow:** `POST /v1/text-to-speech/{voice_id}` queues a task, the engine polls
+  `GET /v1/history/{id}` every 2 s (up to ~5 min), then downloads
+  `result.audio_url` and transcodes mp3 → wav.
+- **Voice:** ElevenLabs voice IDs; default Rachel (`21m00Tcm4TlvDq8ikWAM`).
+- **Language:** `lang` is sent as the required `language_code` (e.g. `en`, `vi`).
+- **Model:** `tts_model` is sent as `model_id`; omitted, Vibi uses `eleven_v3`.
+- **Speed:** sent as `voice_settings.speed` (ElevenLabs range 0.7-1.2).
+- **Timing:** no word timestamps; the engine transcribes the wav.
+- Credits are charged per character of input text.
+
+API reference: <https://vibi.pro/docs>.
+
 ## Gemini narration
 
 Use the shared audio engine, not `hyperframes tts`. Authenticate with either:
