@@ -184,27 +184,38 @@ Claude asks you to pick `neon3d`, `terra3d`, or `atlas3d`, lines up the pictures
 
 ### A TikTok channel with many videos
 
-When you post regularly for one channel, keep every video in one channel folder so Claude remembers your branding and style between videos:
+When you post regularly for one channel, keep every video in one channel folder so Claude remembers your branding and style between videos. Type `/scene-flow:channel`, or say:
+
+```text
+Set up a new TikTok channel for me.
+```
+
+If you have no idea yet, Claude asks what you like, who you want to talk to, and which voice you will use, then suggests three channel ideas. Each idea has a niche, an audience, a matching look, name ideas, and three first-video topics. Claude then asks for the channel name, slogan, logo, and the folder to create it in, shows you the full path, and creates it only after you agree:
 
 ```text
 <channel-name>/
 ├── AGENTS.md              # channel-wide rules: voice, branding, hashtags
 ├── CLAUDE.md              # one line: @AGENTS.md
-├── brand/logos/           # the channel's official logos
-├── new-video.sh           # creates a new video and applies the branding
+├── brand/
+│   ├── brand.json         # channel name, logo file, slogan
+│   └── logos/             # the channel's official logos
+├── new-video.sh           # creates a new video and applies the branding; new-video.ps1 on Windows
 ├── videos/
 │   └── <yyyy-mm>-<slug>/  # each video is its own scene-flow project
 └── publish/
     └── <yyyy-mm>-<slug>.mp4
 ```
 
-A prompt to have Claude set up this folder:
+Create a new video for the channel:
 
-```text
-Set up a TikTok channel folder for "<channel name>" with this layout: AGENTS.md, CLAUDE.md,
-brand/logos, videos/<yyyy-mm>-<slug>, publish. Write new-video.sh that takes a slug, a video
-name, and a look, creates the project in videos/, copies the logos from brand/logos, and fills
-in BRAND_NAME, BRAND_LOGO, and SLOGAN in scripts/build.py. Copy final MP4s to publish/.
+```bash
+./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
+```
+
+On Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d> [voice file]
 ```
 
 Put what applies to every video of the channel in `AGENTS.md`, for example brand colors, address terms, a fixed closing line, or "at most 5 hashtags, always include #xuhuong". For each video, open Claude Code in that video's folder, not in the channel folder. If you use Git, ignore `publish/` and each video's `renders/`, `snapshots/`, and `assets/audio/src/` folders, since they are large.
@@ -217,6 +228,7 @@ In Claude Code, type these commands to run one step at a time:
 
 | Command | What it does |
 |---|---|
+| `/scene-flow:channel` | Sets up a channel folder or suggests channel ideas |
 | `/scene-flow:topic` | Finds trending topics for your niche |
 | `/scene-flow:script` | Writes or edits the script |
 | `/scene-flow:review` | Checks facts and reviews the script |

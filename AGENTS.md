@@ -20,6 +20,7 @@ skills/scene-flow/template/     starter project copied by scripts/new-project.py
 skills/scene-flow/author/       AGENTS.template.md, the author-preferences file users copy next to their projects
 skills/scene-flow/colab/        server.py for Whisper ASR and VieNeu-TTS on a Colab GPU
 skills/scene-flow/assets/       fonts, logos, audio, 3D kits; licenses in SOURCES.md
+skills/scene-flow-channel/      skill that sets up a channel folder; templates/ holds new-video.sh and new-video.ps1
 skills/<other>/                 bundled third-party skills, unmodified from upstream
 agents/                         Claude Code sub-agents (topic-scout, script-writer, ...)
 commands/                       Claude Code slash commands, invoked as /scene-flow:<name>
@@ -31,7 +32,8 @@ tests/                          CI checks; see "Checks"
 
 ## Rules
 
-- Do not edit the bundled skills under `skills/` other than `skills/scene-flow/`.
+- Do not edit the bundled skills under `skills/` other than `skills/scene-flow/` and
+  `skills/scene-flow-channel/`.
   `tests/check-bundled.sh` fails on any change.
 - Never edit version numbers or `CHANGELOG.md`. release-please sets the version in all five
   manifests from Conventional Commit messages.

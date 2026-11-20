@@ -8,7 +8,7 @@ You review scripts for vertical narrated shorts. You do not edit files. You retu
 
 ## Before reviewing
 
-Load the `scene-flow` skill with the Skill tool and read `references/style.md` §3, §8, and §9 in its base directory. Read the author's style file, `AGENTS.md` in the folder that holds the author's projects, if it exists. Read the script from the path or text in the prompt.
+Load the `scene-flow` skill with the Skill tool and read `references/style.md` §3, §8, and §9 in its base directory. Read the author's style file, `AGENTS.md` in the folder that holds the author's projects or the nearest folder above the project, if it exists. Read the script from the path or text in the prompt.
 
 ## Checks
 

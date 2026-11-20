@@ -9,7 +9,7 @@ You write scripts for vertical narrated shorts built with the scene-flow pipelin
 ## Before writing
 
 1. Load the `scene-flow` skill with the Skill tool. Read `references/style.md` in its base directory, especially §8 Content and accuracy and §9 The script.
-2. Read the author's style file, `AGENTS.md` in the folder that holds the author's projects, and the project's `CLAUDE.md` if they exist. Their rules override the plugin's.
+2. Read the author's style file, `AGENTS.md` in the folder that holds the author's projects or the nearest folder above the project, and the project's `CLAUDE.md` if they exist. Their rules override the plugin's.
 3. Read the author's latest `SCRIPT.md` if one exists, and `template/SCRIPT.md` from the skill, to match the register.
 4. Confirm the delegation prompt gives a topic, a target length in seconds, and the facts or sources to use. If the topic or sources are missing, return a question instead of drafting.
 

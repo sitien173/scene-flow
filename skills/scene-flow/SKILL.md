@@ -29,6 +29,7 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 
 | Task | Read | Invoke |
 |---|---|---|
+| Set up a channel folder for many videos, or suggest channel ideas | none | skill `scene-flow-channel` |
 | Find a video topic | none | sub-agent `topic-scout` |
 | Write or revise `SCRIPT.md` | [style.md §8 and §9](references/style.md#9-the-script) | sub-agent `script-writer` |
 | Fact-check the script | [style.md §8](references/style.md#8-content-and-accuracy) | sub-agent `fact-checker` |
@@ -66,7 +67,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 
 ## Order of work
 
-1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, or atlas3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
+1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects, or the nearest `AGENTS.md` above the project, such as a channel folder from the `scene-flow-channel` skill. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, or atlas3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
 2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences.
 3. **Get the voice.** If there is no recording yet, see [Voice sources](#voice-sources).
 4. **Start the project.**

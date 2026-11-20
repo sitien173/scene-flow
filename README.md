@@ -149,27 +149,38 @@ Claude hỏi bạn chọn `neon3d`, `terra3d` hay `atlas3d`, căn hình theo gi�
 
 ### Dựng kênh TikTok nhiều video
 
-Khi làm đều đặn cho một kênh, gom mọi video vào một thư mục kênh để Claude nhớ thương hiệu và phong cách giữa các video:
+Khi làm đều đặn cho một kênh, gom mọi video vào một thư mục kênh để Claude nhớ thương hiệu và phong cách giữa các video. Gõ `/scene-flow:channel`, hoặc nói:
+
+```text
+Tạo kênh TikTok mới cho tôi.
+```
+
+Nếu bạn chưa có ý tưởng, Claude hỏi bạn thích chủ đề gì, muốn nói với ai, dùng giọng nào, rồi gợi ý ba hướng kênh. Mỗi hướng gồm lĩnh vực, người xem, phong cách hợp, gợi ý tên và ba chủ đề cho video đầu. Sau đó Claude hỏi tên kênh, slogan, logo và thư mục muốn tạo kênh, cho bạn xem đường dẫn đầy đủ, và chỉ tạo khi bạn đồng ý:
 
 ```text
 <tên-kênh>/
 ├── AGENTS.md              # quy tắc chung của kênh: giọng văn, thương hiệu, hashtag
 ├── CLAUDE.md              # chỉ một dòng: @AGENTS.md
-├── brand/logos/           # logo chính thức của kênh
-├── new-video.sh           # tạo một video mới và gắn thương hiệu
+├── brand/
+│   ├── brand.json         # tên kênh, file logo, slogan
+│   └── logos/             # logo chính thức của kênh
+├── new-video.sh           # tạo một video mới và gắn thương hiệu; trên Windows là new-video.ps1
 ├── videos/
 │   └── <yyyy-mm>-<slug>/  # mỗi video là một project scene-flow riêng
 └── publish/
     └── <yyyy-mm>-<slug>.mp4
 ```
 
-Prompt để Claude dựng thư mục này:
+Tạo video mới cho kênh:
 
-```text
-Dựng thư mục kênh TikTok "<tên kênh>" theo bố cục: AGENTS.md, CLAUDE.md, brand/logos,
-videos/<yyyy-mm>-<slug>, publish. Viết new-video.sh nhận slug, tên video và phong cách,
-tạo project trong videos/ rồi chép logo từ brand/logos và điền BRAND_NAME, BRAND_LOGO,
-SLOGAN trong scripts/build.py. File MP4 cuối cùng chép vào publish/.
+```bash
+./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
+```
+
+Trên Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
 ```
 
 Ghi vào `AGENTS.md` những điều áp dụng cho mọi video của kênh, ví dụ màu thương hiệu, cách xưng hô, câu kết cố định, hoặc "tối đa 5 hashtag, luôn có #xuhuong". Mỗi lần làm video, mở Claude Code trong thư mục của video đó, không mở ở thư mục kênh. Nếu dùng Git, bỏ qua `publish/` và các thư mục `renders/`, `snapshots/`, `assets/audio/src/` của từng video vì chúng nặng.
@@ -182,6 +193,7 @@ Trong Claude Code, gõ các lệnh sau để chạy từng bước:
 
 | Lệnh | Việc làm |
 |---|---|
+| `/scene-flow:channel` | Dựng thư mục kênh hoặc gợi ý ý tưởng kênh |
 | `/scene-flow:topic` | Tìm chủ đề đang nổi trong lĩnh vực của bạn |
 | `/scene-flow:script` | Viết hoặc sửa kịch bản |
 | `/scene-flow:review` | Kiểm chứng thông tin và nhận xét kịch bản |

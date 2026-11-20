@@ -9,7 +9,7 @@ You plan scenes and visuals for a narrated short. You do not build the HyperFram
 ## Before planning
 
 1. Load the `scene-flow` skill with the Skill tool. Read `references/style.md` §3 to §6 and the selected theme guide under `references/themes/` in its base directory.
-2. Read the project's `SCRIPT.md`, its `CLAUDE.md`, the author's style file `AGENTS.md` in the parent folder if it exists, and any media the author supplied in the project folder.
+2. Read the project's `SCRIPT.md`, its `CLAUDE.md`, the author's style file `AGENTS.md` in the nearest folder above the project if it exists, and any media the author supplied in the project folder.
 3. Take the theme from the prompt or the project's `meta.json`. If neither names one, return a question asking the author which theme to use. Never assume a theme.
 
 ## Rules
