@@ -9,11 +9,33 @@ scene-flow turns a script and a voice recording into a 9:16 video for TikTok, Re
 
 ## What you get
 
-- **Three looks:** `neon3d` (short neon 3D scenes), `terra3d` (short daylight 3D scenes for engineering, geography, and history), and `atlas3d` (old-style map scenes with map pans and backdrop photos). Claude asks which one to use for each video.
 - **Real pictures over text:** product logos, your screen recordings, and captures of web pages.
 - **Captions in sync:** each spoken word lights up as it is said.
-- **Sound:** a music bed and sound effects on scene changes and key moments.
-- **Voice:** use your own recording, or generate one with a free AI voice on Google Colab.
+- **Sound:** a music bed and sound effects on scene changes and key moments, leveled against the voice automatically.
+- **Voice:** use your own recording, ElevenLabs voices through Vibi, or the VieNeu-TTS AI voice on Google Colab.
+
+### Three looks
+
+Claude asks which look to use for each video. Pick by topic:
+
+| Look | What it looks like | Good for |
+|---|---|---|
+| `neon3d` | Short 3D scenes on a dark neon stage with bloom | Technology, AI tools, software, digital products |
+| `terra3d` | Daylight 3D scenes: a globe with route arcs, ships on the ocean, terrain from a drone, cutaways of soil and water. Hard cuts on spoken words, captions one word at a time | Engineering, construction, geography, history |
+| `atlas3d` | An old-style world map with camera pans between regions, territories raised in 3D, chibi figures on the map, and photo backdrop scenes | History, geography, geopolitics, and economics told on a map |
+
+Keep a channel to one or two looks so viewers recognize it from the first frame.
+
+### Make the channel your own
+
+Look-alike videos get scrolled past. These make your channel different:
+
+- **Real pictures and footage.** Record your screen while you use a tool. Claude trims the clips, retimes them, and blurs private data. Send a web link and Claude captures the page. Logos always come from official files; Claude never draws a logo. For pictures of an idea, Claude prefers licensed stock and uses AI images only when you have set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
+- **Voice.** Pick one voice and keep it for the whole channel. Your own recording is the most distinctive. For an AI voice that sounds like you, ask Claude to clone it from a sample recording. Clone only your own voice or the voice of someone who has agreed.
+- **Sound.** The music bed can be any track; Claude measures it and levels it under the voice. Use only music you have the right to use. Say whether you want more or fewer sound effects. `terra3d` has no sound on scene changes.
+- **Branding.** Your channel name, logo, and the slogan on the end card. Add your channel's address terms, fixed opening line, or fixed closing line.
+
+Write these choices into `AGENTS.md` so Claude applies them to every later video. See [Your style](#your-style) and [A TikTok channel with many videos](#a-tiktok-channel-with-many-videos).
 
 ## Install
 
@@ -93,22 +115,99 @@ python install-agy-ide.py --uninstall
 
 The script replaces or removes only a folder it created. It prints one line: `installed`, `updated`, `removed`, `not installed`, or `refused:` with the reason.
 
-## Make your first video
+## Make a video with prompts
 
-1. Create a folder for your videos and open Claude Code in it.
-2. Send a message like this one, in Vietnamese or English:
+You do not need to remember commands. Each step below has a sample prompt to type into Claude Code, and a shortcut command if you prefer to call it directly. Claude does one step at a time and waits for your approval. Prompts work in Vietnamese or English.
 
-   ```text
-   Tạo video tiktok về cách tạo chatbot AI. File giọng đọc: recordings/voice.wav
-   Phải có logo của các công cụ. Hạn chế chữ. Phần comment dùng từ khóa CHATBOT.
-   Kịch bản:
-   <your script, one sentence per line>
-   ```
+### 1. Find a topic
 
-   *(Make a TikTok video about building an AI chatbot. Voice file: recordings/voice.wav. Show the tools' logos. Keep text short. Use CHATBOT as the comment keyword. Script: one sentence per line.)*
-3. Pick a look when Claude asks. Claude then lines up the pictures with the voice and sends you a preview link.
-4. Open the link and press play. Ask for changes in your own words, for example "chữ nhỏ quá" *(the text is too small)*.
-5. Say **"render video"** to get the MP4.
+Name the niche and the audience. The more specific, the closer the topics.
+
+```text
+Find 5 trending topics about AI tools for office workers aged 22 to 35.
+```
+
+Shortcut: `/scene-flow:topic <niche and audience>`. Claude returns a ranked list and asks you to pick one.
+
+### 2. Write and check the script
+
+Give Claude the topic, source links, or your notes. The script lives in `SCRIPT.md`, one sentence per line.
+
+```text
+Write a script of about 60 seconds on topic 2. Source: <link>.
+Open with a question, keep it conversational, and end by asking viewers to comment the keyword CHATBOT.
+```
+
+If you already have a script, paste it into the message. Then ask Claude to check it:
+
+```text
+Fact-check the script and point out sentences that are hard to read aloud.
+```
+
+Shortcuts: `/scene-flow:script` to write or revise, `/scene-flow:review` to fact-check and review.
+
+### 3. Choose a voice
+
+If you have no voice file yet, Claude offers three options in this order:
+
+| Option | What to tell Claude | What you need |
+|---|---|---|
+| Your own recording | `Voice file: recordings/voice.wav` | Record from `SCRIPT.md`. Claude can give you the script one sentence at a time. |
+| Vibi, ElevenLabs voices | `Use a Vibi voice` | The `VIBI_API_KEY` environment variable. Vibi charges credits per character of the script, so Claude asks before running it. |
+| VieNeu-TTS on Google Colab | `Use the free AI voice` | The `colab` CLI signed in to your Google account. No per-character charge, but it spends Colab compute units, so Claude asks before starting a session. |
+
+To keep the default, do not name a voice. The VieNeu-TTS default is Hải Đăng; the Vibi default is Quang Toan. To pick another voice:
+
+```text
+List the available VieNeu voices.
+Use the voice "<voice name>".
+Clone the voice from voice-sample.wav.
+Use Vibi with voice id <ElevenLabs id>.
+```
+
+Set `VIBI_API_KEY` in your terminal before opening Claude Code. Do not paste the key into the chat. Shortcut for VieNeu-TTS: `/scene-flow:voice`.
+
+### 4. Pick a look and build the video
+
+```text
+Make a video from this script. Show the logos of the tools it mentions. Keep text on screen short.
+```
+
+Claude asks you to pick `neon3d`, `terra3d`, or `atlas3d`, lines up the pictures with the voice, and sends a preview link. Name the look in the prompt if you already know which one you want.
+
+### 5. Give feedback, render, and publish
+
+- Open the preview link and press play. Ask for changes in plain words, for example "the text is too small" or "switch scene 3 to the GitHub logo".
+- Say **"render video"** to get the MP4.
+- Say "write the caption and hashtags" for a title, description, and hashtags.
+- Say "send it to Postiz" to create a draft. Claude posts immediately or schedules only when you ask for it explicitly.
+
+### A TikTok channel with many videos
+
+When you post regularly for one channel, keep every video in one channel folder so Claude remembers your branding and style between videos:
+
+```text
+<channel-name>/
+├── AGENTS.md              # channel-wide rules: voice, branding, hashtags
+├── CLAUDE.md              # one line: @AGENTS.md
+├── brand/logos/           # the channel's official logos
+├── new-video.sh           # creates a new video and applies the branding
+├── videos/
+│   └── <yyyy-mm>-<slug>/  # each video is its own scene-flow project
+└── publish/
+    └── <yyyy-mm>-<slug>.mp4
+```
+
+A prompt to have Claude set up this folder:
+
+```text
+Set up a TikTok channel folder for "<channel name>" with this layout: AGENTS.md, CLAUDE.md,
+brand/logos, videos/<yyyy-mm>-<slug>, publish. Write new-video.sh that takes a slug, a video
+name, and a look, creates the project in videos/, copies the logos from brand/logos, and fills
+in BRAND_NAME, BRAND_LOGO, and SLOGAN in scripts/build.py. Copy final MP4s to publish/.
+```
+
+Put what applies to every video of the channel in `AGENTS.md`, for example brand colors, address terms, a fixed closing line, or "at most 5 hashtags, always include #xuhuong". For each video, open Claude Code in that video's folder, not in the channel folder. If you use Git, ignore `publish/` and each video's `renders/`, `snapshots/`, and `assets/audio/src/` folders, since they are large.
 
 The [user guide](docs/user-guide.md) covers each step in detail, including voice options, feedback, publishing, and troubleshooting.
 

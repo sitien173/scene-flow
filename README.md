@@ -9,11 +9,33 @@ scene-flow biến một kịch bản và một file giọng đọc thành video 
 
 ## Bạn có gì
 
-- **Ba phong cách:** `neon3d` là các cảnh 3D neon ngắn, `terra3d` là các cảnh 3D ban ngày cho chủ đề kỹ thuật, địa lý và lịch sử, và `atlas3d` là các cảnh trên bản đồ cổ, với máy quay lướt qua bản đồ và cảnh nền ảnh. Claude hỏi bạn chọn phong cách nào cho mỗi video.
 - **Hình thật thay cho chữ:** logo sản phẩm, video quay màn hình của bạn, ảnh chụp trang web.
 - **Phụ đề khớp giọng:** từ nào được đọc thì từ đó sáng lên.
-- **Âm thanh:** nhạc nền và hiệu ứng âm thanh ở mỗi lần chuyển cảnh và các điểm nhấn.
-- **Giọng đọc:** dùng file bạn tự thu, hoặc tạo giọng AI miễn phí trên Google Colab.
+- **Âm thanh:** nhạc nền và hiệu ứng âm thanh ở các lần chuyển cảnh và điểm nhấn, được tự cân âm lượng theo giọng đọc.
+- **Giọng đọc:** dùng file bạn tự thu, giọng ElevenLabs qua Vibi, hoặc giọng AI VieNeu-TTS trên Google Colab.
+
+### Ba phong cách
+
+Claude hỏi bạn chọn phong cách cho mỗi video. Chọn theo chủ đề:
+
+| Phong cách | Trông như thế nào | Hợp với chủ đề |
+|---|---|---|
+| `neon3d` | Các cảnh 3D ngắn trên sân khấu neon tối, ánh sáng phát quang | Công nghệ, công cụ AI, phần mềm, sản phẩm số |
+| `terra3d` | Các cảnh 3D ban ngày: quả địa cầu với tuyến đường, tàu trên biển, địa hình nhìn từ drone, mặt cắt đất và nước. Cắt cảnh dứt khoát theo từng từ, phụ đề hiện từng chữ | Kỹ thuật, công trình, địa lý, lịch sử |
+| `atlas3d` | Bản đồ thế giới kiểu cổ, máy quay lướt giữa các vùng, lãnh thổ nổi khối 3D, nhân vật chibi đứng trên bản đồ, xen cảnh nền ảnh | Lịch sử, địa lý, địa chính trị, kinh tế kể trên bản đồ |
+
+Một kênh nên giữ một hoặc hai phong cách để người xem nhận ra kênh ngay từ khung hình đầu.
+
+### Cá nhân hóa kênh
+
+Video giống nhau dễ bị lướt qua. Những thứ sau làm kênh của bạn khác đi:
+
+- **Hình ảnh và video thật.** Tự quay màn hình khi thao tác công cụ. Claude cắt đoạn, chỉnh tốc độ và làm mờ dữ liệu riêng tư trong clip. Gửi link trang web để Claude chụp ảnh trang. Logo luôn lấy từ file chính thức, Claude không tự vẽ logo. Với hình minh họa ý tưởng, Claude ưu tiên ảnh stock có giấy phép, và chỉ tạo ảnh bằng AI khi bạn đã cấu hình `IMAGE_API_URL`, `IMAGE_API_KEY` và `IMAGE_MODEL`.
+- **Giọng đọc.** Chọn một giọng và giữ cố định cho cả kênh. Tự thu giọng tạo dấu ấn rõ nhất. Muốn dùng giọng AI giống giọng thật của bạn thì nhờ Claude nhái giọng từ một đoạn thu mẫu. Chỉ nhái giọng của chính bạn hoặc của người đã đồng ý.
+- **Âm thanh.** Nhạc nền đổi được sang bất kỳ bài nào, Claude tự đo và cân âm lượng dưới giọng đọc. Chỉ dùng nhạc bạn có quyền sử dụng. Nói rõ bạn muốn nhiều hay ít hiệu ứng âm thanh. Riêng `terra3d` không có âm thanh khi chuyển cảnh.
+- **Thương hiệu.** Tên kênh, logo và câu slogan ở màn hình cuối video. Thêm cách xưng hô, câu mở đầu hoặc câu kết cố định của kênh.
+
+Ghi những lựa chọn trên vào `AGENTS.md` để Claude áp dụng cho mọi video sau. Xem [Phong cách của bạn](#phong-cách-của-bạn) và [Dựng kênh TikTok nhiều video](#dựng-kênh-tiktok-nhiều-video).
 
 ## Cài đặt
 
@@ -58,21 +80,99 @@ scene-flow cũng chạy trong Codex, Pi, agy và Antigravity IDE. Cài các côn
 
 Các lệnh và agent hỗ trợ ở phần dưới chỉ chạy trong Claude Code.
 
-## Làm video đầu tiên
+## Làm video bằng prompt
 
-1. Tạo một thư mục để chứa video và mở Claude Code trong thư mục đó.
-2. Gửi tin nhắn giống như sau:
+Bạn không cần nhớ lệnh. Mỗi bước dưới đây có một prompt mẫu để gõ vào Claude Code, và một lệnh tắt nếu bạn muốn gọi thẳng. Claude chỉ làm một bước mỗi lần rồi chờ bạn duyệt.
 
-   ```text
-   Tạo video tiktok về cách tạo chatbot AI. File giọng đọc: recordings/voice.wav
-   Phải có logo của các công cụ. Hạn chế chữ. Phần comment dùng từ khóa CHATBOT.
-   Kịch bản:
-   <kịch bản của bạn, mỗi câu một dòng>
-   ```
+### 1. Tìm chủ đề
 
-3. Chọn phong cách khi Claude hỏi. Claude sẽ căn hình theo giọng đọc rồi gửi bạn link xem thử.
-4. Mở link và bấm phát. Yêu cầu sửa bằng lời của bạn, ví dụ "chữ nhỏ quá".
-5. Nói **"render video"** để nhận file MP4.
+Nói rõ lĩnh vực và người xem. Càng cụ thể, chủ đề càng sát.
+
+```text
+Tìm 5 chủ đề đang nổi về công cụ AI cho dân văn phòng, người xem 22 đến 35 tuổi.
+```
+
+Lệnh tắt: `/scene-flow:topic <lĩnh vực và người xem>`. Claude trả về danh sách chủ đề có xếp hạng và hỏi bạn chọn một.
+
+### 2. Viết và kiểm chứng kịch bản
+
+Đưa Claude chủ đề, link nguồn hoặc ghi chú của bạn. Kịch bản nằm trong `SCRIPT.md`, mỗi câu một dòng.
+
+```text
+Viết kịch bản khoảng 60 giây về chủ đề số 2. Nguồn: <link>.
+Mở đầu bằng một câu hỏi, giọng nói chuyện, kết bằng lời kêu gọi comment từ khóa CHATBOT.
+```
+
+Nếu đã có kịch bản, dán thẳng vào tin nhắn. Sau đó nhờ Claude kiểm tra:
+
+```text
+Kiểm chứng thông tin trong kịch bản và chỉ ra câu nào khó đọc thành tiếng.
+```
+
+Lệnh tắt: `/scene-flow:script` để viết hoặc sửa, `/scene-flow:review` để kiểm chứng và nhận xét.
+
+### 3. Chọn giọng đọc
+
+Nếu bạn chưa có file giọng, Claude đưa ra ba lựa chọn theo thứ tự sau:
+
+| Lựa chọn | Cách nói với Claude | Cần chuẩn bị |
+|---|---|---|
+| Tự thu giọng | `File giọng đọc: recordings/voice.wav` | Thu theo đúng `SCRIPT.md`. Claude có thể đưa từng câu để bạn đọc. |
+| Vibi, giọng ElevenLabs | `Dùng giọng Vibi` | Biến môi trường `VIBI_API_KEY`. Vibi tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. |
+| VieNeu-TTS trên Google Colab | `Dùng giọng AI miễn phí` | Lệnh `colab` đã đăng nhập tài khoản Google của bạn. Không tính phí theo ký tự, nhưng tốn compute unit của Colab, nên Claude hỏi trước khi mở phiên. |
+
+Muốn để mặc định thì không cần nêu tên giọng. Giọng mặc định của VieNeu-TTS là Hải Đăng, của Vibi là Quang Toan. Muốn chọn giọng khác:
+
+```text
+Liệt kê các giọng VieNeu có sẵn.
+Dùng giọng "<tên giọng>".
+Nhái giọng theo file mau-giong.wav.
+Dùng Vibi với voice id <id ElevenLabs>.
+```
+
+Đặt `VIBI_API_KEY` trong terminal trước khi mở Claude Code. Đừng dán key vào khung chat. Lệnh tắt cho VieNeu-TTS: `/scene-flow:voice`.
+
+### 4. Chọn phong cách và dựng video
+
+```text
+Tạo video từ kịch bản này. Phải có logo của các công cụ được nhắc tới. Hạn chế chữ trên hình.
+```
+
+Claude hỏi bạn chọn `neon3d`, `terra3d` hay `atlas3d`, căn hình theo giọng đọc, rồi gửi link xem thử. Nhắc tên phong cách ngay trong prompt nếu bạn đã biết mình muốn gì.
+
+### 5. Góp ý, xuất file và đăng
+
+- Mở link xem thử và bấm phát. Góp ý bằng lời thường, ví dụ "chữ nhỏ quá" hoặc "cảnh 3 đổi sang logo GitHub".
+- Nói **"render video"** để nhận file MP4.
+- Nói "viết caption và hashtag" để có tiêu đề, mô tả và hashtag.
+- Nói "gửi lên Postiz" để tạo bản nháp. Claude chỉ đăng ngay hoặc hẹn giờ khi bạn yêu cầu rõ.
+
+### Dựng kênh TikTok nhiều video
+
+Khi làm đều đặn cho một kênh, gom mọi video vào một thư mục kênh để Claude nhớ thương hiệu và phong cách giữa các video:
+
+```text
+<tên-kênh>/
+├── AGENTS.md              # quy tắc chung của kênh: giọng văn, thương hiệu, hashtag
+├── CLAUDE.md              # chỉ một dòng: @AGENTS.md
+├── brand/logos/           # logo chính thức của kênh
+├── new-video.sh           # tạo một video mới và gắn thương hiệu
+├── videos/
+│   └── <yyyy-mm>-<slug>/  # mỗi video là một project scene-flow riêng
+└── publish/
+    └── <yyyy-mm>-<slug>.mp4
+```
+
+Prompt để Claude dựng thư mục này:
+
+```text
+Dựng thư mục kênh TikTok "<tên kênh>" theo bố cục: AGENTS.md, CLAUDE.md, brand/logos,
+videos/<yyyy-mm>-<slug>, publish. Viết new-video.sh nhận slug, tên video và phong cách,
+tạo project trong videos/ rồi chép logo từ brand/logos và điền BRAND_NAME, BRAND_LOGO,
+SLOGAN trong scripts/build.py. File MP4 cuối cùng chép vào publish/.
+```
+
+Ghi vào `AGENTS.md` những điều áp dụng cho mọi video của kênh, ví dụ màu thương hiệu, cách xưng hô, câu kết cố định, hoặc "tối đa 5 hashtag, luôn có #xuhuong". Mỗi lần làm video, mở Claude Code trong thư mục của video đó, không mở ở thư mục kênh. Nếu dùng Git, bỏ qua `publish/` và các thư mục `renders/`, `snapshots/`, `assets/audio/src/` của từng video vì chúng nặng.
 
 [Hướng dẫn sử dụng](docs/user-guide.md) giải thích chi tiết từng bước: các cách có giọng đọc, góp ý, đăng bài và xử lý sự cố. Hướng dẫn hiện chỉ có bản tiếng Anh.
 
