@@ -11,22 +11,49 @@
 # Transcribes audio on Google Colab using OpenAI Whisper via colab/server.py.
 # Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN. Output is words with start/end
 # times, which the map can then be built from as measurement instead of inference.
+#
+# --local runs whisper.cpp on this machine through hyperframes transcribe instead; gpu-check.py says
+# when that is worth it. The words then carry no confidence, which nothing downstream reads.
+#   python scripts/asr.py [model] [audio] [--local]
 import io
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import colab
 
-MODEL = sys.argv[1] if len(sys.argv) > 1 else "small"
-AUDIO = sys.argv[2] if len(sys.argv) > 2 else "assets/audio/src/voiceover-master.wav"
+LOCAL = "--local" in sys.argv
+ARGS = [x for x in sys.argv[1:] if x != "--local"]
+MODEL = ARGS[0] if ARGS else "small"
+AUDIO = ARGS[1] if len(ARGS) > 1 else "assets/audio/src/voiceover-master.wav"
 
-colab.get_config()
+if not LOCAL:
+    colab.get_config()
 
 if not os.path.isfile(AUDIO):
     sys.exit("audio file not found: %s" % AUDIO)
+
+if LOCAL:
+    # --engine whisper: Parakeet does not cover Vietnamese. --dir in a temp folder, because transcribe
+    # rewrites caption arrays in every HTML file under --dir.
+    tmp = tempfile.mkdtemp(prefix="asr-")
+    done = subprocess.run([shutil.which("npx") or "npx", "--yes", "hyperframes@0.8.140", "transcribe",
+                           os.path.abspath(AUDIO), "--engine", "whisper", "--model", MODEL, "--language", "vi",
+                           "--json", "--dir", tmp], stdout=subprocess.PIPE, text=True, encoding="utf-8")
+    if done.returncode:
+        sys.exit("local ASR failed: %s" % done.stdout.strip()[-500:])
+    info = json.loads(done.stdout.strip().splitlines()[-1])
+    words = [{"w": w["text"], "s": w["start"], "e": w["end"]}
+             for w in json.load(io.open(info["transcriptPath"], encoding="utf-8"))]
+    result = {"model": MODEL, "language": "vi", "duration": info["durationSeconds"], "segments": [], "words": words}
+    json.dump(result, io.open("asr-words.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("%d words -> asr-words.json" % len(words))
+    sys.exit(0)
 
 with io.open(AUDIO, "rb") as f:
     audio_bytes = f.read()

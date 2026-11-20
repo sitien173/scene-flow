@@ -3,7 +3,7 @@ name: scene-flow
 description: >-
   Build a vertical narrated short (TikTok, Reels, Shorts; 1080x1920) in HyperFrames from a script
   and a voiceover, with picture and voice in sync to the syllable. The voice can be the author's
-  recording, a TTS API, or VieNeu-TTS on a Colab server. Themes: neon3d, terra3d, atlas3d;
+  recording, a TTS API, or VieNeu-TTS on a local GPU or a Colab server. Themes: neon3d, terra3d, atlas3d;
   the author picks one for every project. Ships the project template, pipeline, house sound set, and assets. Use it for ANY
   narrated short: when the author sends a script to make into a video, says "làm video",
   "tạo video tiktok", "đây là file audio nói", "đây là voice", "giọng đọc", "tôi sẽ thu âm",
@@ -11,7 +11,7 @@ description: >-
   video trước"), says voice and picture do not line up ("chưa khớp", "hình nhanh hơn voice",
   "mất voice"), or asks to post a render via Postiz. Load it before designing the first frame.
 license: Apache-2.0
-compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Start it with scripts/colab-session.py up through the colab CLI. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
+compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and for ASR and TTS either a Colab server started with scripts/colab-session.py up, or whisper.cpp and vieneu on a local NVIDIA GPU or Apple Silicon, per scripts/gpu-check.py. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
 ---
 
 # Narrated short pipeline
@@ -49,7 +49,9 @@ Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/
 
 ## Setup
 
-Install `pip install -r requirements.txt` (numpy, Pillow). Run `npx --yes hyperframes@0.8.140 doctor` once per machine; HyperFrames runs through `npx`, pinned in each project's `package.json`, and the first run downloads headless Chrome. Stop if Node, ffmpeg, ffprobe, or Chrome fails. Ignore the upgrade notice and the optional engines whisper-cpp, Kokoro, and MusicGen; the Colab server covers speech.
+Install `pip install -r requirements.txt` (numpy, Pillow). Run `npx --yes hyperframes@0.8.140 doctor` once per machine; HyperFrames runs through `npx`, pinned in each project's `package.json`, and the first run downloads headless Chrome. Stop if Node, ffmpeg, ffprobe, or Chrome fails. Ignore the upgrade notice and the optional engines Kokoro and MusicGen.
+
+Run `python "<skill>/scripts/gpu-check.py"` once per machine. On `recommendation: local`, an NVIDIA GPU or Apple Silicon was found: suggest local speech to the author before any Colab session, for example "Máy bạn có GPU, dùng whisper.cpp và VieNeu-TTS ngay trên máy thay vì Colab nhé?", and give the install steps it prints. Once the author agrees and the steps are done, use `asr.py --local` and `tts.py --provider local`. On `recommendation: colab`, the Colab server covers speech.
 
 ## What ships with this skill
 
@@ -77,7 +79,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
    `--theme` is required and takes the author's answer from step 1. Each theme gets only its own assets, plus `vignettes.json` and `vignettes/`. The voice is leveled to -21.0 LUFS by plain gain (`prep-voice.py`).
 5. **Align.**
    ```bash
-   python scripts/asr.py small          # -> asr-words.json
+   python scripts/asr.py small          # -> asr-words.json; add --local for local speech
    python scripts/plan-beats.py         # -> beats.json; group sentences in SCENES
    python scripts/align-asr.py          # -> vo-alignment.json
    python scripts/syl-times.py          # -> syl-times.json
@@ -119,7 +121,7 @@ When a script arrives without audio, offer these three options in this order. If
 1. **Self-recording.** Give the author the script line by line and wait for the audio.
 2. **Third-party TTS** such as ElevenLabs or OpenAI. Pass the author's key only as an inline environment variable on the one command that needs it. Never write it to disk, and advise the author to rotate it.
    For Vibi (`api.vibi.pro`, ElevenLabs voices), `tts.py` does the whole voice with `VIBI_API_KEY=<key> python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
-3. **VieNeu-TTS on Colab.** Ask the author before starting a session, because it spends their Colab compute units. The `colab` CLI must be signed in to the author's Google account.
+3. **VieNeu-TTS on this machine or on Colab.** With local speech set up (see [Setup](#setup)), run `python scripts/tts.py --provider local [--voice "<name>" | --ref "<clip.wav>"]`; `--list` works too, and no Colab session is needed. Otherwise use Colab. Ask the author before starting a session, because it spends their Colab compute units. The `colab` CLI must be signed in to the author's Google account.
    ```bash
    python "<skill>/scripts/colab-session.py" up       # T4 session; waits for /health
    python scripts/tts.py --list                      # preset voices

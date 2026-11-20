@@ -246,7 +246,7 @@ project); `scripts/cdp.mjs` now covers the capture.
 - **`yt-dlp` audio can 403 while the video downloads** (Runway's Gen-4.5 reel). The film
   mutes every clip, so the video-only file is enough; rename `*.f616.mp4`.
 - **`carve.mjs` cannot run on Node 24** — memory `reference-carve-broken-node24`.
-- **`hyperframes transcribe` needs whisper-cpp**, which is not installed. Running OpenAI Whisper via `scripts/asr.py` on the Colab server works.
+- **`hyperframes transcribe` builds a CPU-only whisper.cpp on Linux** when none is on PATH. For an NVIDIA GPU, build whisper.cpp with `-DGGML_CUDA=1` and set `HYPERFRAMES_WHISPER_PATH`; `scripts/gpu-check.py` prints the steps. It also rewrites caption arrays in every HTML file under `--dir`, so `asr.py --local` points `--dir` at a temp folder. Without a GPU, run `scripts/asr.py` on the Colab server.
 - `inspect` is deprecated — `check` includes it. Its `#camera` overflow warnings on a
   camera-over-workspace build are architecture false positives.
 - Bump the pinned CLI before a render (`npx hyperframes@latest upgrade --project .

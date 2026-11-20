@@ -14,7 +14,7 @@ Write your script in plain text with **one sentence per line**, exactly as it wi
 
 ### Voiceover
 
-Select one of three audio sources:
+Select one of four audio sources:
 
 1. **Self-recording (most natural)**: Record narration in a quiet room, saving as `.wav` or `.mp3`. Leave a short breath pause between sentences.
 2. **Third-party TTS service**: Use your existing TTS service (ElevenLabs, OpenAI). When Claude asks for an API key, provide it in the chat. Claude uses it for that session only and never writes it to disk.
@@ -65,6 +65,18 @@ Select one of three audio sources:
      - `python scripts/tts.py` (generate with default voice `Hải Đăng`)
      - `python scripts/tts.py --voice "<name>"` (select voice by name or ID)
      - `python scripts/tts.py --ref "<clip.wav>"` (clone voice from a reference audio clip)
+4. **VieNeu-TTS and whisper.cpp on your own GPU (no Colab)**:
+   - Check the machine once:
+     ```bash
+     python skills/scene-flow/scripts/gpu-check.py
+     ```
+     It looks for an NVIDIA GPU or Apple Silicon. On `recommendation: local`, it prints the install steps that are still missing: `vieneu` for the voice, and whisper.cpp for ASR. With an NVIDIA GPU, whisper.cpp must be built with CUDA and `HYPERFRAMES_WHISPER_PATH` set to its `whisper-cli`; otherwise `hyperframes transcribe` builds a copy that runs on the CPU only.
+   - Generate the voice and run ASR on this machine. The options are the same as on Colab:
+     ```bash
+     python scripts/tts.py --provider local --voice "<name>"
+     python scripts/asr.py small --local
+     ```
+   - The first run downloads the models. On `recommendation: colab`, use option 3.
 
 ### Optional Assets
 

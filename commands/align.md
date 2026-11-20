@@ -6,7 +6,7 @@ argument-hint: [ASR model: small | medium]
 Align the voice in the project in the working directory. ASR model: `$ARGUMENTS`, or `small` when empty.
 
 1. Load the `scene-flow` skill and read `references/alignment.md`.
-2. If `asr-words.json` is missing and no Colab server is reachable, ask the author before running `colab-session.py up`.
+2. If `asr-words.json` is missing and no Colab server is reachable, run `python "<skill>/scripts/gpu-check.py"`. On `recommendation: local`, suggest `asr.py <model> --local` to the author. Otherwise ask the author before running `colab-session.py up`.
 3. Run in order:
    ```bash
    python scripts/asr.py <model>

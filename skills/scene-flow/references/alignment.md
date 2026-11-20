@@ -38,10 +38,10 @@ there is nothing left to arbitrate with. That is the moment to stop tuning.
 
 ## Use ASR
 
-ASR runs on the author's Google Colab server (`colab/server.py`) with OpenAI Whisper behind a cloudflared quick tunnel. Start the server with `python "<skill>/scripts/colab-session.py" up` and stop it with `down` when ASR is done; `colab.py` reads the URL and token from the mode 0600 session file that `up` writes. A server started by hand in Colab also works: set its printed `COLAB_URL` and `COLAB_TOKEN` as environment variables (never committed; URL and token change every session). `hyperframes transcribe` exists but needs whisper.cpp built locally, which may not be present.
+ASR runs on the author's Google Colab server (`colab/server.py`) with OpenAI Whisper behind a cloudflared quick tunnel. Start the server with `python "<skill>/scripts/colab-session.py" up` and stop it with `down` when ASR is done; `colab.py` reads the URL and token from the mode 0600 session file that `up` writes. A server started by hand in Colab also works: set its printed `COLAB_URL` and `COLAB_TOKEN` as environment variables (never committed; URL and token change every session). On a machine where `scripts/gpu-check.py` recommends local speech, `asr.py --local` runs whisper.cpp through `hyperframes transcribe` instead, with no Colab session.
 
 ```bash
-python scripts/asr.py small     # or medium/large-v3 if the match rate is poor
+python scripts/asr.py small     # or medium/large-v3 if the match rate is poor; --local for whisper.cpp
 ```
 
 Writes `asr-words.json`: every word with `s`/`e` times and a confidence. Set the

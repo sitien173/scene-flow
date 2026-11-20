@@ -11,11 +11,13 @@
 #   python scripts/tts.py --ref "<clip.wav>"               # clone voice from reference clip
 #   python scripts/tts.py --gap 0.35                       # gap between sentences (s)
 #   python scripts/tts.py --list                           # list available preset voices
+#   python scripts/tts.py --provider local                 # VieNeu-TTS in this Python (gpu-check.py)
 #   python scripts/tts.py --provider vibi                  # Vibi (api.vibi.pro) ElevenLabs voices
 #   python scripts/tts.py --provider vibi --voice <id> --lang vi --model eleven_v3
 #
 # Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in the environment.
-# --provider vibi needs VIBI_API_KEY in the environment instead; --ref and --list are Colab only.
+# --provider local needs vieneu installed here and runs on CUDA when torch sees a GPU, else on CPU.
+# --provider vibi needs VIBI_API_KEY in the environment instead; --ref and --list are VieNeu only.
 import argparse
 import io
 import json
@@ -83,7 +85,7 @@ def vibi_synthesize(texts, voice, lang, model, key):
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--provider", choices=["colab", "vibi"], default="colab")
+ap.add_argument("--provider", choices=["colab", "local", "vibi"], default="colab")
 group = ap.add_mutually_exclusive_group()
 group.add_argument("--voice", help="preset voice label or id (default: Hải Đăng); "
                                    "with vibi an ElevenLabs voice id (default: Quang Toan)")
@@ -98,10 +100,20 @@ a = ap.parse_args()
 a.voice = a.voice or ("ZsjEJaLQy3sgvwxicmDx" if a.provider == "vibi" else "Hải Đăng")
 
 if a.provider == "vibi" and (a.ref or a.list):
-    sys.exit("--ref and --list need the Colab provider")
+    sys.exit("--ref and --list need the colab or local provider")
+
+engine = None
+if a.provider == "local":
+    try:
+        from vieneu import Vieneu
+    except ImportError:
+        sys.exit("vieneu is not installed in %s; scripts/gpu-check.py in the skill prints the install command"
+                 % sys.executable)
+    engine = Vieneu(mode="v3turbo")  # same engine as colab/server.py
+    presets = [{"label": str(l), "id": str(i)} for l, i in engine.list_preset_voices()]
 
 if a.list:
-    voices = colab.get_voices()
+    voices = presets if engine else colab.get_voices()
     for v in voices:
         print("%-24s %s" % (v.get("label", ""), v.get("id", "")))
     sys.exit(0)
@@ -126,6 +138,12 @@ if a.provider == "vibi":
         vibi_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
     except RuntimeError as e:
         sys.exit("TTS failed: %s" % e)
+elif engine and a.ref:
+    if not os.path.isfile(a.ref):
+        sys.exit("reference clip not found: %s" % a.ref)
+    voice_id = engine.add_voice("scene-flow-ref", a.ref)
+elif engine:
+    voice_id = colab.resolve_voice(a.voice, presets)
 elif a.ref:
     if not os.path.isfile(a.ref):
         sys.exit("reference clip not found: %s" % a.ref)
@@ -145,6 +163,10 @@ for i, s in enumerate(SENT):
         dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format Vibi serves
         with io.open(dl_path, "wb") as f:
             f.write(vibi_audio[i])
+        files.append(dl_path)
+        continue
+    if engine:
+        engine.save(engine.infer(s, voice=voice_id), dl_path)
         files.append(dl_path)
         continue
     reenrolled = False

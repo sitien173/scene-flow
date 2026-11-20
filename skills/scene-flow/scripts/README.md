@@ -46,8 +46,9 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 |---|---|---|
 | `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d|terra3d|atlas3d` (required) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
-| `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; or via Vibi with `--provider vibi` (`VIBI_API_KEY` from env, `--voice <ElevenLabs id>`, `--lang`, `--model`); levels it with prep-voice.py |
-| `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
+| `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab, or on this machine with `--provider local`: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; or via Vibi with `--provider vibi` (`VIBI_API_KEY` from env, `--voice <ElevenLabs id>`, `--lang`, `--model`); levels it with prep-voice.py |
+| `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab, or whisper.cpp on this machine with `--local` through `hyperframes transcribe` |
+| `gpu-check.py` | **yes** | — run from the skill: finds an NVIDIA GPU or Apple Silicon, whisper-cli, and vieneu; prints `recommendation: local` or `colab` and the missing install steps |
 | `colab.py` | **yes** | — shared client for the Colab server (reads `COLAB_URL` and `COLAB_TOKEN` from env, else the session file `colab-session.py up` writes) |
 | `colab-session.py` | **yes** | — run from the skill: `up` starts a T4 Colab session running `colab/server.py` through the `colab` CLI, `status`, `down` stops it and deletes the session file |
 | `postiz.py` | **yes** | — optional: uploads a finished render and creates a Postiz post (reads `POSTIZ_URL` and `POSTIZ_API_KEY` from env, else `~/.config/scene-flow/.env`); run only when the author asks |
