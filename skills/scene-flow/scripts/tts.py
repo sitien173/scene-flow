@@ -86,7 +86,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--provider", choices=["colab", "vibi"], default="colab")
 group = ap.add_mutually_exclusive_group()
 group.add_argument("--voice", help="preset voice label or id (default: Hải Đăng); "
-                                   "with vibi an ElevenLabs voice id (default: Rachel)")
+                                   "with vibi an ElevenLabs voice id (default: Quang Toan)")
 group.add_argument("--ref", help="reference audio clip for voice cloning")
 ap.add_argument("--lang", default="vi", help="vibi language_code (default: vi)")
 ap.add_argument("--model", default="eleven_v3", help="vibi model_id (default: eleven_v3)")
@@ -95,7 +95,7 @@ ap.add_argument("--script", default="SCRIPT.md")
 ap.add_argument("--no-prep", action="store_true")
 ap.add_argument("--list", action="store_true")
 a = ap.parse_args()
-a.voice = a.voice or ("21m00Tcm4TlvDq8ikWAM" if a.provider == "vibi" else "Hải Đăng")
+a.voice = a.voice or ("ZsjEJaLQy3sgvwxicmDx" if a.provider == "vibi" else "Hải Đăng")
 
 if a.provider == "vibi" and (a.ref or a.list):
     sys.exit("--ref and --list need the Colab provider")

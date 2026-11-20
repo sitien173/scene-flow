@@ -86,7 +86,7 @@ When a script arrives without audio, present these three choices in order:
 
 1. **Self-recording**: Author records spoken narration. Provide script line by line and wait for audio.
 2. **Third-party TTS**: Author provides an API key (ElevenLabs, OpenAI). Pass key only via inline command environment variables, never write to disk, and advise key rotation.
-   For Vibi (`api.vibi.pro`, ElevenLabs voices), `tts.py` does the whole voice with `VIBI_API_KEY=<key> python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Rachel. Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
+   For Vibi (`api.vibi.pro`, ElevenLabs voices), `tts.py` does the whole voice with `VIBI_API_KEY=<key> python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
 3. **VieNeu-TTS on Colab**: `tts.py` reads `SCRIPT.md` sentence by sentence, requires internet, and writes `assets/audio/voiceover.mp3`. Voice should be handed over before picture is built. Start the server from the skill folder; this needs the `colab` CLI signed in to the author's Google account:
    ```bash
    python "<skill>/scripts/colab-session.py" up       # T4 session, packages, colab/server.py, waits for /health
