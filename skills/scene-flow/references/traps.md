@@ -73,12 +73,10 @@ It leaves CSS and the `<script>` block alone. So:
 - **Allow time for 3D setup.** Use `--player-ready-timeout 180000` for renders and `--timeout 170000`
   for snapshots. Studio thumbnails can show an empty stage while 3D assets load. That alone does not
   indicate a broken scene.
-- **Local GPU rendering is the main path.** On this machine's Intel Iris Xe, a test measured about
-  137 seconds per 60-second video. Software WebGL took about 971 seconds per 60-second video at
-  1080x1920. `render-colab.py --local` selects that software path on purpose.
-- **Colab T4 is a fallback, not a speed-up.** In the measured five-second T4 render, Chrome's probe
-  reported ANGLE Mesa llvmpipe software, even though the final summary said `hardware gpu`. Trust
-  the probe line. The render took 96 seconds, about 16 minutes per 60-second video.
+- **Local GPU rendering is the main path.** `render-colab.py --local` selects the software WebGL
+  path on purpose.
+- **Colab T4 is a fallback, not a speed-up.** Chrome's probe can report ANGLE Mesa llvmpipe software
+  even when the final summary says `hardware gpu`. Trust the probe line.
 
 ## Long films: the 10-second navigation limit
 
