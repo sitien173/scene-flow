@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/sitien173/scene-flow/compare/v0.3.0...v0.3.1) (2026-11-20)
+
+
+### Features
+
+* **install:** require any one supported coding agent instead of Claude Code ([6ba4bdd](https://github.com/sitien173/scene-flow/commit/6ba4bddfdaf729c0ced6d25d4eb8c5277965da20))
+
 ## [0.3.0](https://github.com/sitien173/scene-flow/compare/v0.2.0...v0.3.0) (2026-11-20)
 
 
