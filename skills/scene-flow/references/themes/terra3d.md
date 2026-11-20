@@ -3,8 +3,8 @@
 Terra3d is a sequence of short daylight 3D vignettes for narrated engineering, geography, and history
 shorts. Each vignette is one shot of one idea from the script: a globe with route arcs, an ocean with
 ships, terrain seen from a drone, a cutaway of soil and water, low-poly workers. Every change of shot is a
-hard cut on a spoken word, so a vignette lasts 2 to 4 s. Captions show one word at a time. Dark remains the
-default theme. Select terra3d explicitly when creating a project.
+hard cut on a spoken word, so a vignette lasts 2 to 4 s. Captions show one word at a time. Select it with
+`--theme terra3d` when creating a project.
 
 ## Create and build a project
 

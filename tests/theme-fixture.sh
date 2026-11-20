@@ -15,6 +15,7 @@ for ((i = 0; i < ${#ARGS[@]}; i++)); do
     THEME="${ARGS[$i]#--theme=}"
   fi
 done
+[[ " ${ARGS[*]-} " == *" --theme"* ]] || ARGS+=(--theme neon3d)
 rm -rf "$OUT/demo"; mkdir -p "$OUT"
 python3 "$SKILL/scripts/new-project.py" "$OUT/demo" --name "Demo" "${ARGS[@]}" >/dev/null
 cd "$OUT/demo"

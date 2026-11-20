@@ -25,11 +25,14 @@ python3 tests/spec-check.py
 python3 tests/agy-ide-install-test.py
 bash tests/check-versions.sh
 bash tests/check-bundled.sh
+python3 tests/postiz-test.py
+python3 tests/neon3d-build-test.py
+python3 tests/terra3d-build-test.py
 claude plugin validate --strict .
 bash tests/theme-fixture.sh /tmp/sf-check | tail -1
 ```
 
-The last command must print `9bd8551cea28e48788b3400bf148b2c53d1054ec705a17e4db1c62e779daa2a2`. If your change intentionally alters the generated video, say so in the pull request and update the hash in `.github/workflows/ci.yml` and this file.
+The last command must print `cbc446e7f2ef7bd08ee61dbf579d7adf4addf5129b69330dd65c298806090e09`. If your change intentionally alters the generated video, say so in the pull request and update the hash in `.github/workflows/ci.yml` and this file.
 
 ## Commit messages
 
@@ -55,6 +58,21 @@ Do not edit version numbers or `CHANGELOG.md` by hand. release-please updates th
 4. Fill in the pull request template.
 
 Maintainers squash-merge pull requests, so the pull request title must also follow Conventional Commits.
+
+## Releases
+
+Releases run through [release-please](https://github.com/googleapis/release-please). Each push to `main` updates an open release pull request from the conventional commit messages. Merging that pull request updates `CHANGELOG.md` and the version in all five manifests, tags `vX.Y.Z`, and publishes the GitHub Release.
+
+One-time setup by the owner:
+
+- [ ] Audio redistribution rights verified by the owner.
+- [ ] In repository Settings, Actions, General: allow GitHub Actions to create and approve pull requests.
+- [ ] In repository Settings, Security: enable private vulnerability reporting.
+- [ ] Protect `main` and require the `CI` checks.
+
+Before merging a release pull request:
+
+- [ ] CI does not run on release pull requests opened with the default `GITHUB_TOKEN`. Run the CI workflow on the release branch with **Run workflow**, or close and reopen the pull request.
 
 ## License
 

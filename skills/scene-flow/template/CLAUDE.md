@@ -1,7 +1,14 @@
 # Video project made with the `scene-flow` skill
 
-Read the skill first: `SKILL.md` is the pipeline, `references/house-style.md` holds shared rules, and
-`references/themes/neon3d.md` is the theme guide. The generic HyperFrames notes follow.
+Read the skill first: `SKILL.md` is the pipeline, `references/style.md` holds shared rules, and
+`references/themes/<theme>.md` is the guide for the theme recorded in `meta.json`. The author's own
+preferences live in `../AGENTS.md`. The generic HyperFrames notes follow.
+
+## Feedback for this video
+
+Rules here apply to this video only and override the author's style file and the skill. Add one
+entry per piece of feedback: the rule, then the reason in one line. Feedback for every future
+video goes to `../AGENTS.md` instead.
 
 # HyperFrames Composition Project
 

@@ -34,7 +34,7 @@ window makes that measurement wrong (see verification.md).
 |---|---|---|---|---|
 | thud | `sfx-thud.mp3` (−11.7 dB) | once, t=0 | −22 dB | **0.30** |
 | swoosh | `sfx-swoosh.mp3` (−24.9 dB) | every ledger cut | −28 dB | **0.70** |
-| pop | `sfx-pop.mp3` (−21.0 dB) | important icons only (house-style §7) | −29 dB | **0.40** |
+| pop | `sfx-pop.mp3` (−21.0 dB) | important icons only (style.md §7) | −29 dB | **0.40** |
 | pop, in a fast cascade | same | 3+ items < 0.8s apart | −33 dB | **0.26** |
 | bed | *Little Things Immaterial* (−16.1 dB) | whole film | −31 dB | **0.18** |
 

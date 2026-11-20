@@ -8,6 +8,8 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/sitien173/scene-flow",
   "files": [
+    "agents/",
+    "commands/",
     "skills/",
     "!skills/scene-flow/references/videos/",
     "LICENSE",

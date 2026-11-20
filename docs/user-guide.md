@@ -4,20 +4,7 @@ This guide is designed for creators and non-programmers. Follow the steps in seq
 
 ## 1. Installation
 
-1. Install [Claude Code](https://claude.com/claude-code) and sign in.
-2. Install required system tools (Python 3.12, Node.js 22+, FFmpeg, and Git) following the platform instructions in the [README installation section](../README.md#installation).
-3. Clone this repository into your Claude Code skills folder:
-   - On Windows (PowerShell):
-     ```powershell
-     git clone https://github.com/sitien173/scene-flow "$env:USERPROFILE\.claude\skills\scene-flow"
-     ```
-   - On macOS or Linux:
-     ```bash
-     git clone https://github.com/sitien173/scene-flow ~/.claude/skills/scene-flow
-     ```
-   If Git is not installed yet, download the repository ZIP file (via GitHub **Code -> Download ZIP**) and extract it to your skills folder (`%USERPROFILE%\.claude\skills\scene-flow` on Windows, or `~/.claude/skills/scene-flow` on macOS or Linux).
-4. Install Python dependencies and HyperFrames skills as detailed in the [README installation section](../README.md#installation).
-5. Restart Claude Code.
+Run the one-line installer from the [README](../README.EN.md#install). It checks Git, Python, Node.js, FFmpeg, the Python packages, Claude Code, and the scene-flow plugin, and asks before installing anything that is missing. When it finishes, open a new terminal and run `claude` once to sign in.
 
 ## 2. Preparing Content
 
@@ -99,7 +86,11 @@ Kịch bản:
 ```
 *(English gloss: Create a TikTok video about topic. Voice file: "recordings/voice.wav". 1. Include product logos. 2. Use visuals/recordings instead of text. 3. Use intro.mp4 for the opening. 4. Use keyword CHATBOT in the comment CTA. Script: one sentence per line.)*
 
-New projects use the neon3d theme, the only theme: short neon 3D scenes with one idea each. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
+There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme neon3d` or `--theme terra3d` in your prompt.
+
+The neon3d theme shows short neon 3D scenes with one idea each. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
+
+The terra3d theme shows short daylight 3D scenes for engineering, geography, and history topics. Each scene is a hard cut on a spoken word, and captions show one word at a time. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. See [the terra3d theme guide](../skills/scene-flow/references/themes/terra3d.md).
 
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 
@@ -118,6 +109,27 @@ To adjust the composition, describe what needs refinement:
 | "chữ nhỏ quá", "chưa đẹp" (text small or unappealing) | Applies larger font sizes per house guidelines |
 | "đoạn đầu dùng video này..." (change intro video) | Swaps footage and recalculates timing |
 | "cho mascot to lên ở góc dưới bên trái" | Repositions or scales the mascot graphic (if you have one; no mascot ships with the skill) |
+
+### Keeping feedback for later videos
+
+Claude saves your feedback so it does not repeat a mistake. Rules come from three files, and the more specific file wins:
+
+| File | Holds | Who edits it |
+|---|---|---|
+| `references/style.md` in the plugin | Rules for every author, such as text size, real media, and fact checks | Only the plugin repository. A plugin update overwrites local edits |
+| `AGENTS.md` in the folder that holds your projects | Your preferences for every video, such as voice register, mascot, and sound density | You and Claude |
+| `CLAUDE.md` in the project folder | Feedback for this video only | You and Claude |
+
+If you do not say where a piece of feedback belongs, Claude asks: "Áp dụng cho mọi video sau, hay chỉ video này?" *(Apply to every later video, or only this one?)*
+
+To create your author file, ask Claude, or set it up yourself in the folder that holds your projects:
+
+```bash
+cp <plugin>/skills/scene-flow/author/AGENTS.template.md AGENTS.md
+echo '@AGENTS.md' > CLAUDE.md
+```
+
+The template contains example preferences. Edit them to match your style and delete the ones that do not apply. Claude Code loads this `CLAUDE.md` in every project below the folder. Do not create the file in your home folder, because Claude Code would then load it in every session you start there.
 
 If HyperFrames Studio reports "the preview did not reload" or continues displaying previous frames, reload the browser tab (F5) and wait 20 seconds.
 
@@ -183,6 +195,6 @@ Projects created before this feature do not have the publisher. Copy `scripts/po
 
 | Symptom | Resolution |
 |---|---|
-| `motion-doctrine not found` | Re-run HyperFrames skill installation from the [README installation section](../README.md#installation). |
-| `ffmpeg` / `node` / `python` not found | Install missing tools per the [README installation section](../README.md#installation) and restart terminal. |
+| `motion-doctrine not found` | The plugin is incomplete. Run the [installer](../README.EN.md#install) again, or run `claude plugin update scene-flow@scene-flow`, then restart Claude Code. |
+| `ffmpeg` / `node` / `python` not found | Run the [installer](../README.EN.md#install) again, then open a new terminal. |
 | ASR alignment match rate low (< 90%) | Ask Claude to run alignment using a larger Whisper model (`medium` or `large-v3`). |

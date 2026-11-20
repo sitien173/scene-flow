@@ -1,190 +1,196 @@
 ---
 name: scene-flow
 description: >-
-  Build a vertical narrated short (TikTok/Reels/Shorts, 1080x1920) in HyperFrames from a script and
-  a voiceover, with picture and voice exactly in sync. The voice can be the author's recording, a
-  TTS API, or VieNeu-TTS on a Colab server. The default theme is neon3d, a sequence of
-  3D vignettes on a neon stage. Optional theme: terra3d. It uses real logos and real footage instead of
-  text, karaoke captions, a comment-box CTA, the house sound set, and a theme-matched end card.
-  Ships the template, pipeline, and assets. Use this for ANY narrated short: when the user
-  sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
-  "đây là voice", "giọng đọc", "tôi sẽ thu âm", sends a .wav/.mp3 of narration, asks to learn the
-  previous video's style ("học phong cách video trước"), or says voice and picture do not line up
-  ("chưa khớp", "hình nhanh hơn voice", "mất voice"). Load it before designing the first frame. Also "post via Postiz" or "post to TikTok via Postiz".
+  Build a vertical narrated short (TikTok, Reels, Shorts; 1080x1920) in HyperFrames from a script
+  and a voiceover, with picture and voice in sync to the syllable. The voice can be the author's
+  recording, a TTS API, or VieNeu-TTS on a Colab server. Themes: neon3d, terra3d;
+  the author picks one for every project. Ships the project template, pipeline, house sound set, and assets. Use it for ANY
+  narrated short: when the author sends a script to make into a video, says "làm video",
+  "tạo video tiktok", "đây là file audio nói", "đây là voice", "giọng đọc", "tôi sẽ thu âm",
+  sends a .wav or .mp3 of narration, asks to learn the previous video's style ("học phong cách
+  video trước"), says voice and picture do not line up ("chưa khớp", "hình nhanh hơn voice",
+  "mất voice"), or asks to post a render via Postiz. Load it before designing the first frame.
 license: Apache-2.0
 compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and a running Colab server for ASR and TTS. Start it with scripts/colab-session.py up through the colab CLI. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
 ---
 
 # Narrated short pipeline
 
-Two jobs, in this order of importance:
+Two jobs, in this order:
 
-1. **Build what the author actually wants.** Read [references/house-style.md](references/house-style.md) and the selected theme guide before designing. House style holds shared rules; the theme guide holds selected identity and components.
-2. **Put the picture exactly on the voice.** The rest of this file.
+1. **Build what the author wants.** The rules live in three tiers: [style.md](references/style.md) with the selected theme guide, the author's style file, and the project's `CLAUDE.md`. See [Recording feedback](#recording-feedback).
+2. **Put the picture exactly on the voice.** Every cue is written in recorded seconds.
 
-Read `/hyperframes` for routing and composition contracts, and load `/motion-doctrine` for seams (`seam-stamp.mjs` and `seam-gate.mjs` run in the pipeline).
+`<skill>` below means this skill's folder. "The author" is the person making the video.
+
+## Where to look and what to invoke
+
+Read the reference before the step. In Claude Code, delegate to the listed sub-agent (`scene-flow:<name>`, shipped in this plugin's `agents/` folder). On other hosts, follow the reference yourself.
+
+| Task | Read | Invoke |
+|---|---|---|
+| Find a video topic | none | sub-agent `topic-scout` |
+| Write or revise `SCRIPT.md` | [style.md §8 and §9](references/style.md#9-the-script) | sub-agent `script-writer` |
+| Fact-check the script | [style.md §8](references/style.md#8-content-and-accuracy) | sub-agent `fact-checker` |
+| Review hook, pacing, length | [style.md §3 and §9](references/style.md) | sub-agent `script-reviewer` |
+| Plan scenes and visuals | [style.md §3 to §6](references/style.md), theme guide | sub-agent `storyboard` |
+| Align voice to script | [alignment.md](references/alignment.md) | none |
+| Get stock, images, icons, cutouts | [style.md §5](references/style.md#5-real-media) | skill `media-use` |
+| Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
+| Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
+| Build 3D objects for neon3d or terra3d | [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md) | skill `3dviz-pro-max` |
+| Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
+| Mix audio | [audio-mix.md](references/audio-mix.md) | none |
+| Write post caption and hashtags | none | sub-agent `caption-writer` |
+| Create a new theme from a reference video | all theme guides | sub-agent `theme-designer` |
+
+Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md).
+
+## Setup
+
+Install `pip install -r requirements.txt` (numpy, Pillow). Run `npx --yes hyperframes@0.8.140 doctor` once per machine; HyperFrames runs through `npx`, pinned in each project's `package.json`, and the first run downloads headless Chrome. Stop if Node, ffmpeg, ffprobe, or Chrome fails. Ignore the upgrade notice and the optional engines whisper-cpp, Kokoro, and MusicGen; the Colab server covers speech.
 
 ## What ships with this skill
 
-| folder | what |
+| Folder | Contents |
 |---|---|
-| `template/` | shared starter files in `parts/` plus `themes/neon3d/` and `themes/terra3d/`; `new-project.py` copies the selected theme into `parts/` |
-| `references/themes/` | [neon3d.md](references/themes/neon3d.md) default and [terra3d.md](references/themes/terra3d.md) selectable theme guides |
-| `scripts/` | pipeline copied into each project by `new-project.py` ([scripts/README.md](scripts/README.md)) |
+| `template/` | shared starter files in `parts/`, plus one folder per theme in `themes/`; `new-project.py` copies the selected theme into `parts/` |
+| `scripts/` | the pipeline, copied into each project ([scripts/README.md](scripts/README.md)) |
+| `references/` | style rules, theme guides, alignment, audio mix, verification, traps |
+| `author/` | `AGENTS.template.md`, the starting author style file; not copied into projects |
 | `assets/audio/` | house sound set: `sfx-thud`, `sfx-swoosh`, `sfx-pop`, `sfx-laser`, `sfx-click` (shutter), `sfx-riser`, `sfx-risercut3`, `bgm-little-things.mp3` |
-| `assets/fonts/` | Be Vietnam Pro, localized woff2 subsets under SIL OFL |
-| `assets/logos/` | official marks and `soi-repo-mark.svg` |
+| `assets/fonts/` | Be Vietnam Pro, and Nunito for terra3d, woff2 subsets under SIL OFL |
+| `assets/logos/` | official product marks and `soi-repo-mark.svg` |
 
-No mascot ships with the skill. Add your own transparent `.webm` if you have one (§Bookends).
+No mascot ships. The author may add a transparent `.webm`; its size and placement belong in the author's style file.
 
-**Requirements:** Node 22+, Python 3.10+ (`pip install -r requirements.txt`: numpy, Pillow), ffmpeg on PATH, Colab server (`colab/server.py`, started by `scripts/colab-session.py up` through the `colab` CLI) for ASR/TTS, and the HyperFrames skills bundled with this plugin. HyperFrames runs through `npx` pinned in project `package.json`; first run downloads headless Chrome. Run `npx --yes hyperframes@0.8.140 doctor` once per machine. Stop if Node, ffmpeg, ffprobe or Chrome fails. Ignore the upgrade notice and the optional engines whisper-cpp, Kokoro and MusicGen; the Colab server covers speech.
+## Order of work
 
-## The order of work
-
-1. **Read house-style.md and the selected theme guide.** Open the latest project if there is one and carry its choices forward.
-2. **Start the project** (voice first, the common case):
+1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d or terra3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
+2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences.
+3. **Get the voice.** If there is no recording yet, see [Voice sources](#voice-sources).
+4. **Start the project.**
    ```bash
-   python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme neon3d
+   python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme <theme>
    ```
-   `--theme neon3d|terra3d` selects the theme (neon3d default). Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Terra3d projects include `vignettes.json`, `vignettes/`, and the terra kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
-3. **The script** goes in `SCRIPT.md`, one sentence per plain line, exactly as spoken. Group sentences into scenes in `scripts/plan-beats.py` (`SCENES`). `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|` (a markdown table script yields zero sentences).
-4. **Align** (every cue is written in recorded seconds):
+   `--theme` is required and takes the author's answer from step 1. Each theme gets only its own assets, plus `vignettes.json` and `vignettes/`. The voice is leveled to -21.0 LUFS by plain gain (`prep-voice.py`).
+5. **Align.**
    ```bash
-   python scripts/asr.py small          # -> asr-words.json (larger model if match rate < 90%)
-   python scripts/plan-beats.py         # -> beats.json (scaffold for the map)
+   python scripts/asr.py small          # -> asr-words.json
+   python scripts/plan-beats.py         # -> beats.json; group sentences in SCENES
    python scripts/align-asr.py          # -> vo-alignment.json
    python scripts/syl-times.py          # -> syl-times.json
-   python scripts/fix-syl.py            # starts stamped inside a pause move to the voice
+   python scripts/fix-syl.py            # moves starts stamped inside a pause onto the voice
    python scripts/silences.py           # cut points in silence
    ```
-5. **Prepare media.** Retime recordings and apply privacy blur via `scripts/make-media.py`. Capture public web pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Product logos use official files only; never generate or trace them. Use the selected theme's bundled house mark for its brand. Pictures of an idea follow the source order in [house-style.md §5](references/house-style.md#5-real-media): licensed stock through `media-use` first, text-to-image through an OpenAI-compatible API only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY` and `IMAGE_MODEL`.
-6. **Author composition.** Build scenes in `parts/` at syllable timestamps from `syl-times.json`. Configure per-project knobs in `scripts/build.py`: `SC` (scene cuts), `CTA_WORD` (comment keyword), `STEPS` (step counter), `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`. Define captions in `scripts/karaoke.py` (`SIDES`, `DARK`, `SKIP`), and SFX in `scripts/add-sfx.py` (`RISER`, `LASER`, `CLICK`, `POP`).
-7. **Build and verify with snapshots**:
+   Trust the map only at 90% exact match or better; below that, rerun ASR with a larger model. Cross-check distinct brand names and numbers directly in `asr-words.json`.
+6. **Prepare media.** Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
+7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. Per-project settings:
+
+   | File | Settings |
+   |---|---|
+   | `scripts/build.py` | `SC` scene cuts, `CTA_WORD` comment keyword, `STEPS` step counter, `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN` |
+   | `scripts/karaoke.py` | captions: `SIDES`, `DARK`, `SKIP` |
+   | `scripts/add-sfx.py` | cues: `RISER`, `LASER`, `CLICK`, `POP`, `EXTRA`; gains are constants at the top of the file |
+
+   The end card lives in `template/themes/<theme>/timeline.js` and reads `BRAND_NAME`, `BRAND_LOGO`, and `SLOGAN` (placeholder `Slogan của bạn`).
+8. **Build and verify.**
    ```bash
    bash scripts/make.sh
    npm run check
    npx hyperframes snapshot --at 0.6,4.5,9.9 --no-end -o snapshots/v1
    npx hyperframes snapshot --at 45.5 --no-end --zoom "#b-glyph" -o snapshots/zoom
+   node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002
    ```
-   Snapshot 0.2 to 0.4 s after every cut: a cut must land on something. Use `--zoom` on every icon to catch misread glyphs.
-   `check` passing verifies structure only, not composition layout or sync.
-   The seams: `node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002` against preview (set `CHROME_PATH` to HyperFrames headless Chrome).
-   Never verify sync against captions; compare against recording via `scripts/audit-sync.py`, rare-word check, or author ears ([references/verification.md](references/verification.md)).
-8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000`. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
-9. **Publish via Postiz** (optional). Run `scripts/postiz.py` only when the author explicitly asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
-   ```bash
-   python scripts/postiz.py channels
-   python scripts/postiz.py renders/<file>.mp4 --dry-run
-   python scripts/postiz.py renders/<file>.mp4
-   ```
-   `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, else from the shared `~/.config/scene-flow/.env`, which must be mode 600. Never ask the author to paste the key into the chat. `postiz.json` (from the template) holds `caption`, `hashtags`, `ai_generated` (set `true` or `false`), `youtube_title`, and `channels`. When `postiz-receipt.json` shows the same file was already posted, in any mode, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns. Setup: [docs/user-guide.md#6-publishing-with-postiz](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).
+   Snapshot 0.2 to 0.4 s after every cut, and zoom on every icon. Set `CHROME_PATH` to the HyperFrames headless Chrome for `seam-gate.mjs`. Verify sync against the recording with `scripts/audit-sync.py`, never against captions.
+9. **Hand over the preview.** Run `npx hyperframes preview --background` and give the author the URL.
+10. **Render only when the author asks.**
+    ```bash
+    npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4
+    ```
+    Add `--player-ready-timeout 180000`. The summary's second line must say `hardware gpu`; `software gpu` means the capture ran on the CPU.
+11. **Publish only when the author asks.** See [Publishing via Postiz](#publishing-via-postiz).
 
 ## Voice sources
 
-When a script arrives without audio, present these three choices in order:
+When a script arrives without audio, offer these three options in this order. If the author says "dùng giọng AI miễn phí" or "tạo giọng luôn", go straight to option 3.
 
-1. **Self-recording**: Author records spoken narration. Provide script line by line and wait for audio.
-2. **Third-party TTS**: Author provides an API key (ElevenLabs, OpenAI). Pass key only via inline command environment variables, never write to disk, and advise key rotation.
-3. **VieNeu-TTS on Colab**: `tts.py` reads `SCRIPT.md` sentence by sentence, requires internet, and writes `assets/audio/voiceover.mp3`. Voice should be handed over before picture is built. Start the server from the skill folder; this needs the `colab` CLI signed in to the author's Google account:
+1. **Self-recording.** Give the author the script line by line and wait for the audio.
+2. **Third-party TTS** such as ElevenLabs or OpenAI. Pass the author's key only as an inline environment variable on the one command that needs it. Never write it to disk, and advise the author to rotate it.
+3. **VieNeu-TTS on Colab.** Ask the author before starting a session, because it spends their Colab compute units. The `colab` CLI must be signed in to the author's Google account.
    ```bash
-   python "<skill>/scripts/colab-session.py" up       # T4 session, packages, colab/server.py, waits for /health
-   python "<skill>/scripts/colab-session.py" status
-   python "<skill>/scripts/colab-session.py" down     # stops the session, deletes the session file
+   python "<skill>/scripts/colab-session.py" up       # T4 session; waits for /health
+   python scripts/tts.py --list                      # preset voices
+   python scripts/tts.py [--voice "<name>" | --ref "<clip.wav>"]
+   python "<skill>/scripts/colab-session.py" down     # as soon as voice and ASR are done
    ```
-   `up` saves the URL and token to `~/.config/scene-flow/colab.json` (mode 0600); `tts.py` and `asr.py` read it. Never print, copy, or commit the token. Each session spends the author's Colab compute units: ask the author before `up`, and run `down` as soon as voice and ASR are done. `COLAB_URL` and `COLAB_TOKEN` in the environment take precedence, for a server started by hand per [docs/user-guide.md#2-preparing-content](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content).
-   Synthesize speech:
-   ```bash
-   python scripts/tts.py --list
-   python scripts/tts.py
-   python scripts/tts.py --voice "<name>"
-   python scripts/tts.py --ref "<clip.wav>"
-   ```
+   `up` saves the URL and token to `~/.config/scene-flow/colab.json` (mode 0600), which `tts.py` and `asr.py` read. Never print, copy, or commit the token. `COLAB_URL` and `COLAB_TOKEN` in the environment take precedence, for a server started by hand ([user guide](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#2-preparing-content)). `tts.py` writes `assets/audio/voiceover.mp3`.
 
-Shortcut: If user asks for "dùng giọng AI miễn phí" or "tạo giọng luôn", proceed directly to option 3.
+## Voice last
 
-## Two execution modes
+The standard mode is voice first: cues use recorded seconds directly. When the picture must be built before the recording:
 
-### Voice first (standard)
-
-Script and narration recording exist together. Author visual timings directly against recorded seconds. Timings map 1:1 without remapping formulas.
-
-### Voice last
-
-Author visuals against timing estimates before voice recording:
-1. Generate estimates in `scripts/plan-beats.py` (`beats.json`).
-2. Provide script text to author and await audio recording.
-3. Align recording and install time mapping:
+1. Build against the estimates in `beats.json` from `plan-beats.py`, with every tween routed through the time map:
    ```js
    var OLD = [], NEW = [];
    var TL = { to: (a,b,t) => tl.to(a,b,T(t)), fromTo: (a,b,c,t) => tl.fromTo(a,b,c,T(t)), set: (a,b,t) => tl.set(a,b,T(t)) };
    ```
-   `T()` is a piecewise-linear map from estimate to recorded time: positions move; durations do not. Note that `T()` extrapolates past the last anchor.
-4. Run scripts that finish the mapping: `install-map.py` fills `OLD`/`NEW` and `resfx.py` remaps SFX in Python. Keep bookends and end cards in real seconds.
+   `T()` is a piecewise-linear map from estimated to recorded time. It moves positions, not durations, and extrapolates past the last anchor.
+2. Give the author the script and wait for the recording.
+3. Align it, then run `install-map.py`, which fills `OLD` and `NEW`.
+4. Run `resfx.py` for SFX. Keep bookends and end cards in real seconds.
 
-## Alignment verification
+Details in [scripts/README.md](scripts/README.md) and [audio-mix.md](references/audio-mix.md).
 
-Do not rely on pause heuristics. `scripts/align-asr.py` calculates syllable matches against Whisper ASR outputs using edit distance and diacritic folding:
-- Target match rate: at least 90%. Use a larger Whisper model if match rate falls below 90%.
-- Check sentence rate spread across the whole read (< 1.5x variation across the read, with short dramatic lines legitimately stretching).
-- A run of adjacent slow sentences is a red flag indicating misalignment.
-- Cross-check timestamps of distinct brand names and numbers directly in `asr-words.json`.
-- Keep exactly one sentence per plain line in `SCRIPT.md`. Details in [references/alignment.md](references/alignment.md).
+## Publishing via Postiz
 
-## Verification with frames
+Run `scripts/postiz.py` only when the author asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
 
-Full video renders require minutes; snapshots complete in seconds. Use `npx hyperframes snapshot` for visual layout inspection:
-- `npm run check` verifies structural syntax only, not composition layout or sync.
-- Verify seams with `seam-gate.mjs` against a live preview.
-- Never verify synchronization against generated captions because both share the same timing model. Verify against recorded audio using `scripts/audit-sync.py`. Details in [references/verification.md](references/verification.md).
+```bash
+python scripts/postiz.py channels
+python scripts/postiz.py renders/<file>.mp4 --dry-run
+python scripts/postiz.py renders/<file>.mp4
+```
 
-## Studio rewrites and patch helpers
+- `POSTIZ_URL` and `POSTIZ_API_KEY` come from the environment, else from `~/.config/scene-flow/.env` (mode 600). Never ask the author to paste the key into the chat.
+- `postiz.json` holds `caption`, `hashtags`, `ai_generated` (`true` or `false`), `youtube_title`, and `channels`. The `caption-writer` sub-agent drafts the copy.
+- When `postiz-receipt.json` shows the file was already posted, `--schedule` and `--now` are refused unless `--again` is passed; a draft only warns.
+- Setup: [user guide §6](https://github.com/sitien173/scene-flow/blob/main/docs/user-guide.md#6-publishing-with-postiz).
 
-HyperFrames Studio rewrites `index.html` on preview load (injects `data-hf-id`, standardizes void tags). For projects edited in Studio, apply changes using `scripts/edit_helpers.py`:
-- `replace_el(id, html)`: replaces elements by identifier.
-- `retop(id, px)`: updates `top` positioning.
-- `sub(old, new)`: literal text replacements in CSS and `<script>` blocks only.
+## Recording feedback
 
-A file that differs from a fresh build only in serialization holds no author edits, so edit `parts/` and rebuild with `make.sh`.
-Write patch scripts with the file editing tool, never shell heredocs or `python -c` (`\b` in regex turned into literal backspace byte). If preview reports "did not reload", reload the page and wait 20 seconds.
+Rules live in three tiers. The more specific tier wins.
 
-## Audio mixing
+| Tier | File | Write here when the feedback |
+|---|---|---|
+| Plugin | `references/style.md`, theme guides | never; these change only through the plugin repository |
+| Author | `AGENTS.md` in the folder that holds the author's projects | should apply to every future video |
+| Project | `CLAUDE.md` in the project folder | applies to this video only |
 
-Voice normalizes to -21.0 LUFS (`prep-voice.py`). Sound effect levels use calculated gains (`output dB = file mean dB + 20*log10(gain)`):
-- Thud: t=0, target -22 dB (gain 0.30)
-- Swoosh: every scene seam, target -28 dB (gain 0.70)
-- Pop: key icons only, target -29 dB (gain 0.40); cascade gain is 0.26 (`G_POP_SOFT`), target -33 dB
-- Laser: click interactions, target -26 dB (gain 0.55)
-- Shutter: key metric reveals, target -30 dB (gain 0.60)
-- Riser: opening hook climax, target -24 dB (gain 0.17)
-- Bed music: full duration under voice, target -31 to -33 dB (0.18 at -31 dB, 0.219 (shipped) at -33 dB)
-- A sound outside the house set: search Freesound through the bundled `freesound` skill, CC0 and CC BY only (`--commercial-safe`), download only after the author approves the sound, measure it with `scripts/sfx-gain.py`, place it in `EXTRA` in `add-sfx.py`, and credit CC BY sounds in the post caption ([audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound))
+- If the author does not say which tier, ask: "Áp dụng cho mọi video sau, hay chỉ video này?"
+- Write one entry under the matching heading: the rule, then the reason in one line.
+- To create the author file, ask the author first. Copy `<skill>/author/AGENTS.template.md` to `<projects folder>/AGENTS.md` and write `<projects folder>/CLAUDE.md` containing only `@AGENTS.md`, so Claude Code loads it in every project below. On other hosts, step 1 of the order of work reads it. Never create it in the home folder or the filesystem root.
+- Never write feedback into the plugin's install folder; a plugin update overwrites it.
 
-Refer to [references/audio-mix.md](references/audio-mix.md) for audio guidelines.
+## Hard rules
 
-## Bookends
+- **Never render unasked.** Snapshots answer picture questions in seconds; a render takes minutes.
+- **`npm run check` checks structure only**, not layout or sync.
+- **Never verify sync against captions.** Captions and cues share one timing model. Use `scripts/audit-sync.py`, a rare-word check, or the author's ears ([verification.md](references/verification.md)).
+- **Read [traps.md](references/traps.md) before composing.** It covers hidden scenes, `autoAlpha` on seek, timed `<video>` nesting, z-order, and shell escaping.
+- **Studio rewrites `index.html` on preview load.** Edit `parts/` and rebuild with `make.sh`. For a file the author edited in Studio, patch through `scripts/edit_helpers.py` (`replace_el`, `retop`, `sub`). Write patch scripts with the file-editing tool, never with shell heredocs or `python -c`.
+- **Keys and tokens never enter a project file, a video, or the chat output.**
+- **Terra3d has hard cuts only and no sound on cuts.** Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
 
-- **Opening mascot (optional, no mascot ships)**: your own transparent `.webm`, BIG in lower-left corner with feet off frame, 0.25 s to hook dead stop, leaves under flash so nothing sits on following full-screen clip.
-- **End card**: defined in `template/themes/<theme>/timeline.js`. It shows the Soi Repo mark (`BRAND_LOGO`), brand name (`BRAND_NAME`), and slogan (`SLOGAN`, placeholder `Slogan của bạn`) at 2x for 2.75 s. See the theme guide and knobs `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN` in `scripts/build.py`.
+## Reading author feedback
 
-## Critical traps
+Take it literally and find which case it is; the fixes are opposite.
 
-Review [references/traps.md](references/traps.md) before composition authoring:
-- Setting `.scene { opacity:0 }` hides the composition. Manage visibility via wrapper `autoAlpha:0`.
-- Supplying `autoAlpha` only in `fromTo` from-vars causes elements to vanish on seek. Supply in to-vars as well.
-- Timed `<video>` elements inside timed scenes produce lint errors. Keep container scenes untimed.
-- DOM sequence determines visual layering (z-order).
-- Neon3d vignettes start on spoken-word anchors in `vignettes.json`. Read [references/themes/neon3d.md](references/themes/neon3d.md) before writing a vignette.
-- Terra3d has hard cuts only and no sound on cuts. Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
-
-## Troubleshooting author feedback
-
-Take it literally and find which it is: the fixes are opposite:
-
-| They say | Means | Fix |
+| The author says | Meaning | Fix |
 |---|---|---|
 | "hình nhanh hơn voice" | cues fire before their words | the map, or the cue's position |
 | "lướt qua nhanh quá" | too little screen time | the duration, or cut something |
-| "chưa đẹp", "nhỏ quá" | a house-style miss | re-read house-style.md §3 to 4 |
-| "chưa thể hiện được nội dung" | skeleton where substance was needed | real phrases, house-style.md §4 |
+| "chưa đẹp", "nhỏ quá" | a style miss | re-read style.md §3 and §4 |
+| "chưa thể hiện được nội dung" | skeleton where substance was needed | real phrases, style.md §4 |
 
-Answering the wrong one and reporting it fixed is worse than not fixing it. After two attempts that do not land, stop patching and question the approach.
+Reporting the wrong one as fixed is worse than not fixing it. After two attempts that do not land, stop patching and question the approach.
