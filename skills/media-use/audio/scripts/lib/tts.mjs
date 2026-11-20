@@ -15,8 +15,6 @@ import { refuseUnderLimit } from "../../../scripts/lib/credit-limit.mjs";
 //
 // "HeyGen available" is decided by CREDENTIAL presence (heygenCredential), never
 // by the CLI — see the note above.
-//
-// Vibi ($VIBI_API_KEY) is explicit-only (provider "vibi"), never auto-picked.
 
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -49,12 +47,8 @@ export function elevenlabsAvailable() {
 // First available provider wins; an explicit choice is honored (and validated).
 export function pickProvider(userProvider) {
   if (userProvider) {
-    if (!["heygen", "elevenlabs", "kokoro", "gemini", "vibi"].includes(userProvider))
-      throw new Error(
-        `invalid provider "${userProvider}" (heygen | elevenlabs | kokoro | gemini | vibi)`,
-      );
-    if (userProvider === "vibi" && !process.env.VIBI_API_KEY)
-      throw new Error("provider=vibi but $VIBI_API_KEY is not set");
+    if (!["heygen", "elevenlabs", "kokoro", "gemini"].includes(userProvider))
+      throw new Error(`invalid provider "${userProvider}" (heygen | elevenlabs | kokoro | gemini)`);
     if (userProvider === "gemini" && !geminiConfigured())
       throw new Error(
         "provider=gemini needs GEMINI_API_KEY or GOOGLE_API_KEY, or service-account credentials (GOOGLE_APPLICATION_CREDENTIALS or GCS_CREDS)",
@@ -79,7 +73,7 @@ export function pickProvider(userProvider) {
 export async function resolveVoiceId({ provider, userVoice, lang = "en" }) {
   if (userVoice) return userVoice;
   if (provider === "gemini") return "Kore";
-  if (provider === "elevenlabs" || provider === "vibi") return "21m00Tcm4TlvDq8ikWAM"; // Rachel
+  if (provider === "elevenlabs") return "21m00Tcm4TlvDq8ikWAM"; // Rachel
   if (provider === "kokoro") {
     if (lang === "en") return "am_michael";
     throw new Error("Kokoro non-English needs an explicit --voice (see references/tts.md)");
@@ -307,7 +301,6 @@ export async function synthesizeOne({
   if (provider === "heygen") return synthesizeHeygen({ text, voiceId, lang, speed, wavAbs });
   if (provider === "gemini")
     return synthesizeGemini({ text, voiceId, model, style, speed, wavAbs });
-  if (provider === "vibi") return synthesizeVibi({ text, voiceId, lang, speed, model, wavAbs });
   if (provider === "elevenlabs") {
     // The Python helper writes straight to wavAbs; unlike heygen (transcodeToWav)
     // and kokoro (the `hyperframes tts` CLI), it does NOT create the parent dir,
@@ -398,61 +391,6 @@ export async function synthesizeHeygen({ text, voiceId, lang, speed, wavAbs }, d
     return { ok: true, words };
   } catch (e) {
     return { ok: false, words: null, error: heygenMessage(e) };
-  }
-}
-
-// Vibi (api.vibi.pro) is asynchronous: the POST queues a task (202 {id,status}),
-// /history/{id} is polled until completed, then result.audio_url is downloaded.
-// No word timings → caller chains transcribeWav(). Never throws.
-const VIBI_API = "https://api.vibi.pro/v1";
-const VIBI_POLL_MS = 2000;
-const VIBI_MAX_POLLS = 150; // ~5 min
-export async function synthesizeVibi({ text, voiceId, lang, speed, model, wavAbs }, deps = {}) {
-  const fetchImpl = deps.fetch ?? fetch;
-  const transcode = deps.transcodeToWav ?? transcodeToWav;
-  const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
-  const key = process.env.VIBI_API_KEY;
-  const call = async (path, init = {}) => {
-    const res = await fetchImpl(`${VIBI_API}${path}`, {
-      ...init,
-      headers: { "xi-api-key": key, "Content-Type": "application/json" },
-      signal: AbortSignal.timeout(60_000),
-    });
-    if (!res.ok)
-      throw new Error(`Vibi ${init.method ?? "GET"} ${path} → HTTP ${res.status}: ${await res.text()}`);
-    return res.json();
-  };
-  try {
-    const body = { text, language_code: lang };
-    if (model) body.model_id = model;
-    if (speed !== 1) body.voice_settings = { speed };
-    const { id } = await call(`/text-to-speech/${encodeURIComponent(voiceId)}`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    if (!id) return { ok: false, words: null, error: "Vibi returned no task id" };
-    let task = await call(`/history/${encodeURIComponent(id)}`);
-    for (let i = 0; task.status !== "completed" && task.status !== "failed"; i++) {
-      if (i >= VIBI_MAX_POLLS)
-        return { ok: false, words: null, error: `Vibi task ${id} still ${task.status} after polling` };
-      await sleep(VIBI_POLL_MS);
-      task = await call(`/history/${encodeURIComponent(id)}`);
-    }
-    if (task.status === "failed")
-      return { ok: false, words: null, error: `Vibi task ${id} failed: ${task.error ?? "no reason"}` };
-    // Docs show result.audio_url; their JS sample reads task.audio_url.
-    const url = task.result?.audio_url ?? task.audio_url;
-    if (!url) return { ok: false, words: null, error: `Vibi task ${id} returned no audio_url` };
-    const res = await fetchMedia(url, { fetchImpl });
-    if (!res.ok)
-      return { ok: false, words: null, error: `audio_url fetch failed: HTTP ${res.status}` };
-    if (!transcode(Buffer.from(await res.arrayBuffer()), wavAbs))
-      return { ok: false, words: null, error: "wav transcode failed (ffmpeg)" };
-    return { ok: true, words: null };
-  } catch (e) {
-    // Error bodies must never echo the key into logs or metadata.
-    const message = String(e?.message ?? e);
-    return { ok: false, words: null, error: key ? message.split(key).join("[redacted]") : message };
   }
 }
 

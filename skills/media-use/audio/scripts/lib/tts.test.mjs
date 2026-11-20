@@ -16,7 +16,6 @@ import {
   ffprobeDuration,
   synthesizeOne,
   synthesizeHeygen,
-  synthesizeVibi,
   synthResult,
   pickProvider,
   transcribeWav,
@@ -278,93 +277,4 @@ test("synthesizeHeygen refuses under a credit limit before any request", async (
   assert.equal(r.ok, false);
   assert.match(r.error, /credit limit of 5/);
   assert.equal(asked, false);
-});
-
-// Fake Vibi API: each call is answered from `replies` in order; requests are recorded.
-function fakeVibi(replies) {
-  const calls = [];
-  const fetchImpl = async (url, init = {}) => {
-    calls.push({ url, method: init.method ?? "GET", body: init.body });
-    const r = replies.shift();
-    return {
-      ok: r.status < 400,
-      status: r.status,
-      headers: new Headers(),
-      json: async () => r.json,
-      text: async () => JSON.stringify(r.json ?? {}),
-      arrayBuffer: async () => new ArrayBuffer(4),
-    };
-  };
-  return { calls, fetchImpl };
-}
-
-test("synthesizeVibi queues, polls until completed, then downloads audio_url", async () => {
-  const { calls, fetchImpl } = fakeVibi([
-    { status: 202, json: { id: "t1", status: "pending" } },
-    { status: 200, json: { id: "t1", status: "processing" } },
-    {
-      status: 200,
-      json: { id: "t1", status: "completed", result: { audio_url: "https://cdn.example/t1.mp3" } },
-    },
-    { status: 200 },
-  ]);
-  let transcoded = false;
-  const res = await synthesizeVibi(
-    { text: "hi", voiceId: "v1", lang: "vi", speed: 1.1, wavAbs: "/tmp/x.wav" },
-    { fetch: fetchImpl, sleep: async () => {}, transcodeToWav: () => (transcoded = true) },
-  );
-  assert.deepEqual(res, { ok: true, words: null });
-  assert.equal(transcoded, true);
-  assert.equal(calls[0].url, "https://api.vibi.pro/v1/text-to-speech/v1");
-  assert.deepEqual(JSON.parse(calls[0].body), {
-    text: "hi",
-    language_code: "vi",
-    voice_settings: { speed: 1.1 },
-  });
-  assert.equal(calls[1].url, "https://api.vibi.pro/v1/history/t1");
-  assert.equal(calls[3].url, "https://cdn.example/t1.mp3");
-});
-
-test("synthesizeVibi reports a failed task with its reason", async () => {
-  const { fetchImpl } = fakeVibi([
-    { status: 202, json: { id: "t2", status: "pending" } },
-    { status: 200, json: { id: "t2", status: "failed", error: "voice not found" } },
-  ]);
-  const res = await synthesizeVibi(
-    { text: "hi", voiceId: "v1", lang: "en", speed: 1, wavAbs: "/tmp/x.wav" },
-    { fetch: fetchImpl, sleep: async () => {} },
-  );
-  assert.equal(res.ok, false);
-  assert.match(res.error, /t2 failed: voice not found/);
-});
-
-test("synthesizeVibi surfaces an HTTP error without echoing the key", async () => {
-  const saved = process.env.VIBI_API_KEY;
-  process.env.VIBI_API_KEY = "secret-key-123";
-  try {
-    const { fetchImpl } = fakeVibi([{ status: 400, json: { error: "bad key secret-key-123" } }]);
-    const res = await synthesizeVibi(
-      { text: "hi", voiceId: "v1", lang: "en", speed: 1, wavAbs: "/tmp/x.wav" },
-      { fetch: fetchImpl, sleep: async () => {} },
-    );
-    assert.equal(res.ok, false);
-    assert.match(res.error, /HTTP 400/);
-    assert.doesNotMatch(res.error, /secret-key-123/);
-  } finally {
-    if (saved === undefined) delete process.env.VIBI_API_KEY;
-    else process.env.VIBI_API_KEY = saved;
-  }
-});
-
-test("pickProvider vibi requires $VIBI_API_KEY", () => {
-  const saved = process.env.VIBI_API_KEY;
-  delete process.env.VIBI_API_KEY;
-  try {
-    assert.throws(() => pickProvider("vibi"), /VIBI_API_KEY is not set/);
-    process.env.VIBI_API_KEY = "k";
-    assert.equal(pickProvider("vibi"), "vibi");
-  } finally {
-    if (saved === undefined) delete process.env.VIBI_API_KEY;
-    else process.env.VIBI_API_KEY = saved;
-  }
 });
