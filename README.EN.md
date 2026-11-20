@@ -9,7 +9,7 @@ scene-flow turns a script and a voice recording into a 9:16 video for TikTok, Re
 
 ## What you get
 
-- **Two looks:** `neon3d` (short neon 3D scenes) and `terra3d` (short daylight 3D scenes for engineering, geography, and history). Claude asks which one to use for each video.
+- **Three looks:** `neon3d` (short neon 3D scenes), `terra3d` (short daylight 3D scenes for engineering, geography, and history), and `atlas3d` (old-style map scenes with map pans and backdrop photos). Claude asks which one to use for each video.
 - **Real pictures over text:** product logos, your screen recordings, and captures of web pages.
 - **Captions in sync:** each spoken word lights up as it is said.
 - **Sound:** a music bed and sound effects on scene changes and key moments.

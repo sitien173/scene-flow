@@ -37,7 +37,7 @@ COMPOUNDS = [
 ]
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d and terra3d are supported" % THEME)
+    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
 THEME_SETTINGS = {
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
@@ -55,6 +55,13 @@ THEME_SETTINGS = {
         "minu": 1, "single": True,
         "compounds": ["kênh đào", "Trái Đất", "con tàu", "công trình", "đại dương", "con người", "kỹ sư", "mặt nước",
                       "cửa âu", "đường sắt"],
+    },
+    "atlas3d": {
+        "maxu": 4, "maxc": 24, "maxc_side": 24,
+        "lit_color": "#FFFFFF", "lit_shadow": "DHALO",
+        "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
+        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
+        "minu": 3, "highlight": False,  # whole phrases only: no per-word colour
     },
 }
 if THEME not in THEME_SETTINGS:
@@ -224,7 +231,7 @@ for n, c in enumerate(cues):
     anim.append('      tl.fromTo("#ki%03d", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.12,'
                 ' ease: "power2.out" }, %.3f);' % (n, c["s"]))
     us = c["units"]
-    for k, u in enumerate(us):
+    for k, u in enumerate(us if SETTINGS.get("highlight", True) else []):
         on = max(c["s"], u["s"] - LEAD)
         off = (max(c["s"], us[k + 1]["s"] - LEAD) if k + 1 < len(us) else c["e"]) - 0.01
         if BOXED:

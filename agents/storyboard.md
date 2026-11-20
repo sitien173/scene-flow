@@ -32,6 +32,6 @@ Write `STORYBOARD.md` in the project folder when the prompt gives one; otherwise
 |---|---|---|---|---|---|---|
 
 2. A media checklist: every logo, URL to capture, and recording the author must supply.
-3. Suggested values for `build.py`: `PROMPTS`, `CTA_WORD`, `STEPS`, and the scene grouping for `SCENES` in `plan-beats.py`.
+3. Suggested values for `build.py`: `CTA_WORD`, `STEPS`, and the scene grouping for `SCENES` in `plan-beats.py`.
 
 Write in Vietnamese unless the prompt asks otherwise.

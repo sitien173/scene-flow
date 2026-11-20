@@ -17,7 +17,7 @@ The prompt also says which phase to run. Without that, run Phase 1 only.
 2. **Pictures.** Extract shot-change frames with `ffmpeg -vf "select='gt(scene,0.3)',showinfo" -fps_mode vfr` plus one frame per second for the first 5 seconds. Read the frames as images.
 3. **Sound.** Measure loudness with the `ebur128` filter. Split voice and music levels where possible. List SFX moments by time from onsets and from listening to short clips around each cut.
 4. **Speech and captions.** If the video has narration, transcribe it with the scene-flow Colab ASR when the server is running; otherwise describe captions from the frames only.
-5. **Compare with existing themes.** Load the `scene-flow` skill with the Skill tool. Read `references/style.md` and every guide in `references/themes/`. Load `motion-doctrine` and `3dviz-pro-max` for motion and 3D vocabulary. Say which existing theme is the closest base: `neon3d` for one 3D vignette per idea on a neon stage, `terra3d` for daylight 3D vignettes with hard cuts.
+5. **Compare with existing themes.** Load the `scene-flow` skill with the Skill tool. Read `references/style.md` and every guide in `references/themes/`. Load `motion-doctrine` and `3dviz-pro-max` for motion and 3D vocabulary. Say which existing theme is the closest base: `neon3d` for one 3D vignette per idea on a neon stage, `terra3d` for daylight 3D vignettes with hard cuts, `atlas3d` for map scenes with camera pans and backdrops.
 
 Write `research/theme-<name>/SPEC.md` with these sections, each citing frame timestamps as evidence:
 

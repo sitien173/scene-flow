@@ -91,11 +91,13 @@ Kịch bản:
 ```
 *(English gloss: Create a TikTok video about topic. Voice file: "recordings/voice.wav". 1. Include product logos. 2. Use visuals/recordings instead of text. 3. Use intro.mp4 for the opening. 4. Use keyword CHATBOT in the comment CTA. Script: one sentence per line.)*
 
-There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme neon3d` or `--theme terra3d` in your prompt.
+There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme neon3d`, `--theme terra3d`, or `--theme atlas3d` in your prompt.
 
 The neon3d theme shows short neon 3D scenes with one idea each. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
 
 The terra3d theme shows short daylight 3D scenes for engineering, geography, and history topics. Each scene is a hard cut on a spoken word, and captions show one word at a time. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. See [the terra3d theme guide](../skills/scene-flow/references/themes/terra3d.md).
+
+For history, geography, and economics shorts on an old-style map, include `--theme atlas3d` in your prompt. The camera pans across a shared parchment world map between scenes, with 3D country territories, chibi toon figures, props, serif map labels, and photo backdrops. The project has a `vignettes.json` file, map data, and code files in `vignettes/`. The starter project is a nine-vignette sample about the Louisiana Purchase of 1803, with a sourced polygon for the purchase territory and one photo backdrop. See [the atlas3d theme guide](../skills/scene-flow/references/themes/atlas3d.md).
 
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 

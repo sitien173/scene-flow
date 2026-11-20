@@ -20,6 +20,17 @@ Licenses belong to each file's original creator: verify individual licenses befo
 | `sfx-risercut3.mp3` | first 3.20s of the riser file above (to peak) | opening hook: peak lands on dead stop, gain 0.17 |
 | `bgm-little-things.mp3` | `Little Things Immaterial.mp3` (author music library) | background music from 0:00, gain 0.219 (~12 dB under voice) |
 
+### Atlas3d sounds: `assets/atlas3d/audio/`
+
+Freesound downloads, copied by `scripts/new-project.py` into atlas3d projects as `assets/audio/` files. All four are licensed CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/), so no credit is required. Each is the Freesound HQ MP3 preview, retrieved 2026-11-20 (no OAuth token, so no original file). Gains and the way they were measured are in the `scripts/add-sfx.py` header.
+
+| File | Freesound ID | Name | Author | URL | Licence | Retrieved | Video usage |
+|---|---|---|---|---|---|---|---|
+| `bgm-pizzicato.mp3` | 529008 | Short Pizzicato Song | DanJFilms | https://freesound.org/people/DanJFilms/sounds/529008/ | CC0 1.0 | 2026-11-20 | atlas3d background music from 0:00, gain 0.305, looped by `add-sfx.py` on a film longer than 56.3 s |
+| `sfx-pen.mp3` | 211247 | Scribble | Tomoyo Ichijouji | https://freesound.org/people/Tomoyo%20Ichijouji/sounds/211247/ | CC0 1.0 | 2026-11-20 | atlas3d `sfx` beat `pen`, gain 6.5 |
+| `sfx-coins.mp3` | 17502 | Coin dropping.wav | Jace | https://freesound.org/people/Jace/sounds/17502/ | CC0 1.0 | 2026-11-20 | atlas3d `sfx` beat `coins`, gain 0.89 |
+| `sfx-drum.mp3` | 573275 | Timpani 2.wav | Sorinious_Genious | https://freesound.org/people/Sorinious_Genious/sounds/573275/ | CC0 1.0 | 2026-11-20 | atlas3d `sfx` beat `drum`, gain 0.90 |
+
 ## Fonts: `assets/fonts/`
 
 - **Be Vietnam Pro:** from Google Fonts via Fontsource, split into latin / latin-ext / vietnamese subsets, woff2, weights 600, 700, and 800. Files: `BeVietnamPro-{latin,latin-ext,vietnamese}-{600,700,800}.woff2`. SIL Open Font License 1.1: [fonts/BeVietnamPro-OFL.txt](fonts/BeVietnamPro-OFL.txt).
@@ -27,6 +38,7 @@ Licenses belong to each file's original creator: verify individual licenses befo
   - Source: [fontsource.org/fonts/nunito](https://fontsource.org/fonts/nunito), tarball `https://registry.npmjs.org/@fontsource/nunito/-/nunito-5.3.0.tgz`, downloaded 2026-11-20. Tarball SHA-256: `4d8e1fb4f4a40c125c7a302b21e5c6810b86569b60bac0fa0405c04380f4c77b`. Its SHA-512 matched the registry `dist.integrity` value `sha512-vw9TaTQJ/zpEpKrsODuPmOvaVjXgdda6B+xXA4YqjrdeJ62MLgVoDerdRXFQHyBnSCt2yQ2nHKCHPP/Pv7Xq4Q==`.
   - Author: The Nunito Project Authors ([googlefonts/nunito](https://github.com/googlefonts/nunito)). Licence line from the package `LICENSE`, checked 2026-11-20: `This Font Software is licensed under the SIL Open Font License, Version 1.1.` The package metadata also states `OFL-1.1`.
   - Vietnamese check, run with `fonttools` 4.68.0 in a throwaway venv under `/tmp`: every precomposed glyph U+1EA0 to U+1EF9 (90 code points) is present across the three subset files at weight 800 and at weight 900. Latin and latin-ext alone cover 8 of the 90, so the vietnamese subset is required.
+- **Atlas3d theme (map labels):** Lora (Google Fonts v37 via Fontsource `@fontsource/lora` 5.3.0, `https://registry.npmjs.org/@fontsource/lora/-/lora-5.3.0.tgz`), split into latin / latin-ext / vietnamese subsets, normal style, woff2, weights 600 and 700. Files: `Lora-{latin,latin-ext,vietnamese}-{600,700}.woff2`. Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora". SIL Open Font License 1.1: [fonts/Lora-OFL.txt](fonts/Lora-OFL.txt).
 
 | Path | Source URL | Author | License | Date checked | SHA-256 |
 |---|---|---|---|---|---|
@@ -59,6 +71,8 @@ Icons in `template/parts/head.part` come from [Lucide](https://lucide.dev) (ISC 
 `GLTFLoader.js`, `BufferGeometryUtils.js`, and `SkeletonUtils.js` were copied byte-identically from the Three.js `0.187.0` npm tarball (`https://registry.npmjs.org/three/-/three-0.187.0.tgz`). The package's MIT licence is `assets/vendor/three/LICENSE`.
 
 For the neon3d theme, `addons/postprocessing/EffectComposer.js`, `Pass.js`, `RenderPass.js`, `ShaderPass.js`, `MaskPass.js`, `UnrealBloomPass.js`, `OutputPass.js` and `addons/shaders/CopyShader.js`, `LuminosityHighPassShader.js`, `OutputShader.js` were copied byte-identically from the same tarball's `examples/jsm/` folder.
+
+For the atlas3d theme, `addons/lines/LineMaterial.js`, `LineSegments2.js`, `LineSegmentsGeometry.js`, `Line2.js`, and `LineGeometry.js` were copied byte-identically from the same tarball's `examples/jsm/lines/` folder.
 
 ## Terra3d assets
 
@@ -94,3 +108,26 @@ Licence line, quoted from each downloaded licence file: `License: (Creative Comm
 | `assets/terra3d/models/ship-large.glb` | [Kenney Pirate Kit](https://kenney.nl/assets/pirate-kit) via [OpenGameArt](https://opengameart.org/content/pirate-kit) | Kenney | CC0 | 2026-11-20 | `8567386c64faf3a73832f77a0dcfcc44208487c34b46440b9a3fa8d452068579` |
 | `assets/terra3d/models/Knight.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168` |
 | `assets/terra3d/models/Mage.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `cf898585da33fab50c724d31605fb931eb2912e6d2280092141e98ca81ad507d` |
+
+## Atlas3d map: `assets/atlas3d/map/`
+
+Natural Earth map data, public domain. Licence note and download details: [atlas3d/map/LICENSES/natural-earth.md](atlas3d/map/LICENSES/natural-earth.md).
+
+- Source: Natural Earth 1:50m admin-0 countries, `nvkelso/natural-earth-vector` tag `v5.1.2`, commit `f1890d9f152c896d250a77557a5751a93d494776`, downloaded 2026-11-19 from `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_50m_admin_0_countries.geojson`.
+- Source SHA-256: `3e458fc036ad0a66411f2c1e6cac49c5d7bfb81cb1123bc513b22511a2b7fdeb`.
+- Source: Natural Earth Shaded Relief 50m, `SR_50M.zip` version 2.0.0, downloaded 2026-11-19 from `https://naciscdn.org/naturalearth/50m/raster/SR_50M.zip`.
+- Source SHA-256: `ff810f5f2747463fd8ffa612b23e5f5e5d593a345218976872b6749610976ab7`.
+- Licence: public domain, per the [Natural Earth terms of use](https://www.naturalearthdata.com/about/terms-of-use/).
+- Generator: `python3 tools/atlas3d-map.py --relief` (developer tool, not copied into projects). The tool pins both SHA-256 values.
+
+| Generated file | Output SHA-256 |
+|---|---|
+| `assets/atlas3d/map/world.js` | `a2f2bb018525cbe78830630f5c1c537ca2307944103e9351ca56524730961dd6` |
+| `assets/atlas3d/map/index.json` | `7f0c950ce3b6d5a9be4daf4c92eae8ddc8bb12ae31556798d04e44a18ade3251` |
+| `assets/atlas3d/map/relief.webp` | `e384721a4f902c8f20398061808a49f036e0d13b77c1bc0168f7a4221e483e38` |
+
+## Atlas3d sample backdrop: `template/themes/atlas3d/backdrops/`
+
+| File | Source | Notes |
+|---|---|---|
+| `template/themes/atlas3d/backdrops/sample.webp` | Original generated work (author/project-owned) | Deterministic 1080x1920 painted cartographic landscape generated with Python + Pillow (`random.Random(1803)`): sky gradient, clouds, layered rolling hills, sunlit meadow foreground, and subtle parchment grain. SHA-256: `a089bbe30fc5cefe660a4c188b67256f3656ee9e4cd85d59572ef7f7c60359dd`. |

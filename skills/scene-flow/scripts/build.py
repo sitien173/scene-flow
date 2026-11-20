@@ -18,12 +18,13 @@ import unicodedata
 
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d and terra3d are supported" % THEME)
-if THEME not in ("neon3d", "terra3d"):
+    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
+if THEME not in ("neon3d", "terra3d", "atlas3d"):
     raise SystemExit("unknown theme: " + THEME)
 
 # ── PER-PROJECT ──────────────────────────────────────────────────────────────────────────
 SC = [("terra", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "terra3d" else \
+     [("atlas", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "atlas3d" else \
      [("neon", 0.00), ("cta", 17.50), ("ec", 24.20)]   # scene id, cut (s)
 EC_DUR = 2.75                     # the house end card at 2x (5.5 s -> 2.75 s)
 STEPS = ["i-laptopdl", "i-code", "i-send"]       # the step tracker's icons (sprite ids); [] for none
@@ -50,7 +51,7 @@ def probe(path):
 
 VO = probe("assets/audio/voiceover.mp3")
 assert VO, "assets/audio/voiceover.mp3 missing — run scripts/prep-voice.py first"
-if THEME in ("neon3d", "terra3d"):
+if THEME in ("neon3d", "terra3d", "atlas3d"):
     SC = [(SC[0][0], 0.00), ("cta", round(VO, 2)), ("ec", round(VO + 6.70, 2))]
     START = dict(SC)
     END = round(SC[-1][1] + EC_DUR, 2)
@@ -107,8 +108,8 @@ def anchor_time(anchor, who, fail):
     return float(time)
 
 
-# neon3d and terra3d: banned in vignette and kit code, so every frame is a function of seek time (comments included)
-VIGNETTE_THEMES = ("neon3d", "terra3d")
+# neon3d, terra3d and atlas3d: banned in vignette and kit code, so every frame is a function of seek time (comments included)
+VIGNETTE_THEMES = ("neon3d", "terra3d", "atlas3d")
 NEON_BANNED = [r"\brandom\b", r"\bDate\b", r"\bperformance\b", r"requestAnimationFrame", r"setAnimationLoop",
                r"setTimeout", r"setInterval", r"\bClock\b", r"\bTimer\b", r"getDelta", r"GlitchPass", r"FilmPass",
                r"\bfetch\b", r"XMLHttpRequest", r"WebSocket", r"\b(?:https?|wss?):"]
@@ -117,6 +118,10 @@ FLY_DUR = 0.9
 TERRA_KINDS = ("cut",)            # terra3d is hard cuts only
 TERRA_MIN_LEN = 1.0               # s: a terra3d vignette shorter than this is a flicker, not a shot
 AMBIENCE_GAINS = ("soft", "medium", "strong")   # categories; add-sfx.py owns their dB targets
+# atlas3d: transitions between vignettes, vignette kinds, and the default pan length
+ATLAS_KINDS = ("cut", "pan")
+ATLAS_VIGNETTE_KINDS = ("map", "backdrop")
+PAN_DUR = 1.0
 
 
 def vignette_error(problem, detail):
@@ -144,7 +149,48 @@ def quiet_windows():
     return out
 
 
+def resolve_regions(data):
+    rows = data.get("regions", [])
+    if not isinstance(rows, list):
+        vignette_error("invalid regions", "regions must be a list")
+    codes = json.load(io.open(os.path.join("assets", "atlas3d", "map", "index.json"), encoding="utf-8"))
+    seen = set()
+    for k, r in enumerate(rows):
+        if not isinstance(r, dict) or not isinstance(r.get("id"), str) or not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", r["id"]):
+            vignette_error("invalid region id", "region %d needs an id of lowercase letters, digits, - or _" % k)
+        rid = r["id"]
+        if rid in seen:
+            vignette_error("duplicate region id", rid)
+        seen.add(rid)
+        if "label" in r and not isinstance(r["label"], str):
+            vignette_error("invalid region", "%r label must be a string" % rid)
+        if ("countries" in r) == ("polygon" in r):
+            vignette_error("invalid region", "%r needs exactly one of countries or polygon" % rid)
+        if "countries" in r:
+            if not isinstance(r["countries"], list) or not r["countries"]:
+                vignette_error("invalid region", "%r countries must be a non-empty list" % rid)
+            for code in r["countries"]:
+                if not isinstance(code, str) or code not in codes:
+                    vignette_error("unknown country code", "%r: %r is not in assets/atlas3d/map/index.json" % (rid, code))
+        else:
+            poly = r["polygon"]
+            if not isinstance(poly, list) or len(poly) < 3:
+                vignette_error("invalid polygon", "%r needs at least 3 [lon, lat] points" % rid)
+            for point in poly:
+                if not isinstance(point, list) or len(point) != 2 or any(
+                        isinstance(n, bool) or not isinstance(n, (int, float)) or not math.isfinite(n) for n in point):
+                    vignette_error("invalid polygon", "%r points must be [lon, lat] pairs of numbers" % rid)
+                if not -180 <= point[0] <= 180 or not -90 <= point[1] <= 90:
+                    vignette_error("invalid polygon", "%r point %s is out of range" % (rid, point))
+            if not isinstance(r.get("source"), str) or not r["source"].strip():
+                vignette_error("missing source", "%r polygon needs a non-empty source" % rid)
+    return rows
+
+
 def resolve_vignettes(theme):
+    atlas = theme == "atlas3d"
+    kinds = ATLAS_KINDS if atlas else NEON_KINDS if theme == "neon3d" else TERRA_KINDS
+    dur_low = 0.3 if atlas else 0.2
     try:
         data = json.load(io.open("vignettes.json", encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -172,13 +218,32 @@ def resolve_vignettes(theme):
                     or a["sentence"] < 1 or not isinstance(a.get("word"), str) or not a["word"].strip():
                 vignette_error("invalid anchor", "%r %s needs a positive sentence and a word" % (vid, what))
         tr = v.get("in", {"kind": "cut"})
-        kinds = NEON_KINDS if theme == "neon3d" else TERRA_KINDS
         if not isinstance(tr, dict) or tr.get("kind") not in kinds:
             vignette_error("invalid transition", "%r in.kind must be one of %s" % (vid, ", ".join(kinds)))
         if "dur" in tr and (isinstance(tr["dur"], bool) or not isinstance(tr["dur"], (int, float))
-                            or not 0.2 <= tr["dur"] <= 2.0):
-            vignette_error("invalid transition", "%r in.dur must be between 0.2 and 2.0 seconds" % vid)
-        v["in"] = dict(tr, dur=float(tr.get("dur", FLY_DUR if tr["kind"] == "fly" else 0.3)))
+                            or not dur_low <= tr["dur"] <= 2.0):
+            vignette_error("invalid transition", "%r in.dur must be between %s and 2.0 seconds" % (vid, dur_low))
+        if tr["kind"] == "pan" and k == 0:
+            vignette_error("invalid transition", "%r is the first vignette; a pan needs a map vignette before it" % vid)
+        default = FLY_DUR if tr["kind"] == "fly" else PAN_DUR if tr["kind"] == "pan" else 0.3
+        v["in"] = dict(tr, dur=float(tr.get("dur", default)))
+        if atlas:
+            vkind = v.get("kind", "map")
+            if vkind not in ATLAS_VIGNETTE_KINDS:
+                vignette_error("invalid kind", "%r kind must be map or backdrop" % vid)
+            if vkind == "backdrop":
+                image = v.get("image")
+                if not isinstance(image, str) or not image or os.path.isabs(image) or ".." in image.split("/") \
+                        or not os.path.isfile(image):
+                    vignette_error("invalid backdrop", "%r image %r must be an existing file inside the project" % (vid, image))
+            sfx = v.get("sfx", {})
+            if not isinstance(sfx, dict):
+                vignette_error("invalid sfx", "%r sfx must be an object of beat -> sound" % vid)
+            for name, sound in sfx.items():
+                if not isinstance(sound, str) or not re.fullmatch(r"[a-z0-9-]+", sound):
+                    vignette_error("invalid sfx", "%r sfx %r: sound must match [a-z0-9-]+" % (vid, name))
+                if name not in beats:
+                    vignette_error("invalid sfx", "%r sfx %r names no beat of this vignette" % (vid, name))
         if not os.path.isfile(os.path.join("vignettes", vid + ".js")):
             vignette_error("missing vignette module", "%r: vignettes/%s.js" % (vid, vid))
         amb = v.get("ambience")
@@ -191,6 +256,7 @@ def resolve_vignettes(theme):
                 vignette_error("missing ambience file", "%r: %r is not a file in the project" % (vid, amb["file"]))
             v["ambience"] = {"file": amb["file"], "gain": amb["gain"]}
 
+    regions = resolve_regions(data) if atlas else []
     for f in theme_sources(theme):
         text = io.open(f, encoding="utf-8").read()
         for pat in NEON_BANNED:
@@ -212,7 +278,7 @@ def resolve_vignettes(theme):
                            % (v["id"], v["t"], START["cta"]))
         v["beats"] = {name: anchor_time(a, "vignette %r beat %r" % (v["id"], name), fail) for name, a in v.get("beats", {}).items()}
         previous = v["t"]
-    return rows
+    return rows, regions
 
 
 def check_vignettes(rows, cta, theme):
@@ -231,7 +297,14 @@ def check_vignettes(rows, cta, theme):
             continue
         prev = rows[k - 1]
         kind = v["in"]["kind"]
-        if kind == "fly":
+        if kind == "pan":
+            if v.get("kind", "map") != "map" or prev.get("kind", "map") != "map":
+                vignette_error("pan with backdrop", "%r pans between %r and %r; pan needs two map vignettes"
+                               % (v["id"], prev["id"], v["id"]))
+            if v["in"]["dur"] > (v["end"] - v["t"]) * 0.6:
+                vignette_error("pan too long", "%r pan of %.2fs exceeds 60%% of its vignette (%.2fs)"
+                               % (v["id"], v["in"]["dur"], v["end"] - v["t"]))
+        elif kind == "fly":
             if not re.search(r"\bportal\s*[:(]", io.open(os.path.join("vignettes", prev["id"] + ".js"), encoding="utf-8").read()):
                 vignette_error("fly without portal", "%r flies out of %r, whose build returns no portal()" % (v["id"], prev["id"]))
             if v["in"]["dur"] > (v["t"] - prev["t"]) * 0.6:
@@ -252,14 +325,15 @@ def check_vignettes(rows, cta, theme):
         if flashes[k + 3][0] - flashes[k][0] < 1.0:
             vignette_error("too many flashes", "%r: more than 3 flash transitions within 1 s (WCAG 2.3.1)" % flashes[k + 3][1])
     print("%s vignette table:" % theme)
-    print("  vignette | in    | anchor                    | start | end")
+    print("  vignette | %sin    | anchor                    | start | end" % ("kind  | " if theme == "atlas3d" else ""))
     for v in rows:
         a = v.get("anchor")
         where = "sentence %d: %s" % (a["sentence"], a["word"]) if a else "(film start)"
-        print("  %-8s | %-5s | %-25s | %5.2f | %5.2f" % (v["id"], v["in"]["kind"], where[:25], v["t"], v["end"]))
+        kind = "%-5s | " % v.get("kind", "map") if theme == "atlas3d" else ""
+        print("  %-8s | %s%-5s | %-25s | %5.2f | %5.2f" % (v["id"], kind, v["in"]["kind"], where[:25], v["t"], v["end"]))
 
 
-VIGNETTES = resolve_vignettes(THEME) if THEME in VIGNETTE_THEMES else None
+VIGNETTES, REGIONS = resolve_vignettes(THEME) if THEME in VIGNETTE_THEMES else (None, [])
 if THEME in VIGNETTE_THEMES:
     # these scripts have no spoken CTA line, so the card waits for the last spoken syllable
     spoken_end = max((x["e"] for x in syl), default=VO - 9.45)
@@ -289,6 +363,11 @@ html = html.replace("/* @geo */", "var GEO = %s;" % json.dumps({"tk": TK_X, "cta
 if THEME in VIGNETTE_THEMES:
     assert html.count("@@vignettes@@") == 1
     vignette_data = [{"id": v["id"], "t": v["t"], "end": v["end"], "in": v["in"], "beats": v["beats"]} for v in VIGNETTES]
+    if THEME == "atlas3d":
+        vignette_data = [dict(d, kind=v.get("kind", "map"), image=v.get("image"), sfx=v.get("sfx", {}))
+                         for d, v in zip(vignette_data, VIGNETTES)]
+        assert html.count("@@regions@@") == 1
+        html = html.replace("@@regions@@", json.dumps(REGIONS, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"), 1)
     html = html.replace("@@vignettes@@", json.dumps(vignette_data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"), 1)
 for sid in START:
     html = html.replace("@@start:%s@@" % sid, "%.2f" % START[sid])
@@ -310,5 +389,10 @@ if THEME in VIGNETTE_THEMES:  # vignette transitions live inside the theme's 3D 
     ledger["vignettes"] = [{k: v[k] for k in ("id", "t", "end", "in", "ambience") if k in v} for v in VIGNETTES]
 if THEME == "terra3d":  # add-sfx.py reads this: terra3d has no sound on cuts, so no swoosh on its seams
     ledger["theme"] = THEME
+if THEME == "atlas3d":  # add-sfx.py reads these cues: each pan whooshes, each vignette sfx beat plays its sound
+    ledger["vignettes"] = [dict(row, kind=v.get("kind", "map")) for row, v in zip(ledger["vignettes"], VIGNETTES)]
+    cues = [{"t": v["t"], "sound": "swoosh"} for v in VIGNETTES if v["in"]["kind"] == "pan"]
+    cues += [{"t": v["beats"][name], "sound": sound} for v in VIGNETTES for name, sound in v.get("sfx", {}).items()]
+    ledger["cues"] = sorted(cues, key=lambda c: (c["t"], c["sound"]))
 io.open("ledger.json", "w", encoding="utf-8").write(json.dumps(ledger, ensure_ascii=False, indent=1))
 print("index.html: %d scenes, %.2fs (voice %.2fs); ledger: %d seams" % (len(SC), END, VO, len(seams)))

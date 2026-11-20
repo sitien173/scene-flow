@@ -82,6 +82,12 @@ jobs:
           echo "$got"
           test "$got" = 3365b1e3f7613fd97bbc1fe4675e395a3136835488f77cdf5472af1d241d54af
 
+      - name: Atlas3d map checks
+        run: python3 tests/atlas3d-map-test.py
+
+      - name: Atlas3d build checks
+        run: python3 tests/atlas3d-build-test.py
+
   actionlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

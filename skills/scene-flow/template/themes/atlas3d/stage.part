@@ -1,0 +1,273 @@
+      <div id="atlas3d-overlay" aria-hidden="true"></div>
+      <script type="importmap">
+        {"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/addons/","atlas3d/kit":"./assets/atlas3d/kit/index.js","atlas3d/map":"./assets/atlas3d/map/world.js"}}
+      </script>
+      <script>
+        window.__hf = window.__hf || {};
+        window.__hf.buildReady = window.__hf.buildReady || {};
+        let resolveAtlas3dReady, rejectAtlas3dReady;
+        window.__hf.buildReady.atlas3d = new Promise((resolve, reject) => { resolveAtlas3dReady = resolve; rejectAtlas3dReady = reject; });
+      </script>
+      <script type="module">
+        import * as THREE from "three";
+        import { createKit, createMap, ease } from "atlas3d/kit";
+
+        // Resolved by build.py from vignettes.json: [{ id, kind, t, end, in: { kind, dur }, beats, sfx, image }], times in seconds.
+        const VIGNETTES = @@vignettes@@;
+        // Resolved by build.py from vignettes.json regions: [{ id, label, countries } or { id, label, polygon, source }].
+        const REGIONS = @@regions@@;
+        const WIDTH = 1080;
+        const HEIGHT = 1920;
+        const canvas = document.getElementById("atlas3d-canvas");
+        const overlay = document.getElementById("atlas3d-overlay");
+        document.getElementById("w-atlas").append(overlay);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, stencil: true, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(1);
+        renderer.setSize(WIDTH, HEIGHT, false);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.info.autoReset = false;
+        const gl = renderer.getContext();
+        let contextLost = false;
+        canvas.addEventListener("webglcontextlost", () => { contextLost = true; });
+
+        const sharedMap = createMap({ regions: REGIONS, overlay });
+        const slots = [];
+        let ready = false;
+        let shown = -1;
+
+        function activeIndex(time) {
+          let k = 0;
+          while (k + 1 < VIGNETTES.length && time >= VIGNETTES[k + 1].t) k++;
+          return k;
+        }
+
+        // A pan is a pure function of time: the camera eases from the previous vignette's end pose
+        // (its update at its own end time) to this vignette's pose at the current time. No state carries over.
+        function renderAt(time) {
+          if (!ready) return;
+          time = Number.isFinite(time) ? Math.max(0, time) : 0;
+          const k = activeIndex(time);
+          const v = VIGNETTES[k];
+          const slot = slots[k];
+          const isMap = (v.kind || "map") === "map";
+          if (shown !== k) {
+            slots.forEach((s, i) => { s.layer.style.display = i === k ? "block" : "none"; });
+            shown = k;
+          }
+          if (isMap && sharedMap.group.parent !== slot.scene) {
+            slot.scene.add(sharedMap.group);
+          }
+          sharedMap.setOverlayVisible(isMap);
+          slot.update(time - v.t);
+          const camera = slot.camera;
+          const savedPosition = camera.position.clone();
+          const savedQuaternion = camera.quaternion.clone();
+          const savedFov = camera.fov;
+          if (k > 0 && v.in.kind === "pan" && time < v.t + v.in.dur) {
+            const previous = VIGNETTES[k - 1];
+            slots[k - 1].update(previous.end - previous.t);
+            const from = slots[k - 1].camera;
+            const e = ease((time - v.t) / v.in.dur);
+            camera.position.lerpVectors(from.position, savedPosition, e);
+            camera.quaternion.slerpQuaternions(from.quaternion, savedQuaternion, e);
+            if (from.fov !== savedFov) {
+              camera.fov = from.fov + (savedFov - from.fov) * e;
+              camera.updateProjectionMatrix();
+            }
+          }
+          if (isMap) sharedMap.update(time, camera);
+          renderer.info.reset();
+          renderer.setRenderTarget(null);
+          renderer.render(slot.scene, camera);
+          camera.position.copy(savedPosition);
+          camera.quaternion.copy(savedQuaternion);
+          if (camera.fov !== savedFov) {
+            camera.fov = savedFov;
+            camera.updateProjectionMatrix();
+          }
+        }
+
+        const SETUP_TIMEOUT_MS = (typeof window.__atlas3dSetupTimeoutMs === "number" && window.__atlas3dSetupTimeoutMs > 0)
+          ? window.__atlas3dSetupTimeoutMs
+          : 60000;
+
+        function withDeadline(promise, ms, onTimeout) {
+          let timerId;
+          const deadline = new Promise((_, reject) => {
+            timerId = setTimeout(() => reject(new Error(onTimeout())), ms);
+          });
+          return Promise.race([promise, deadline]).finally(() => clearTimeout(timerId));
+        }
+
+        async function setupAtlas() {
+          await document.fonts.ready;
+          await Promise.all([
+            ...["600", "700", "800"].map(weight => document.fonts.load(weight + ' 40px "Be Vietnam Pro"', "Aà Ạ Đ Ư")),
+            withDeadline(sharedMap.ready, SETUP_TIMEOUT_MS, () => "atlas3d: map setup timed out after " + (SETUP_TIMEOUT_MS / 1000) + "s loading assets/atlas3d/map/relief.webp"),
+          ]);
+          for (const v of VIGNETTES) {
+            const fail = error => new Error("atlas3d: vignette " + v.id + ": " + (error && error.message ? error.message : error));
+            const layer = document.createElement("div");
+            layer.className = "nv-layer";
+            layer.dataset.vignette = v.id;
+            overlay.append(layer);
+            let built;
+            let kit;
+            try {
+              const module = await import("./vignettes/" + v.id + ".js");
+              if (typeof module.build !== "function") throw new Error("vignettes/" + v.id + ".js exports no build(kit)");
+              const beats = Object.fromEntries(Object.entries(v.beats || {}).map(([name, t]) => [name, t - v.t]));
+              kit = createKit({ id: v.id, t: v.t, end: v.end, beats, layer, map: sharedMap, image: v.image || null });
+              await withDeadline(
+                (async () => {
+                  built = await module.build(kit);
+                  await kit._ready();
+                })(),
+                SETUP_TIMEOUT_MS,
+                () => {
+                  const pending = kit && typeof kit._pendingImages === "function" ? kit._pendingImages() : [];
+                  const imgInfo = pending.length ? pending.join(", ") : (v.image || "vignette assets");
+                  return "setup timed out after " + (SETUP_TIMEOUT_MS / 1000) + "s loading " + imgInfo;
+                },
+              );
+              if (!built || !built.scene || !built.scene.isScene) throw new Error("build must return { scene } with a THREE.Scene");
+              if (!built.camera || !built.camera.isCamera) throw new Error("build must return { camera } with a THREE camera");
+              if (typeof built.update !== "function") throw new Error("build must return update(localTime)");
+            } catch (error) {
+              throw fail(error);
+            }
+            slots.push({ ...built, layer, kitHeroes: kit._heroes || [] });
+          }
+          for (const [k, slot] of slots.entries()) {
+            try {
+              if ((VIGNETTES[k].kind || "map") === "map") {
+                if (sharedMap.group.parent !== slot.scene) slot.scene.add(sharedMap.group);
+                sharedMap.update(VIGNETTES[k].t, slot.camera);
+              }
+              slot.update(0);
+              await renderer.compileAsync(slot.scene, slot.camera);
+            } catch (error) {
+              throw new Error("atlas3d: vignette " + VIGNETTES[k].id + ": " + error.message);
+            }
+          }
+          ready = true;
+          renderAt(0);
+          const pixel = new Uint8Array(4);
+          renderer.setRenderTarget(null);
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+          if (contextLost || gl.isContextLost()) throw new Error("atlas3d: WebGL context lost");
+          resolveAtlas3dReady();
+        }
+
+        window.addEventListener("hf-seek", event => renderAt(event.detail.time));
+        window.__atlas3d = {
+          vignettes: VIGNETTES,
+          regions: REGIONS,
+          renderAt,
+          // FNV-1a over every byte of the frame, with mean and spread of the luminance.
+          pixels(time) {
+            renderAt(time);
+            renderer.setRenderTarget(null);
+            const data = new Uint8Array(WIDTH * HEIGHT * 4);
+            gl.readPixels(0, 0, WIDTH, HEIGHT, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            let hash = 0x811c9dc5;
+            for (let i = 0; i < data.length; i++) hash = Math.imul(hash ^ data[i], 0x01000193);
+            let sum = 0, sq = 0, n = 0;
+            for (let i = 0; i < data.length; i += 64) {
+              const y = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+              sum += y; sq += y * y; n++;
+            }
+            const mean = sum / n;
+            return { hash: (hash >>> 0).toString(16), mean, std: Math.sqrt(Math.max(0, sq / n - mean * mean)) };
+          },
+          pixelAt(x, y, time) {
+            renderAt(time);
+            renderer.setRenderTarget(null);
+            const px = Math.max(0, Math.min(WIDTH - 1, Math.round(x)));
+            const py = Math.max(0, Math.min(HEIGHT - 1, HEIGHT - 1 - Math.round(y)));
+            const data = new Uint8Array(4);
+            gl.readPixels(px, py, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            return [data[0], data[1], data[2]];
+          },
+          mapProbe(time) {
+            renderAt(time);
+            const k = activeIndex(time);
+            if ((VIGNETTES[k].kind || "map") !== "map") return null;
+            return sharedMap.probeAt(slots[k].camera, time);
+          },
+          labelRects(time) {
+            renderAt(time);
+            return [...document.querySelectorAll("#atlas3d-labels .atlas-label")]
+              .filter(el => el.style.visibility !== "hidden" && Number(getComputedStyle(el).opacity) > 0.05)
+              .map(el => {
+                const r = el.getBoundingClientRect();
+                return { text: el.textContent, x: r.x, y: r.y, width: r.width, height: r.height };
+              });
+          },
+          // Screen rectangles of the active vignette's hero and its visible typed text.
+          heroRects(time) {
+            renderAt(time);
+            const k = activeIndex(time);
+            const slot = slots[k];
+            const rects = [];
+            const heroes = [...new Set([].concat(slot.hero || [], slot.kitHeroes || []))];
+            for (const hero of heroes) {
+              if (!hero || !hero.visible) continue;
+              hero.updateWorldMatrix(true, true);
+              const box = new THREE.Box3().setFromObject(hero);
+              if (box.isEmpty()) continue;
+              let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+              for (let c = 0; c < 8; c++) {
+                const p = new THREE.Vector3(c & 1 ? box.max.x : box.min.x, c & 2 ? box.max.y : box.min.y, c & 4 ? box.max.z : box.min.z).project(slot.camera);
+                const x = (p.x + 1) / 2 * WIDTH;
+                const y = (1 - p.y) / 2 * HEIGHT;
+                x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+              }
+              rects.push({ id: VIGNETTES[k].id, kind: "hero", x: x0, y: y0, width: x1 - x0, height: y1 - y0 });
+            }
+            for (const el of slot.layer.querySelectorAll(".nv-text")) {
+              const r = el.getBoundingClientRect();
+              if (r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden") {
+                rects.push({ id: VIGNETTES[k].id, kind: "text", x: r.x, y: r.y, width: r.width, height: r.height });
+              }
+            }
+            return rects;
+          },
+          heroAudit(k) {
+            const slot = slots[k];
+            if (!slot) return { supported: true, registered: 0, unregistered: [] };
+            const heroSet = new Set([].concat(slot.hero || [], slot.kitHeroes || []));
+            const isCovered = obj => {
+              let cur = obj;
+              while (cur) {
+                if (heroSet.has(cur)) return true;
+                cur = cur.parent;
+              }
+              return false;
+            };
+            const unregistered = [];
+            slot.scene.traverse(obj => {
+              if (obj === sharedMap.group) return;
+              if (obj.userData && obj.userData.atlasHero && !isCovered(obj)) {
+                unregistered.push(obj.userData.preset || obj.userData.propKind || obj.userData.atlasHero);
+              }
+            });
+            return { supported: true, registered: heroSet.size, unregistered };
+          },
+          info() {
+            return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+              textures: renderer.info.memory.textures, geometries: renderer.info.memory.geometries };
+          },
+        };
+        setupAtlas().catch(error => { console.error("atlas3d: setup failed", error); rejectAtlas3dReady(error); });
+      </script>
+      <div class="watermark" id="watermark-top" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>
+      <div class="watermark" id="watermark-bottom" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>

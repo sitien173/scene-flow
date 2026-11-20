@@ -9,7 +9,7 @@ scene-flow biến một kịch bản và một file giọng đọc thành video 
 
 ## Bạn có gì
 
-- **Hai phong cách:** `neon3d` là các cảnh 3D neon ngắn, và `terra3d` là các cảnh 3D ban ngày cho chủ đề kỹ thuật, địa lý và lịch sử. Claude hỏi bạn chọn phong cách nào cho mỗi video.
+- **Ba phong cách:** `neon3d` là các cảnh 3D neon ngắn, `terra3d` là các cảnh 3D ban ngày cho chủ đề kỹ thuật, địa lý và lịch sử, và `atlas3d` là các cảnh trên bản đồ cổ, với máy quay lướt qua bản đồ và cảnh nền ảnh. Claude hỏi bạn chọn phong cách nào cho mỗi video.
 - **Hình thật thay cho chữ:** logo sản phẩm, video quay màn hình của bạn, ảnh chụp trang web.
 - **Phụ đề khớp giọng:** từ nào được đọc thì từ đó sáng lên.
 - **Âm thanh:** nhạc nền và hiệu ứng âm thanh ở mỗi lần chuyển cảnh và các điểm nhấn.

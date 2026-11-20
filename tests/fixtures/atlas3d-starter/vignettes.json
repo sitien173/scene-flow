@@ -1,0 +1,11 @@
+{
+  "vignettes": [
+    {"id": "intro", "kind": "map", "beats": {"fill": {"sentence": 1, "word": "bản"}}, "sfx": {"fill": "pen"}},
+    {"id": "outro", "kind": "map", "anchor": {"sentence": 2, "word": "Đây"}, "in": {"kind": "pan", "dur": 1.0}},
+    {"id": "scene", "kind": "backdrop", "image": "backdrops/sample.webp", "anchor": {"sentence": 3, "word": "Hãy"}, "in": {"kind": "cut"}}
+  ],
+  "regions": [
+    {"id": "fra", "label": "Pháp", "countries": ["FRA"]},
+    {"id": "sample-triangle", "label": "Vùng mẫu", "polygon": [[-4.5, 40.5], [1.5, 40.5], [-1.5, 45.0]], "source": "placeholder for validation and stencil-clip test; replace with a sourced boundary"}
+  ]
+}
