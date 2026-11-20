@@ -36,6 +36,23 @@ The folder `skills/hyperframes/assets/frame-presets/code-editorial/fonts/` conta
 | EB Garamond | `EBGaramond-400.woff2`, `EBGaramond-700.woff2` | Copyright 2017 The EB Garamond Project Authors (https://github.com/octaviopardo/EBGaramond12) | `OFL-eb-garamond.txt` |
 | JetBrains Mono | `JetBrainsMono-400.woff2`, `JetBrainsMono-700.woff2` | Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono) | `OFL-jetbrains-mono.txt` |
 
+The folder `skills/scene-flow/assets/fonts/` contains bundled fonts for `scene-flow` themes, licensed under the SIL Open Font License, Version 1.1.
+
+| Font | Version | Files | Source URL | Copyright line in license file | License | License file |
+|---|---|---|---|---|---|---|
+| Lora | 5.3.0 (Google Fonts v37) | `Lora-{latin,latin-ext,vietnamese}-{600,700}.woff2` | https://registry.npmjs.org/@fontsource/lora/-/lora-5.3.0.tgz | Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora" | SIL Open Font License 1.1 | `skills/scene-flow/assets/fonts/Lora-OFL.txt` |
+
+## Bundled audio
+
+The folder `skills/scene-flow/assets/atlas3d/audio/` contains four Freesound sounds for the `atlas3d` theme, each licensed under Creative Commons CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/). Each file is the Freesound HQ MP3 preview, retrieved 2026-11-20.
+
+| File | Freesound ID | Name | Author | Source URL | License |
+|---|---|---|---|---|---|
+| `bgm-pizzicato.mp3` | 529008 | Short Pizzicato Song | DanJFilms | https://freesound.org/people/DanJFilms/sounds/529008/ | CC0 1.0 |
+| `sfx-pen.mp3` | 211247 | Scribble | Tomoyo Ichijouji | https://freesound.org/people/Tomoyo%20Ichijouji/sounds/211247/ | CC0 1.0 |
+| `sfx-coins.mp3` | 17502 | Coin dropping.wav | Jace | https://freesound.org/people/Jace/sounds/17502/ | CC0 1.0 |
+| `sfx-drum.mp3` | 573275 | Timpani 2.wav | Sorinious_Genious | https://freesound.org/people/Sorinious_Genious/sounds/573275/ | CC0 1.0 |
+
 ## Notes
 
 - `skills/freesound` holds the upstream repository's `SKILL.md`, `scripts/` and `references/`. One local change: the automatic credentials file moved from `pi-freesound/credentials.env` to the shared scene-flow file `~/.config/scene-flow/.env` on every platform, which must be owner-only outside Windows, in `scripts/freesound.js`, `SKILL.md`, `references/authentication.md` and `references/examples.md`. The upstream `README.md`, `CONTRIBUTING.md`, `tests/` and `.github/` are not bundled.

@@ -165,6 +165,20 @@ It fails on banned APIs, frames that change when the same time is seeked twice, 
 labels that touch captions, watermarks, or the 24 px frame margin, and console errors. A pass does not
 judge image quality; review a snapshot contact sheet as described in [the theme guide](themes/neon3d.md).
 
+## Atlas3d checks
+
+Build with `bash scripts/make.sh` and check the printed atlas3d vignette table. Then run the check from a
+scene-flow source checkout:
+
+```bash
+CHROME_PATH="<path-to-chrome-headless-shell>" node "<checkout>/tests/atlas3d-check.mjs" "<project>"
+```
+
+It fails on banned APIs, frames that change when the same time is seeked twice, out-of-order map seeks,
+filled regions matching unfilled land color, heroes or DOM labels that touch captions, watermarks, or the
+24 px frame margin, hung backdrop scenes, and console errors. A pass does not judge image quality; review
+a snapshot contact sheet as described in [Snapshot first — render last](#snapshot-first--render-last).
+
 ## Reporting
 
 State what was measured and what was not. "The render measures clean at both windows;

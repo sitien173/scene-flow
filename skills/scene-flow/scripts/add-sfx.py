@@ -16,9 +16,23 @@
 #     bed      -33   file -19.8   gain 0.219 (Little Things Immaterial from 0:00, mean over the film's
 #                                            105 s; 12 dB under the voice — between the house -31 and
 #                                            the -35 the author asked for on the last video)
+# atlas3d sounds (Freesound, CC0; measured 2026-11-20 with scripts/sfx-gain.py):
+#     pen      -29   file -42.3   gain 6.5   (Scribble, a mono file: the premix's stereo upmix costs 3 dB, so
+#                                            sfx-gain.py's 4.62 becomes 6.5; the premix has no data-volume
+#                                            ceiling, the one-element-per-cue path (PREMIX = False) would clamp it)
+#                                            LIMIT: one pen peaks at 0.25, so three on one moment reach 0.76 but four
+#                                            reach 1.0+ (1.016 measured) and the premix assert stops add-sfx.py,
+#                                            although build.py accepts four pen beats on one anchor. The gains stay)
+#     coins    -29   file -28.0   gain 0.89
+#     drum     -22   file -24.5   gain 0.90  (the model asks 1.33, but the file peaks at -0.3 dB and 1.33 clips the
+#                                            premix; 0.90 keeps the peak at 0.87, mean about -25.4 dB)
+#     bed      -33   file -22.7   gain 0.305 (Short Pizzicato Song from 0:00, 56.3 s; the mean is the same over
+#                                            26.95 s, 56.3 s and 105 s of film. A film longer than the file gets
+#                                            a looped render, see LOOP_OVERLAP)
 
 import io
 import json
+import os
 import re
 
 P = "index.html"
@@ -46,7 +60,16 @@ G_RISER = 0.17
 G_BED = 0.219
 G_CLICK = 0.60
 
-DURATION = {"thud": 3.11, "swoosh": 1.12, "pop": 0.72, "laser": 0.37, "risercut3": 3.20, "click": 0.25}
+G_PEN = 6.5
+G_COINS = 0.89
+G_DRUM = 0.90
+G_BED_ATLAS3D = 0.305
+
+DURATION = {"thud": 3.11, "swoosh": 1.12, "pop": 0.72, "laser": 0.37, "risercut3": 3.20, "click": 0.25,
+            "pen": 1.19, "coins": 2.26, "drum": 2.99}
+# gain of each sound a ledger cue may name (the atlas3d vignettes.json "sfx" beats and its pan whoosh)
+CUE_GAIN = {"thud": G_THUD, "swoosh": G_SWOOSH, "pop": G_POP, "laser": G_LASER, "click": G_CLICK,
+            "pen": G_PEN, "coins": G_COINS, "drum": G_DRUM}
 
 # The author's rules, applied literally:
 #   thud    once, at the start of the video
@@ -59,12 +82,28 @@ DURATION = {"thud": 3.11, "swoosh": 1.12, "pop": 0.72, "laser": 0.37, "risercut3
 #           is the riser's first 3.20 s, so a cue at t peaks at t + 3.20 — put that peak on the last word
 #           of the hook's first sentence, where the picture stops dead (flash + snap)
 THUD = [(0.00, "thud", G_THUD)]
-SWOOSH = [(float(r["cut"]), "swoosh", G_SWOOSH)
-          for r in json.load(io.open("ledger.json", encoding="utf-8"))["seams"]]
+_ledger = json.load(io.open("ledger.json", encoding="utf-8"))
+SWOOSH = [(float(r["cut"]), "swoosh", G_SWOOSH) for r in _ledger["seams"]]
+ATLAS3D = os.path.exists("meta.json") and json.load(io.open("meta.json", encoding="utf-8")).get("theme") == "atlas3d"
+# atlas3d: build.py resolves a whoosh per `pan` and each vignettes.json `sfx` beat into ledger cues. A pan that
+# lands on a seam already has the seam's swoosh, so it adds none. Every other theme ignores ledger cues.
+CUES = []
+for c in _ledger.get("cues", []) if ATLAS3D else []:
+    assert c["sound"] in CUE_GAIN, "ledger cue at %.2fs names an unknown sound: %s" % (c["t"], c["sound"])
+    if c["sound"] == "swoosh" and any(abs(c["t"] - t) < 0.05 for t, _, _ in SWOOSH):
+        continue
+    CUES.append((float(c["t"]), c["sound"], CUE_GAIN[c["sound"]]))
 
 # ── PER-PROJECT ─────────────────────────────────────────────────────────────
 BED = "assets/audio/bgm-little-things.mp3"     # the house bed; any track works — the gain below assumes
                                                # a file mean near -16 dB (re-measure a new track)
+BED_LABEL = "Little Things Immaterial"
+LOOP_BED = False       # True: a film longer than the bed gets a looped render (the render never loops a clip)
+if ATLAS3D:
+    BED, BED_LABEL, G_BED, LOOP_BED = "assets/audio/bgm-pizzicato.mp3", "Short Pizzicato Song", G_BED_ATLAS3D, True
+# The atlas3d bed's tail is below -57 dB for its last 5.6 s, so each repeat starts 5 s early under that tail:
+# no gap and no click, and nothing audible is crossfaded.
+LOOP_OVERLAP = 5.0
 RISER = []        # e.g. [(1.36, "risercut3", G_RISER)]   -> peaks at 4.56
 LASER = [(t - 0.05, "laser", G_LASER) for t in (
 )]                # e.g. 18.04, 27.22 — the moment of each click
@@ -83,7 +122,7 @@ POP = [
 EXTRA = [
 ]                 # e.g. (12.40, "glass", 0.45)
 
-rows = THUD + SWOOSH + RISER + LASER + CLICK + EXTRA + [(t, "pop", G_POP_SOFT if soft else G_POP) for t, soft in POP]
+rows = THUD + SWOOSH + CUES + RISER + LASER + CLICK + EXTRA + [(t, "pop", G_POP_SOFT if soft else G_POP) for t, soft in POP]
 rows.sort()
 
 s = io.open(P, encoding="utf-8").read()
@@ -101,7 +140,30 @@ AUTO = ('{"version":1,"lanes":[{"target":"fx.bedlevel.gain","points":['
         '{"t":%.2f,"v":-6},{"t":%.1f,"v":-60}]}]}'
         % (VO_END - 0.6, VO_END + 1.0, DUR - 1.4, DUR - 0.5, DUR))
 
-import os
+LOOPED = BED[:-4] + "-loop.mp3"
+if LOOP_BED and os.path.exists(LOOPED):
+    os.remove(LOOPED)   # written below only while the film outgrows the bed
+if LOOP_BED and os.path.exists(BED):
+    import subprocess
+    import wave
+    import numpy as np
+    SR = 48000
+    raw = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", BED, "-f", "f32le", "-ac", "2",
+                          "-ar", str(SR), "-"], check=True, capture_output=True).stdout
+    song = np.frombuffer(raw, dtype=np.float32).reshape(-1, 2)
+    if DUR > len(song) / SR:
+        step = len(song) - int(LOOP_OVERLAP * SR)
+        out = np.zeros((int(round(DUR * SR)), 2))
+        for a in range(0, len(out), step):
+            b = min(len(out), a + len(song))
+            out[a:b] += song[:b - a]
+        with wave.open("assets/audio/bgm-loop.wav", "wb") as w:
+            w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
+            w.writeframes((np.clip(out, -1, 1) * 32767).round().astype("<i2").tobytes())
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", "assets/audio/bgm-loop.wav",
+                        "-c:a", "libmp3lame", "-q:a", "2", LOOPED], check=True)
+        os.remove("assets/audio/bgm-loop.wav")
+        BED = LOOPED
 bed = "" if not os.path.exists(BED) else ('      <audio id="music-bed" class="clip" data-start="0" data-duration="%.1f"\n'
        '             data-track-index="9" src="%s"\n'
        '             data-volume="%.3f" data-audio-group="music"\n'
@@ -173,4 +235,4 @@ for _, snd, _ in rows:
     kinds[snd] = kinds.get(snd, 0) + 1
 print("  xoa %d cue cu, ghi %d cue moi" % (before, len(rows)))
 print("  " + "  ".join("%s x%d" % (k, v) for k, v in sorted(kinds.items())))
-print("  nhac nen: Little Things Immaterial tu 0:00, gain %.3f -> ~-33.0 dB (12 dB duoi giong)" % G_BED)
+print("  nhac nen: %s tu 0:00, gain %.3f -> ~-33.0 dB (12 dB duoi giong)" % (BED_LABEL, G_BED))

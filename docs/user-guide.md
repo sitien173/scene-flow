@@ -105,6 +105,8 @@ For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera
 
 For short neon 3D scenes with one idea each, include `--theme neon3d` in your prompt. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
 
+For history, geography, and economics shorts on an old-style map, include `--theme atlas3d` in your prompt. The camera pans across a shared parchment world map between scenes, with 3D country territories, chibi toon figures, props, serif map labels, and photo backdrops. The project has a `vignettes.json` file, map data, and code files in `vignettes/`. The starter project is a nine-vignette sample about the Louisiana Purchase of 1803, with a sourced polygon for the purchase territory and one photo backdrop. See [the atlas3d theme guide](../skills/scene-flow/references/themes/atlas3d.md).
+
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 
 If screen recordings contain private information (conversation names, emails, filesystem paths), Claude automatically blurs or cuts them, and tells you.

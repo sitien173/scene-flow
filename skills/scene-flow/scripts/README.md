@@ -6,12 +6,12 @@ and write project files in the working directory (`SCRIPT.md`, `beats.json`, `as
 
 ## Themes and project branding
 
-`new-project.py` accepts `--theme dark|paper|world3d|neon3d` and defaults to `dark`. It copies the selected theme into
+`new-project.py` accepts `--theme dark|paper|world3d|neon3d|atlas3d` and defaults to `dark`. It copies the selected theme into
 the project's `parts/`, records the theme in `meta.json`, and copies theme-specific assets for paper or
 world3d. An older project without a `theme` value continues to build as paper. World3d projects also
 receive `world.json` at the project root and the local Three.js runtime and model kit. See the
 [world3d theme guide](../references/themes/world3d.md). In `build.py`, `BRAND_NAME`
-defaults to `Soi Repo`; `BRAND_LOGO` selects `soi-repo-mark.svg` for dark, world3d, and neon3d, and `brand-logo.svg` for paper.
+defaults to `Soi Repo`; `BRAND_LOGO` selects `soi-repo-mark.svg` for dark, world3d, neon3d, and atlas3d, and `brand-logo.svg` for paper.
 `SLOGAN` starts as `Slogan của bạn`.
 
 ## Voice first — the common case
@@ -48,7 +48,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 
 | script | generic? | edit per project |
 |---|---|---|
-| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d` (default `dark`) |
+| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d|atlas3d` (default `dark`) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
@@ -100,6 +100,14 @@ without `portal()`, a cut outside silence, and more than 3 flashes in 1 s. See t
 [neon3d theme guide](../references/themes/neon3d.md).
 [`tests/neon3d-check.mjs`](https://github.com/sitien173/scene-flow/blob/main/tests/neon3d-check.mjs) checks determinism, blank frames, and
 layout in a built project. Set `CHROME_PATH` as for the world3d check.
+
+Atlas3d projects receive `vignettes.json`, `vignettes/`, `backdrops/`, and a sample `SCRIPT.md` at the project root,
+plus the local Three.js runtime, map data, and the atlas3d kit. Build them with `bash scripts/make.sh` too.
+`build.py` prints the vignette table and rejects bad anchors, missing modules, banned APIs, invalid regions, a pan
+with a backdrop vignette, a pan longer than 60% of its vignette, and a cut outside silence. See the
+[atlas3d theme guide](../references/themes/atlas3d.md).
+[`tests/atlas3d-check.mjs`](https://github.com/sitien173/scene-flow/blob/main/tests/atlas3d-check.mjs) checks determinism,
+map consistency, region colors, serif labels, and layout in a built project. Set `CHROME_PATH` as for the world3d check.
 
 ## Patching an index.html the author has previewed
 
