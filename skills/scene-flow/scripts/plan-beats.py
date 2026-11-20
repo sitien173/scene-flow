@@ -5,18 +5,23 @@
 # align-asr.py / syl-times.py measure — nothing is remapped.
 #
 # SCRIPT.md holds ONE SENTENCE PER PLAIN LINE, exactly as spoken. Lines starting with # - > |
-# are skipped (a script written as a markdown table yields zero sentences).
+# are skipped (a script written as a markdown table yields zero sentences). scriptmd.py drops the
+# [tense] / [normal] / [calm] tone marks and turns a [pause:0.6s] line into the gap after a sentence.
 import io
 import json
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import scriptmd
 
 PACE = 3.62          # syllables per second — only seeds the aligner
 GAP = 0.35
 GAP_Q = 0.55
 
-SENT = [s.strip() for s in io.open("SCRIPT.md", encoding="utf-8").read().split("\n")
-        if s.strip() and not s.strip().startswith(("#", "-", ">", "|"))]
+LINES = scriptmd.read()[0]
+SENT = [s["text"] for s in LINES]
 
 # ── PER-PROJECT ──────────────────────────────────────────────────────────────────
 # sentence index (1-based, inclusive) -> scene: (id, label, the idea the picture must show, first, last)
@@ -46,7 +51,8 @@ for i, s in enumerate(SENT, 1):
     n = syllables(s)
     d = n / PACE
     sent.append({"i": i, "text": s, "syl": n, "start": round(t, 2), "end": round(t + d, 2), "dur": round(d, 2)})
-    t += d + (GAP_Q if s.rstrip().endswith("?") else GAP)
+    pause = LINES[i - 1]["pause"]
+    t += d + (pause if pause is not None else GAP_Q if s.rstrip().endswith("?") else GAP)
 
 VO_END = round(sent[-1]["end"], 2)
 scenes = []

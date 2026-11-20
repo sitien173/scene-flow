@@ -72,7 +72,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 ## Order of work
 
 1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects, or the nearest `AGENTS.md` above the project, such as a channel folder from the `scene-flow-channel` skill. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, or atlas3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
-2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences.
+2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences. Three optional marks, read by `scripts/scriptmd.py`, never reach alignment or captions: a leading `[tense]`, `[normal]`, or `[calm]` sets the delivery, which `tts.py` sends to ElevenLabs and Vibi on `eleven_v3` as an audio tag; a `[pause:0.6s]` line sets the silence after the sentence above it; and `- term -> spelling` lines respell English terms for VieNeu-TTS only.
 3. **Get the voice.** If there is no recording yet, see [Voice sources](#voice-sources).
 4. **Start the project.**
    ```bash

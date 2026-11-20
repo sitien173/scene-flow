@@ -17,6 +17,11 @@
 #   python scripts/tts.py --provider elevenlabs           # ElevenLabs API directly, same options as vibi
 #   python scripts/tts.py --provider elevenlabs --list    # voices in the ElevenLabs account
 #
+# SCRIPT.md marks (scriptmd.py): a [pause:0.6s] line sets the silence after the sentence above it,
+# for every provider. With vibi or elevenlabs on eleven_v3 or eleven_v4, a leading [tense] or [calm]
+# is sent as an audio tag; [normal] and every tag on VieNeu are dropped. VieNeu (colab, local) reads
+# the "- term -> spelling" lines in place of each term.
+#
 # Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in ~/.config/scene-flow/.env.
 # --provider local needs vieneu installed here and runs on CUDA when torch sees a GPU, else on CPU.
 # --provider vibi needs VIBI_API_KEY in that .env instead; --ref and --list are VieNeu only.
@@ -36,6 +41,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import colab
+import scriptmd
 import settings
 
 VIBI_API = "https://api.vibi.pro/v1"
@@ -151,10 +157,16 @@ if a.list:
         print("%-24s %s" % (v.get("label", ""), v.get("id", "")))
     sys.exit(0)
 
-SENT = [s.strip() for s in io.open(a.script, encoding="utf-8").read().split("\n")
-        if s.strip() and not s.strip().startswith(("#", "-", ">", "|"))]
-if not SENT:
+LINES, RESPELL = scriptmd.read(a.script)
+if not LINES:
     sys.exit("%s has no sentences — one sentence per plain line" % a.script)
+SENT = [s["text"] for s in LINES]
+if a.provider in ("vibi", "elevenlabs"):
+    tagged = a.model.startswith(("eleven_v3", "eleven_v4"))
+    SPOKEN = ["[%s] %s" % (s["tone"], s["text"]) if tagged and s["tone"] in ("tense", "calm") else s["text"]
+              for s in LINES]
+else:
+    SPOKEN = [scriptmd.respelled(s, RESPELL) for s in SENT]
 
 SR = 48000
 tmp = tempfile.mkdtemp(prefix="tts-")
@@ -168,12 +180,12 @@ if a.provider == "vibi":
     if not vibi_key:
         sys.exit("--provider vibi needs VIBI_API_KEY in %s" % settings.PATH)
     try:
-        remote_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
+        remote_audio = vibi_synthesize(SPOKEN, a.voice, a.lang, a.model, vibi_key)
     except RuntimeError as e:
         sys.exit("TTS failed: %s" % e)
 elif a.provider == "elevenlabs":
     try:
-        remote_audio = elevenlabs_synthesize(SENT, a.voice, a.lang, a.model, elevenlabs_key)
+        remote_audio = elevenlabs_synthesize(SPOKEN, a.voice, a.lang, a.model, elevenlabs_key)
     except RuntimeError as e:
         sys.exit("TTS failed: %s" % e)
 elif engine and a.ref:
@@ -195,7 +207,7 @@ else:
     voice_id = colab.resolve_voice(a.voice)
 
 files = []
-for i, s in enumerate(SENT):
+for i, s in enumerate(SPOKEN):
     dl_path = os.path.join(tmp, "s%03d.dl.wav" % i)
     if a.provider in ("vibi", "elevenlabs"):
         dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format the service serves
@@ -254,7 +266,9 @@ with io.open(lst, "w", encoding="utf-8") as f:
                         wav], check=True)
         f.write("file '%s'\n" % wav.replace("\\", "/"))
         if i + 1 < len(SENT):
-            gap = a.gap + (0.2 if s.endswith("?") else 0.0)
+            gap = LINES[i]["pause"]
+            if gap is None:
+                gap = a.gap + (0.2 if s.endswith("?") else 0.0)
             sil = os.path.join(tmp, "g%03d.wav" % i)
             subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
                             "anullsrc=r=%d:cl=mono" % SR, "-t", "%.3f" % gap, sil], check=True)
