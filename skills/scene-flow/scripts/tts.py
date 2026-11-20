@@ -50,27 +50,36 @@ def vibi_call(url, key, body=None):
         raise RuntimeError("cannot reach %s: %s" % (urllib.parse.urlsplit(url).netloc, e.reason))
 
 
-def vibi_synthesize(text, voice, lang, model, key):
-    # Vibi is asynchronous: the POST queues a task, /history/{id} is polled until it completes
-    # (every 2 s, up to ~5 min), then result.audio_url is downloaded without the key.
-    body = {"text": text, "language_code": lang}
-    if model:
-        body["model_id"] = model
-    task = json.loads(vibi_call("%s/text-to-speech/%s" % (VIBI_API, urllib.parse.quote(voice, safe="")), key, body))
-    task_id = task.get("id")
-    if not task_id:
-        raise RuntimeError("no task id in response")
-    for _ in range(150):
-        if task.get("status") in ("completed", "failed"):
-            break
+def vibi_synthesize(texts, voice, lang, model, key):
+    # Vibi is asynchronous and slow per task (~50 s for one short sentence), so every sentence is
+    # queued first, then /history/{id} is polled for all of them together (every 2 s, up to 5 min),
+    # then each result.audio_url is downloaded without the key. Returns the audio bytes in order.
+    url = "%s/text-to-speech/%s" % (VIBI_API, urllib.parse.quote(voice, safe=""))
+    ids = []
+    for i, text in enumerate(texts):
+        task = json.loads(vibi_call(url, key, {"text": text, "language_code": lang, "model_id": model}))
+        if not task.get("id"):
+            raise RuntimeError("sentence %d (%s): no task id in response" % (i + 1, text[:40]))
+        ids.append(task["id"])
+    done = {}
+    deadline = time.monotonic() + 300
+    while len(done) < len(ids):
+        if time.monotonic() > deadline:
+            pending = [ids[i] for i in range(len(ids)) if i not in done]
+            raise RuntimeError("Vibi tasks still processing after 5 min: %s" % ", ".join(pending))
         time.sleep(2)
-        task = json.loads(vibi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
-    if task.get("status") != "completed":
-        raise RuntimeError("task %s %s: %s" % (task_id, task.get("status"), task.get("error") or "no reason"))
-    url = (task.get("result") or {}).get("audio_url") or task.get("audio_url")
-    if not url:
-        raise RuntimeError("task %s returned no audio_url" % task_id)
-    return vibi_call(url, None)
+        for i, task_id in enumerate(ids):
+            if i in done:
+                continue
+            task = json.loads(vibi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
+            if task.get("status") == "failed":
+                raise RuntimeError("sentence %d (%s): task %s failed: %s"
+                                   % (i + 1, texts[i][:40], task_id, task.get("error") or "no reason"))
+            if task.get("status") == "completed":
+                done[i] = (task.get("result") or {}).get("audio_url") or task.get("audio_url")
+                if not done[i]:
+                    raise RuntimeError("sentence %d: task %s returned no audio_url" % (i + 1, task_id))
+    return [vibi_call(done[i], None) for i in range(len(ids))]
 
 
 ap = argparse.ArgumentParser()
@@ -80,7 +89,7 @@ group.add_argument("--voice", help="preset voice label or id (default: Hải Đ�
                                    "with vibi an ElevenLabs voice id (default: Rachel)")
 group.add_argument("--ref", help="reference audio clip for voice cloning")
 ap.add_argument("--lang", default="vi", help="vibi language_code (default: vi)")
-ap.add_argument("--model", help="vibi model_id (default: Vibi's eleven_v3)")
+ap.add_argument("--model", default="eleven_v3", help="vibi model_id (default: eleven_v3)")
 ap.add_argument("--gap", type=float, default=0.35, help="silence between sentences (s); 0.55 after a question")
 ap.add_argument("--script", default="SCRIPT.md")
 ap.add_argument("--no-prep", action="store_true")
@@ -113,6 +122,10 @@ if a.provider == "vibi":
     vibi_key = os.environ.get("VIBI_API_KEY")
     if not vibi_key:
         sys.exit("--provider vibi needs VIBI_API_KEY in the environment")
+    try:
+        vibi_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
+    except RuntimeError as e:
+        sys.exit("TTS failed: %s" % e)
 elif a.ref:
     if not os.path.isfile(a.ref):
         sys.exit("reference clip not found: %s" % a.ref)
@@ -130,12 +143,8 @@ for i, s in enumerate(SENT):
     dl_path = os.path.join(tmp, "s%03d.dl.wav" % i)
     if a.provider == "vibi":
         dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format Vibi serves
-        try:
-            audio = vibi_synthesize(s, a.voice, a.lang, a.model, vibi_key)
-        except RuntimeError as e:
-            sys.exit("TTS failed on sentence %d (%s): %s" % (i + 1, s[:40], e))
         with io.open(dl_path, "wb") as f:
-            f.write(audio)
+            f.write(vibi_audio[i])
         files.append(dl_path)
         continue
     reenrolled = False

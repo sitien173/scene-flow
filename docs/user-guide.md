@@ -35,7 +35,7 @@ Select one of three audio sources:
      ```bash
      VIBI_API_KEY=<your key> python scripts/tts.py --provider vibi --voice <ElevenLabs voice id> --lang vi
      ```
-     Without `--voice`, the voice is Rachel. `--model` sets the model; Vibi defaults to `eleven_v3`.
+     Without `--voice`, the voice is Rachel. `--model` sets the model, default `eleven_v3`. All sentences are queued at once, so the voice takes about as long as the slowest sentence.
 3. **VieNeu-TTS on Google Colab (free GPU voice generation and ASR)**:
    - **Start the server (automatic):**
      1. Install the `colab` CLI and sign in to your Google account once.
