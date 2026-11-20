@@ -11,28 +11,94 @@
 #   python scripts/tts.py --ref "<clip.wav>"               # clone voice from reference clip
 #   python scripts/tts.py --gap 0.35                       # gap between sentences (s)
 #   python scripts/tts.py --list                           # list available preset voices
+#   python scripts/tts.py --provider vibi                  # Vibi (api.vibi.pro) ElevenLabs voices
+#   python scripts/tts.py --provider vibi --voice <id> --lang vi --model eleven_v3
 #
 # Needs a server from colab-session.py up, or COLAB_URL and COLAB_TOKEN in the environment.
+# --provider vibi needs VIBI_API_KEY in the environment instead; --ref and --list are Colab only.
 import argparse
 import io
+import json
 import os
 import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import colab
 
+VIBI_API = "https://api.vibi.pro/v1"
+
+
+def vibi_call(url, key, body=None):
+    headers = {"User-Agent": "scene-flow-tts"}
+    if key:
+        headers.update({"xi-api-key": key, "Content-Type": "application/json"})
+    req = urllib.request.Request(url, data=None if body is None else json.dumps(body).encode(), headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return r.read()
+    except urllib.error.HTTPError as e:
+        msg = e.read().decode("utf-8", "replace")[:300]
+        # error bodies must never echo the key into the terminal
+        raise RuntimeError("HTTP %d: %s" % (e.code, msg.replace(key, "[redacted]") if key else msg))
+    except urllib.error.URLError as e:
+        raise RuntimeError("cannot reach %s: %s" % (urllib.parse.urlsplit(url).netloc, e.reason))
+
+
+def vibi_synthesize(texts, voice, lang, model, key):
+    # Vibi is asynchronous and slow per task (~50 s for one short sentence), so every sentence is
+    # queued first, then /history/{id} is polled for all of them together (every 2 s, up to 5 min),
+    # then each result.audio_url is downloaded without the key. Returns the audio bytes in order.
+    url = "%s/text-to-speech/%s" % (VIBI_API, urllib.parse.quote(voice, safe=""))
+    ids = []
+    for i, text in enumerate(texts):
+        task = json.loads(vibi_call(url, key, {"text": text, "language_code": lang, "model_id": model}))
+        if not task.get("id"):
+            raise RuntimeError("sentence %d (%s): no task id in response" % (i + 1, text[:40]))
+        ids.append(task["id"])
+    done = {}
+    deadline = time.monotonic() + 300
+    while len(done) < len(ids):
+        if time.monotonic() > deadline:
+            pending = [ids[i] for i in range(len(ids)) if i not in done]
+            raise RuntimeError("Vibi tasks still processing after 5 min: %s" % ", ".join(pending))
+        time.sleep(2)
+        for i, task_id in enumerate(ids):
+            if i in done:
+                continue
+            task = json.loads(vibi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
+            if task.get("status") == "failed":
+                raise RuntimeError("sentence %d (%s): task %s failed: %s"
+                                   % (i + 1, texts[i][:40], task_id, task.get("error") or "no reason"))
+            if task.get("status") == "completed":
+                done[i] = (task.get("result") or {}).get("audio_url") or task.get("audio_url")
+                if not done[i]:
+                    raise RuntimeError("sentence %d: task %s returned no audio_url" % (i + 1, task_id))
+    return [vibi_call(done[i], None) for i in range(len(ids))]
+
+
 ap = argparse.ArgumentParser()
+ap.add_argument("--provider", choices=["colab", "vibi"], default="colab")
 group = ap.add_mutually_exclusive_group()
-group.add_argument("--voice", default="Hải Đăng", help="preset voice label or id (default: Hải Đăng)")
+group.add_argument("--voice", help="preset voice label or id (default: Hải Đăng); "
+                                   "with vibi an ElevenLabs voice id (default: Quang Toan)")
 group.add_argument("--ref", help="reference audio clip for voice cloning")
+ap.add_argument("--lang", default="vi", help="vibi language_code (default: vi)")
+ap.add_argument("--model", default="eleven_v3", help="vibi model_id (default: eleven_v3)")
 ap.add_argument("--gap", type=float, default=0.35, help="silence between sentences (s); 0.55 after a question")
 ap.add_argument("--script", default="SCRIPT.md")
 ap.add_argument("--no-prep", action="store_true")
 ap.add_argument("--list", action="store_true")
 a = ap.parse_args()
+a.voice = a.voice or ("ZsjEJaLQy3sgvwxicmDx" if a.provider == "vibi" else "Hải Đăng")
+
+if a.provider == "vibi" and (a.ref or a.list):
+    sys.exit("--ref and --list need the Colab provider")
 
 if a.list:
     voices = colab.get_voices()
@@ -52,7 +118,15 @@ voice_id = None
 ref_id = None
 ref_bytes = None
 
-if a.ref:
+if a.provider == "vibi":
+    vibi_key = os.environ.get("VIBI_API_KEY")
+    if not vibi_key:
+        sys.exit("--provider vibi needs VIBI_API_KEY in the environment")
+    try:
+        vibi_audio = vibi_synthesize(SENT, a.voice, a.lang, a.model, vibi_key)
+    except RuntimeError as e:
+        sys.exit("TTS failed: %s" % e)
+elif a.ref:
     if not os.path.isfile(a.ref):
         sys.exit("reference clip not found: %s" % a.ref)
     with io.open(a.ref, "rb") as f:
@@ -67,6 +141,12 @@ else:
 files = []
 for i, s in enumerate(SENT):
     dl_path = os.path.join(tmp, "s%03d.dl.wav" % i)
+    if a.provider == "vibi":
+        dl_path = os.path.join(tmp, "s%03d.dl" % i)  # no extension: ffmpeg probes whatever format Vibi serves
+        with io.open(dl_path, "wb") as f:
+            f.write(vibi_audio[i])
+        files.append(dl_path)
+        continue
     reenrolled = False
     written = False
     attempt = 0
