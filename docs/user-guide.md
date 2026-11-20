@@ -31,6 +31,11 @@ Select one of three audio sources:
 
 1. **Self-recording (most natural)**: Record narration in a quiet room, saving as `.wav` or `.mp3`. Leave a short breath pause between sentences.
 2. **Third-party TTS service**: Use your existing TTS service (ElevenLabs, OpenAI). When Claude asks for an API key, provide it in the chat. Claude uses it for that session only and never writes it to disk.
+   - **Vibi (`api.vibi.pro`)**: `tts.py` generates the whole voice through Vibi's ElevenLabs voices. Vibi charges credits per character of the script.
+     ```bash
+     VIBI_API_KEY=<your key> python scripts/tts.py --provider vibi --voice <ElevenLabs voice id> --lang vi
+     ```
+     Without `--voice`, the voice is Rachel. `--model` sets the model; Vibi defaults to `eleven_v3`.
 3. **VieNeu-TTS on Google Colab (free GPU voice generation and ASR)**:
    - **Start the server (automatic):**
      1. Install the `colab` CLI and sign in to your Google account once.

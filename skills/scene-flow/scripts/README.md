@@ -50,7 +50,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 |---|---|---|
 | `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d` (default `dark`) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
-| `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
+| `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; or via Vibi with `--provider vibi` (`VIBI_API_KEY` from env, `--voice <ElevenLabs id>`, `--lang`, `--model`); levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
 | `colab.py` | **yes** | — shared client for the Colab server (reads `COLAB_URL` and `COLAB_TOKEN` from env, else the session file `colab-session.py up` writes) |
 | `colab-session.py` | **yes** | — run from the skill: `up` starts a T4 Colab session running `colab/server.py` through the `colab` CLI, `status`, `down` stops it and deletes the session file |
