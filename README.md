@@ -25,7 +25,7 @@ Supply a script and voice recording. If you do not have audio yet, the skill sup
 | **Verification** | Frame snapshots for instant visual validation, seam gate audits, and sync checks. |
 | **Output** | HyperFrames Studio preview (`localhost`). Full 1080x1920 30fps MP4 render on request. |
 
-Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md) and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
+Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md), [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md), and [skills/scene-flow/references/themes/terra3d.md](skills/scene-flow/references/themes/terra3d.md).
 
 ## Requirements
 
@@ -175,6 +175,7 @@ Kịch bản:
 *(English gloss: Create a TikTok video about building an AI chatbot. Here is the voiceover: D:\recordings\chatbot.wav. 1. Include product logos. 2. Minimize text, use visuals/recordings. 3. Use demo.mp4 for hook. 4. Use CHATBOT in comment CTA. Script: one sentence per line.)*
 
 Additional prompt options:
+- `"Dùng theme terra3d"` *(Use the terra3d theme)*
 - `"Dùng giọng AI từ Colab"` *(Synthesize voiceover via Colab)*
 
 Workflow steps executed by Claude:
@@ -206,10 +207,10 @@ README.md                             this overview and setup guide
 docs/user-guide.md                    non-programmer step-by-step user guide
 skills/scene-flow/requirements.txt    Python libraries (numpy, Pillow)
 skills/scene-flow/colab/server.py     Colab Whisper ASR and VieNeu-TTS server
-skills/scene-flow/references/         rules: house style, neon3d theme, traps, alignment, audio mixing
+skills/scene-flow/references/         rules: house style, neon3d and terra3d themes, traps, alignment, audio mixing
 skills/scene-flow/scripts/            pipeline: voice prep, ASR, syllable timing, scene build, captions, SFX mix
 skills/scene-flow/scripts/README.md   pipeline scripts reference
-skills/scene-flow/template/           starter project files, neon3d theme
+skills/scene-flow/template/           starter project files, neon3d and terra3d themes
 tests/                                theme fixture, spec, version and bundled-skill checks
 .github/                              CI, release workflow, issue and PR templates
 skills/scene-flow/assets/SOURCES.md   asset licensing and source references

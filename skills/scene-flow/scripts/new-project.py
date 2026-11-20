@@ -3,7 +3,7 @@
 # fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme neon3d]
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme neon3d|terra3d]
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -35,7 +35,8 @@ ASSETS = [
     ("assets/logos", "assets/logos"),
 ]
 NEON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/neon3d", "assets/neon3d")]
-# neon3d only: the vignette list and modules live at the project root, read by build.py and the page
+TERRA3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/terra3d", "assets/terra3d")]
+# neon3d and terra3d only: the vignette list and modules live at the project root, read by build.py and the page
 NEON3D_ROOT = ("vignettes.json", "vignettes", "SCRIPT.md")
 
 
@@ -62,7 +63,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["neon3d"], default="neon3d")
+ap.add_argument("--theme", choices=["neon3d", "terra3d"], default="neon3d")
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 
@@ -80,7 +81,7 @@ for entry in os.listdir(os.path.join(SKILL, "template")):
     if entry != "themes":  # the chosen theme goes into parts/ below
         put(os.path.join(SKILL, "template", entry), os.path.join(dest, entry), a.force)
 for entry in os.listdir(THEME_DIR):
-    if a.theme == "neon3d" and entry in NEON3D_ROOT:
+    if a.theme in ("neon3d", "terra3d") and entry in NEON3D_ROOT:
         target = os.path.join(dest, entry)
         # the theme's sample script replaces the shared one, never an author's script
         fresh = entry == "SCRIPT.md" and io.open(target, encoding="utf-8").read() == \
@@ -90,7 +91,7 @@ for entry in os.listdir(THEME_DIR):
     put(os.path.join(THEME_DIR, entry), os.path.join(dest, "parts", entry), a.force)
 for f in PIPELINE:
     put(os.path.join(SKILL, "scripts", f), os.path.join(dest, "scripts", f), a.force)
-for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []):
+for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (TERRA3D_ASSETS if a.theme == "terra3d" else []):
     put(os.path.join(SKILL, src), os.path.join(dest, dst), a.force)
 for d in ("assets/video/src", "assets/img", "research/shots", "snapshots"):
     os.makedirs(os.path.join(dest, d), exist_ok=True)

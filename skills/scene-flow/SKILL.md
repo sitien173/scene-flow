@@ -3,10 +3,10 @@ name: scene-flow
 description: >-
   Build a vertical narrated short (TikTok/Reels/Shorts, 1080x1920) in HyperFrames from a script and
   a voiceover, with picture and voice exactly in sync. The voice can be the author's recording, a
-  TTS API, or VieNeu-TTS on a Colab server. The only theme is neon3d, a sequence of
-  3D vignettes on a neon stage. It uses real logos and real footage instead of
+  TTS API, or VieNeu-TTS on a Colab server. The default theme is neon3d, a sequence of
+  3D vignettes on a neon stage. Optional theme: terra3d. It uses real logos and real footage instead of
   text, karaoke captions, a comment-box CTA, the house sound set, and a theme-matched end card.
-  Ships the project template, pipeline, and assets. Use this for ANY narrated short: when the user
+  Ships the template, pipeline, and assets. Use this for ANY narrated short: when the user
   sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
   "đây là voice", "giọng đọc", "tôi sẽ thu âm", sends a .wav/.mp3 of narration, asks to learn the
   previous video's style ("học phong cách video trước"), or says voice and picture do not line up
@@ -28,8 +28,8 @@ Read `/hyperframes` for routing and composition contracts, and load `/motion-doc
 
 | folder | what |
 |---|---|
-| `template/` | shared starter files in `parts/` plus `themes/neon3d/`; `new-project.py` copies the theme into `parts/` |
-| `references/themes/` | [neon3d.md](references/themes/neon3d.md), the theme guide |
+| `template/` | shared starter files in `parts/` plus `themes/neon3d/` and `themes/terra3d/`; `new-project.py` copies the selected theme into `parts/` |
+| `references/themes/` | [neon3d.md](references/themes/neon3d.md) default and [terra3d.md](references/themes/terra3d.md) selectable theme guides |
 | `scripts/` | pipeline copied into each project by `new-project.py` ([scripts/README.md](scripts/README.md)) |
 | `assets/audio/` | house sound set: `sfx-thud`, `sfx-swoosh`, `sfx-pop`, `sfx-laser`, `sfx-click` (shutter), `sfx-riser`, `sfx-risercut3`, `bgm-little-things.mp3` |
 | `assets/fonts/` | Be Vietnam Pro, localized woff2 subsets under SIL OFL |
@@ -46,7 +46,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    ```bash
    python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme neon3d
    ```
-   `--theme neon3d` is the only theme and the default. Projects include `vignettes.json`, `vignettes/`, and the neon kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
+   `--theme neon3d|terra3d` selects the theme (neon3d default). Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Terra3d projects include `vignettes.json`, `vignettes/`, and the terra kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
 3. **The script** goes in `SCRIPT.md`, one sentence per plain line, exactly as spoken. Group sentences into scenes in `scripts/plan-beats.py` (`SCENES`). `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|` (a markdown table script yields zero sentences).
 4. **Align** (every cue is written in recorded seconds):
    ```bash
@@ -174,6 +174,7 @@ Review [references/traps.md](references/traps.md) before composition authoring:
 - Timed `<video>` elements inside timed scenes produce lint errors. Keep container scenes untimed.
 - DOM sequence determines visual layering (z-order).
 - Neon3d vignettes start on spoken-word anchors in `vignettes.json`. Read [references/themes/neon3d.md](references/themes/neon3d.md) before writing a vignette.
+- Terra3d has hard cuts only and no sound on cuts. Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
 
 ## Troubleshooting author feedback
 

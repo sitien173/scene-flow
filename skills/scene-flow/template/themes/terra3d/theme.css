@@ -1,0 +1,59 @@
+      :root {
+        --canvas:#9BD0F5; --ink:#16324A; --muted:#2F5878; --sun:#FFD36B; --outline:#1B2B3A;
+        --font:"Be Vietnam Pro","Segoe UI",sans-serif;
+      }
+      html, body { width:1080px; height:1920px; margin:0; padding:0; overflow:hidden; background:var(--canvas); }
+      body { color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+      #root { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--canvas); }
+
+      .scene { position:absolute; inset:0; z-index:1; }
+      .wrap { position:absolute; inset:0; will-change:transform, opacity; }
+      #terra3d-canvas { position:absolute; inset:0; display:block; width:1080px; height:1920px; }
+      #terra3d-overlay { position:absolute; inset:0; z-index:6; pointer-events:none; }
+      .t3d-layer { position:absolute; inset:0; }
+
+      .t3d-callout { position:absolute; transform:translate(-50%, 0); text-align:center; white-space:nowrap; }
+      .t3d-callout-num { color:#FFFFFF; font-family:var(--font); font-size:94px; font-weight:800; line-height:1.05;
+                         -webkit-text-stroke:4px var(--outline); paint-order:stroke fill;
+                         filter:drop-shadow(0 6px 16px rgba(27,43,58,0.45)); }
+      .t3d-callout-label { margin-top:8px; color:#FFFFFF; font-family:var(--font); font-size:32px; font-weight:800;
+                           -webkit-text-stroke:2px var(--outline); paint-order:stroke fill;
+                           filter:drop-shadow(0 4px 10px rgba(27,43,58,0.45)); }
+
+      .t3d-pill { position:absolute; transform:translate(-50%, -50%); padding:12px 26px; border-radius:999px;
+                  background:rgba(255,255,255,0.95); color:var(--ink); font-family:var(--font);
+                  font-size:30px; font-weight:800; line-height:1.1; white-space:nowrap;
+                  box-shadow:0 10px 26px rgba(15,28,44,0.32); border:2px solid rgba(255,255,255,0.9); }
+
+      .t3d-dim { position:absolute; inset:0; pointer-events:none; }
+      .t3d-dim-line { position:absolute; height:4px; background:#FFFFFF; transform-origin:0 50%;
+                      box-shadow:0 2px 8px rgba(15,28,44,0.55); }
+      .t3d-dim-cap { position:absolute; width:24px; height:4px; background:#FFFFFF;
+                     box-shadow:0 2px 8px rgba(15,28,44,0.55); }
+      .t3d-dim-label { position:absolute; transform:translate(-50%, -50%); padding:6px 16px; border-radius:999px;
+                       background:rgba(22,50,74,0.84); color:#FFFFFF; font-family:var(--font);
+                       font-size:28px; font-weight:800; line-height:1.1; white-space:nowrap;
+                       box-shadow:0 4px 12px rgba(15,28,44,0.38); }
+
+      .watermark { position:absolute; z-index:12; display:flex; align-items:center; gap:12px; color:#FFFFFF;
+                   font-size:24px; font-weight:700; letter-spacing:0.01em; opacity:0.8; text-shadow:0 2px 6px rgba(27,43,58,0.45); }
+      .watermark img { display:block; width:44px; height:44px; object-fit:contain; }
+      #watermark-top { top:184px; left:42px; }
+      #watermark-bottom { right:42px; bottom:48px; }
+
+      /* one word per cue: white heavy rounded sans, thin dark outline, soft drop shadow, centered at 52% of the frame height */
+      #kara { position:absolute; z-index:21; inset:0; pointer-events:none; }
+      .kc { position:absolute; left:0; right:0; top:calc(52% - 80px); height:160px; line-height:160px; text-align:center; }
+      .kin { display:block; color:#FFFFFF; font-size:112px; font-weight:800; line-height:inherit; text-transform:capitalize; white-space:nowrap; opacity:0;
+             filter:drop-shadow(0 6px 14px rgba(27,43,58,0.4)); }
+      .kw { position:relative; display:inline-block; padding:0 8px; margin:0 -3px; }
+      .kb { position:relative; color:#FFFFFF; -webkit-text-stroke:4px var(--outline); paint-order:stroke fill; }
+
+      .cta-card { position:absolute; top:650px; left:72px; right:72px; padding:54px 42px 60px; border-radius:32px; background:#FFFFFF;
+                  box-shadow:0 28px 66px rgba(27,43,58,0.3); text-align:center; }
+      .cta-label { color:var(--muted); font-size:27px; font-weight:800; letter-spacing:0.08em; }
+      .cta-title { margin-top:24px; color:var(--ink); font-size:52px; font-weight:800; line-height:1.25; }
+
+      #ec-logo { position:absolute; top:548px; left:420px; display:block; width:240px; height:240px; object-fit:contain; }
+      #ec-brand { position:absolute; top:850px; left:72px; width:936px; color:var(--ink); font-size:72px; font-weight:800; line-height:1.15; text-align:center; }
+      #ec-slogan { position:absolute; top:960px; left:84px; width:912px; color:var(--muted); font-size:36px; font-weight:600; line-height:1.4; text-align:center; }

@@ -37,7 +37,7 @@ COMPOUNDS = [
 ]
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d is supported" % THEME)
+    raise SystemExit("theme %s was removed; only neon3d and terra3d are supported" % THEME)
 THEME_SETTINGS = {
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
@@ -46,6 +46,16 @@ THEME_SETTINGS = {
         "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
         "minu": 3,
     },
+    # one word per cue, never boxed or scaled, shadow left to theme.css (LIT is transparent); "compounds" extend COMPOUNDS for this theme only
+    "terra3d": {
+        "maxu": 1, "maxc": 30, "maxc_side": 30,
+        "lit_color": "#FFFFFF", "lit_shadow": "LIT",
+        "unlit_color": "#FFFFFF", "unlit_shadow": "LIT",
+        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "LIT",
+        "minu": 1, "single": True,
+        "compounds": ["kênh đào", "Trái Đất", "con tàu", "công trình", "đại dương", "con người", "kỹ sư", "mặt nước",
+                      "cửa âu", "đường sắt"],
+    },
 }
 if THEME not in THEME_SETTINGS:
     raise SystemExit("unknown theme: " + THEME)
@@ -53,6 +63,7 @@ SETTINGS = THEME_SETTINGS[THEME]
 MAXU = SETTINGS["maxu"]
 MAXC = SETTINGS["maxc"]
 MAXC_SIDE = SETTINGS["maxc_side"]
+BOXED = SETTINGS["minu"] == 1 and not SETTINGS.get("single")     # the current word gets the violet box and 1.08 scale
 LEAD = 0.03     # a word lights this much before its first syllable
 
 
@@ -60,7 +71,7 @@ def key(t):
     return re.sub(r"[^\w]", "", t).lower()
 
 
-COMP = sorted(([key(w) for w in c.split()] for c in COMPOUNDS), key=len, reverse=True)
+COMP = sorted(([key(w) for w in c.split()] for c in COMPOUNDS + SETTINGS.get("compounds", [])), key=len, reverse=True)
 syl = json.load(io.open("syl-times.json", encoding="utf-8"))
 
 by_sent = {}
@@ -154,6 +165,8 @@ for i in sorted(by_sent):
                         break
                     nxt.pop(0)
                     g.append(unit)
+    elif SETTINGS.get("single"):
+        merged = group
     else:
         # an orphan single word joins the cue before it when the pair still fits
         slack = 4 if lim == MAXC_SIDE else 8
@@ -199,7 +212,7 @@ for n, c in enumerate(cues):
     spans = []
     for k, u in enumerate(c["units"]):
         u["id"] = w
-        highlight = '<span class="ka" id="ka%03d"></span>' % w if SETTINGS["minu"] == 1 else ""
+        highlight = '<span class="ka" id="ka%03d"></span>' % w if BOXED else ""
         spans.append('<span class="kw" id="kw%03d">%s'
                      '<span class="kb" id="kb%03d">%s</span></span>'
                      % (w, highlight, w, esc(u["text"])))
@@ -214,14 +227,14 @@ for n, c in enumerate(cues):
     for k, u in enumerate(us):
         on = max(c["s"], u["s"] - LEAD)
         off = (max(c["s"], us[k + 1]["s"] - LEAD) if k + 1 < len(us) else c["e"]) - 0.01
-        if SETTINGS["minu"] == 1:
+        if BOXED:
             anim.append('      tl.set("#ka%03d", { autoAlpha: 1 }, %.3f); tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         ' tl.set("#kw%03d", { scale: 1.08 }, %.3f);'
                         % (u["id"], on, u["id"], SETTINGS["lit_color"], SETTINGS["lit_shadow"], on, u["id"], on))
         else:
             anim.append('      tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         % (u["id"], SETTINGS["lit_color"], SETTINGS["lit_shadow"], on))
-        if SETTINGS["minu"] == 1:
+        if BOXED:
             anim.append('      tl.set("#ka%03d", { autoAlpha: 0 }, %.3f); tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         ' tl.set("#kw%03d", { scale: 1 }, %.3f);'
                         % (u["id"], off, u["id"], SETTINGS["dark_unlit_color"] if c["dark"] else SETTINGS["unlit_color"],

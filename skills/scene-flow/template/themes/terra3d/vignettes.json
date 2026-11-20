@@ -1,0 +1,26 @@
+{
+  "vignettes": [
+    {"id": "globe", "beats": {"route": {"sentence": 1, "word": "đại dương"}}},
+    {"id": "canal", "anchor": {"sentence": 1, "word": "là"}, "in": {"kind": "cut"},
+     "beats": {"landmark": {"sentence": 1, "word": "công trình"}}},
+    {"id": "aerial", "anchor": {"sentence": 2, "word": "Thay"}, "in": {"kind": "cut"},
+     "beats": {"ship": {"sentence": 2, "word": "con tàu"}}},
+    {"id": "cape_horn", "anchor": {"sentence": 2, "word": "rút"}, "in": {"kind": "cut"}},
+    {"id": "isthmus", "anchor": {"sentence": 3, "word": "Eo"}, "in": {"kind": "cut"}},
+    {"id": "topography", "anchor": {"sentence": 3, "word": "đồi"}, "in": {"kind": "cut"}},
+    {"id": "rain", "anchor": {"sentence": 4, "word": "Đầu tiên"}, "in": {"kind": "cut"},
+     "beats": {"storm": {"sentence": 4, "word": "sâu"}}},
+    {"id": "excavation", "anchor": {"sentence": 4, "word": "đất"}, "in": {"kind": "cut"}},
+    {"id": "dam", "anchor": {"sentence": 5, "word": "đập"}, "in": {"kind": "cut"}},
+    {"id": "lake_fleet", "anchor": {"sentence": 5, "word": "hồ"}, "in": {"kind": "cut"}},
+    {"id": "elevation", "anchor": {"sentence": 6, "word": "cao"}, "in": {"kind": "cut"}},
+    {"id": "approach", "anchor": {"sentence": 7, "word": "Cửa âu"}, "in": {"kind": "cut"}},
+    {"id": "cutaway", "anchor": {"sentence": 7, "word": "thang"}, "in": {"kind": "cut"},
+     "beats": {"gate": {"sentence": 7, "word": "nâng"}}},
+    {"id": "chamber_fill", "anchor": {"sentence": 8, "word": "triệu"}, "in": {"kind": "cut"}},
+    {"id": "mules", "anchor": {"sentence": 9, "word": "đường sắt"}, "in": {"kind": "cut"}},
+    {"id": "gate_close", "anchor": {"sentence": 10, "word": "Cổng"}, "in": {"kind": "cut"}},
+    {"id": "equalize", "anchor": {"sentence": 10, "word": "hai"}, "in": {"kind": "cut"}},
+    {"id": "convoy", "anchor": {"sentence": 11, "word": "tàu"}, "in": {"kind": "cut"}}
+  ]
+}

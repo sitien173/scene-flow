@@ -6,10 +6,20 @@ set -euo pipefail
 SKILL="$(cd "$(dirname "$0")/../skills/scene-flow" && pwd)"
 OUT="$1"; shift
 ARGS=("$@")
+THEME=neon3d
+for ((i = 0; i < ${#ARGS[@]}; i++)); do
+  if [[ "${ARGS[$i]}" == "--theme" ]]; then
+    THEME="${ARGS[$((i + 1))]:-neon3d}"
+    break
+  elif [[ "${ARGS[$i]}" == --theme=* ]]; then
+    THEME="${ARGS[$i]#--theme=}"
+  fi
+done
 rm -rf "$OUT/demo"; mkdir -p "$OUT"
 python3 "$SKILL/scripts/new-project.py" "$OUT/demo" --name "Demo" "${ARGS[@]}" >/dev/null
 cd "$OUT/demo"
 VOICE_SECONDS=81.00
+if [[ "$THEME" == "terra3d" ]]; then VOICE_SECONDS=59.95; fi
 # PCM WAV content keeps the probed duration exact on every ffmpeg version; MP3 padding is not.
 ffmpeg -v error -y -f lavfi -i anullsrc=r=44100:cl=mono -t "$VOICE_SECONDS" -c:a pcm_s16le -f wav assets/audio/voiceover.mp3
 python3 - <<'PY'

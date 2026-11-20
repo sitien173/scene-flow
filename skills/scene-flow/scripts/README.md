@@ -6,10 +6,10 @@ and write project files in the working directory (`SCRIPT.md`, `beats.json`, `as
 
 ## Themes and project branding
 
-`new-project.py` accepts `--theme neon3d` and defaults to `neon3d`, the only theme. It copies the theme into
-the project's `parts/`, records the theme in `meta.json`, and copies the neon3d assets. A project without a
+`new-project.py` accepts `--theme neon3d|terra3d` and defaults to `neon3d`. It copies the theme into
+the project's `parts/`, records the theme in `meta.json`, and copies that theme's assets. A project without a
 `theme` value builds as neon3d. A project that names `dark`, `paper`, or `world3d` stops with
-`theme <name> was removed; only neon3d is supported`. In `build.py`, `BRAND_NAME` defaults to `Soi Repo`
+`theme <name> was removed; only neon3d and terra3d are supported`. In `build.py`, `BRAND_NAME` defaults to `Soi Repo`
 and `BRAND_LOGO` to `soi-repo-mark.svg`.
 `SLOGAN` starts as `Slogan của bạn`.
 
@@ -44,7 +44,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 
 | script | generic? | edit per project |
 |---|---|---|
-| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d` (default `neon3d`) |
+| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d|terra3d` (default `neon3d`) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |

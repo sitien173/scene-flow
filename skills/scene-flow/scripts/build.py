@@ -18,12 +18,13 @@ import unicodedata
 
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d is supported" % THEME)
-if THEME != "neon3d":
+    raise SystemExit("theme %s was removed; only neon3d and terra3d are supported" % THEME)
+if THEME not in ("neon3d", "terra3d"):
     raise SystemExit("unknown theme: " + THEME)
 
 # ── PER-PROJECT ──────────────────────────────────────────────────────────────────────────
-SC = [("neon", 0.00), ("cta", 17.50), ("ec", 24.20)]   # scene id, cut (s)
+SC = [("terra", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "terra3d" else \
+     [("neon", 0.00), ("cta", 17.50), ("ec", 24.20)]   # scene id, cut (s)
 EC_DUR = 2.75                     # the house end card at 2x (5.5 s -> 2.75 s)
 STEPS = ["i-laptopdl", "i-code", "i-send"]       # the step tracker's icons (sprite ids); [] for none
 CTA_WORD = "VIDEO"                # typed into the comment box on its word
@@ -49,7 +50,7 @@ def probe(path):
 
 VO = probe("assets/audio/voiceover.mp3")
 assert VO, "assets/audio/voiceover.mp3 missing — run scripts/prep-voice.py first"
-if THEME == "neon3d":
+if THEME in ("neon3d", "terra3d"):
     SC = [(SC[0][0], 0.00), ("cta", round(VO, 2)), ("ec", round(VO + 6.70, 2))]
     START = dict(SC)
     END = round(SC[-1][1] + EC_DUR, 2)
@@ -106,22 +107,26 @@ def anchor_time(anchor, who, fail):
     return float(time)
 
 
-# neon3d: banned in vignette and kit code, so every frame is a function of seek time (comments included)
+# neon3d and terra3d: banned in vignette and kit code, so every frame is a function of seek time (comments included)
+VIGNETTE_THEMES = ("neon3d", "terra3d")
 NEON_BANNED = [r"\brandom\b", r"\bDate\b", r"\bperformance\b", r"requestAnimationFrame", r"setAnimationLoop",
                r"setTimeout", r"setInterval", r"\bClock\b", r"\bTimer\b", r"getDelta", r"GlitchPass", r"FilmPass",
                r"\bfetch\b", r"XMLHttpRequest", r"WebSocket", r"\b(?:https?|wss?):"]
 NEON_KINDS = ("cut", "fly", "flash")
 FLY_DUR = 0.9
+TERRA_KINDS = ("cut",)            # terra3d is hard cuts only
+TERRA_MIN_LEN = 1.0               # s: a terra3d vignette shorter than this is a flicker, not a shot
+AMBIENCE_GAINS = ("soft", "medium", "strong")   # categories; add-sfx.py owns their dB targets
 
 
 def vignette_error(problem, detail):
     raise SystemExit("vignettes.json %s: %s" % (problem, detail))
 
 
-def neon_sources():
+def theme_sources(theme):
     files = [os.path.join("vignettes", f) for f in sorted(os.listdir("vignettes")) if f.endswith(".js")] \
         if os.path.isdir("vignettes") else []
-    for root, _, names in sorted(os.walk(os.path.join("assets", "neon3d"))):
+    for root, _, names in sorted(os.walk(os.path.join("assets", theme))):
         files += [os.path.join(root, f) for f in sorted(names) if f.endswith(".js")]
     return files
 
@@ -139,7 +144,7 @@ def quiet_windows():
     return out
 
 
-def resolve_vignettes():
+def resolve_vignettes(theme):
     try:
         data = json.load(io.open("vignettes.json", encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -167,16 +172,26 @@ def resolve_vignettes():
                     or a["sentence"] < 1 or not isinstance(a.get("word"), str) or not a["word"].strip():
                 vignette_error("invalid anchor", "%r %s needs a positive sentence and a word" % (vid, what))
         tr = v.get("in", {"kind": "cut"})
-        if not isinstance(tr, dict) or tr.get("kind") not in NEON_KINDS:
-            vignette_error("invalid transition", "%r in.kind must be one of %s" % (vid, ", ".join(NEON_KINDS)))
+        kinds = NEON_KINDS if theme == "neon3d" else TERRA_KINDS
+        if not isinstance(tr, dict) or tr.get("kind") not in kinds:
+            vignette_error("invalid transition", "%r in.kind must be one of %s" % (vid, ", ".join(kinds)))
         if "dur" in tr and (isinstance(tr["dur"], bool) or not isinstance(tr["dur"], (int, float))
                             or not 0.2 <= tr["dur"] <= 2.0):
             vignette_error("invalid transition", "%r in.dur must be between 0.2 and 2.0 seconds" % vid)
         v["in"] = dict(tr, dur=float(tr.get("dur", FLY_DUR if tr["kind"] == "fly" else 0.3)))
         if not os.path.isfile(os.path.join("vignettes", vid + ".js")):
             vignette_error("missing vignette module", "%r: vignettes/%s.js" % (vid, vid))
+        amb = v.get("ambience")
+        if amb is not None:
+            if not isinstance(amb, dict) or not isinstance(amb.get("file"), str) or amb.get("gain") not in AMBIENCE_GAINS:
+                vignette_error("invalid ambience", "%r ambience must be {\"file\": a project path, \"gain\": %s}"
+                               % (vid, " | ".join(AMBIENCE_GAINS)))
+            f = os.path.normpath(amb["file"])
+            if os.path.isabs(f) or f.startswith("..") or not os.path.isfile(f):
+                vignette_error("missing ambience file", "%r: %r is not a file in the project" % (vid, amb["file"]))
+            v["ambience"] = {"file": amb["file"], "gain": amb["gain"]}
 
-    for f in neon_sources():
+    for f in theme_sources(theme):
         text = io.open(f, encoding="utf-8").read()
         for pat in NEON_BANNED:
             m = re.search(pat, text)
@@ -200,11 +215,14 @@ def resolve_vignettes():
     return rows
 
 
-def check_vignettes(rows, cta):
+def check_vignettes(rows, cta, theme):
     quiet = None
     flashes = []
     for k, v in enumerate(rows):
         v["end"] = rows[k + 1]["t"] if k + 1 < len(rows) else cta
+        if theme == "terra3d" and v["end"] - v["t"] < TERRA_MIN_LEN:
+            vignette_error("vignette too short", "%r lasts %.2fs; a terra3d vignette needs at least %.1fs"
+                           % (v["id"], v["end"] - v["t"], TERRA_MIN_LEN))
         for name, t in v["beats"].items():
             if not v["t"] <= t < v["end"]:
                 vignette_error("beat outside its vignette", "%r beat %r at %.3f is outside %.2f-%.2f"
@@ -220,6 +238,8 @@ def check_vignettes(rows, cta):
                 vignette_error("fly too long", "%r fly of %.2fs exceeds 60%% of %r (%.2fs)"
                                % (v["id"], v["in"]["dur"], prev["id"], v["t"] - prev["t"]))
         elif kind == "cut":
+            if theme == "terra3d":  # terra3d cuts are hard cuts on a visual beat, with no silence rule
+                continue
             if quiet is None:
                 quiet = quiet_windows()
             lo, hi = max(0, int((v["t"] - 0.4) / 0.02)), int(v["t"] / 0.02)
@@ -231,7 +251,7 @@ def check_vignettes(rows, cta):
     for k in range(len(flashes) - 3):
         if flashes[k + 3][0] - flashes[k][0] < 1.0:
             vignette_error("too many flashes", "%r: more than 3 flash transitions within 1 s (WCAG 2.3.1)" % flashes[k + 3][1])
-    print("neon3d vignette table:")
+    print("%s vignette table:" % theme)
     print("  vignette | in    | anchor                    | start | end")
     for v in rows:
         a = v.get("anchor")
@@ -239,17 +259,17 @@ def check_vignettes(rows, cta):
         print("  %-8s | %-5s | %-25s | %5.2f | %5.2f" % (v["id"], v["in"]["kind"], where[:25], v["t"], v["end"]))
 
 
-VIGNETTES = resolve_vignettes() if THEME == "neon3d" else None
-if THEME == "neon3d":
-    # the neon3d script has no spoken CTA line, so the card waits for the last spoken syllable
+VIGNETTES = resolve_vignettes(THEME) if THEME in VIGNETTE_THEMES else None
+if THEME in VIGNETTE_THEMES:
+    # these scripts have no spoken CTA line, so the card waits for the last spoken syllable
     spoken_end = max((x["e"] for x in syl), default=VO - 9.45)
     cta_start = round(max(17.50, VIGNETTES[-1]["t"] + 2.50, spoken_end + 0.30), 2)
-    SC = [("neon", 0.00), ("cta", cta_start), ("ec", round(cta_start + 6.70, 2))]
+    SC = [(SC[0][0], 0.00), ("cta", cta_start), ("ec", round(cta_start + 6.70, 2))]
     START = dict(SC)
     END = round(SC[-1][1] + EC_DUR, 2)
     NEXT = {sid: (SC[k + 1][1] if k + 1 < len(SC) else END) for k, (sid, _) in enumerate(SC)}
     DUR = {sid: round(NEXT[sid] - START[sid], 2) for sid in START}
-    check_vignettes(VIGNETTES, cta_start)
+    check_vignettes(VIGNETTES, cta_start, THEME)
 
 html = "".join(io.open("parts/" + f, encoding="utf-8").read() for f in PARTS)
 ff = io.open("parts/fontfaces.txt", encoding="utf-8").read().rstrip("\n")
@@ -266,7 +286,7 @@ blocks = {"@@title@@": esc(TITLE), "@@brand@@": esc(BRAND_NAME), "@@slogan@@": e
 for tok, val in blocks.items():
     html = html.replace(tok, val)
 html = html.replace("/* @geo */", "var GEO = %s;" % json.dumps({"tk": TK_X, "cta": len(CTA_WORD)}), 1)
-if THEME == "neon3d":
+if THEME in VIGNETTE_THEMES:
     assert html.count("@@vignettes@@") == 1
     vignette_data = [{"id": v["id"], "t": v["t"], "end": v["end"], "in": v["in"], "beats": v["beats"]} for v in VIGNETTES]
     html = html.replace("@@vignettes@@", json.dumps(vignette_data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"), 1)
@@ -286,7 +306,9 @@ for k in range(1, len(SC)):
                   "exit": {"selector": "#w-" + a, "axis": "z", "dir": 1},
                   "entry": {"selector": "#w-" + b, "axis": "z", "dir": 1}})
 ledger = {"fps": 30, "seams": seams}
-if THEME == "neon3d":  # vignette transitions live inside the neon scene: not HyperFrames seams, no sound cue
-    ledger["vignettes"] = [{"id": v["id"], "t": v["t"], "end": v["end"], "in": v["in"]} for v in VIGNETTES]
+if THEME in VIGNETTE_THEMES:  # vignette transitions live inside the theme's 3D scene: not HyperFrames seams, no sound cue
+    ledger["vignettes"] = [{k: v[k] for k in ("id", "t", "end", "in", "ambience") if k in v} for v in VIGNETTES]
+if THEME == "terra3d":  # add-sfx.py reads this: terra3d has no sound on cuts, so no swoosh on its seams
+    ledger["theme"] = THEME
 io.open("ledger.json", "w", encoding="utf-8").write(json.dumps(ledger, ensure_ascii=False, indent=1))
 print("index.html: %d scenes, %.2fs (voice %.2fs); ledger: %d seams" % (len(SC), END, VO, len(seams)))
