@@ -1,8 +1,8 @@
 # Neon3d theme
 
 Neon3d is a sequence of short 3D vignettes on a dark neon stage with bloom. Each vignette is one idea
-from the script. It starts on a spoken word and ends where the next vignette starts. Dark remains the
-default theme. Select neon3d explicitly when creating a project.
+from the script. It starts on a spoken word and ends where the next vignette starts. Neon3d is the only theme
+and the default for new projects.
 
 ## Create and build a project
 
@@ -58,7 +58,7 @@ sample script has no spoken CTA line, so the card never covers the narration.
 | `flash` | A short capped flash with time-seeded glitch slices. | At most 3 flash transitions in any 1 s, per WCAG 2.3.1. The shader caps flash brightness. |
 
 Transitions between vignettes have no sound effects. The seams into the CTA and the end card use the
-same blur push and sound cues as world3d.
+same blur push and sound cues as every scene cut.
 
 ## Vignette modules
 

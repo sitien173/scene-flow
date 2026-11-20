@@ -167,8 +167,8 @@ regenerates, so it is safe to re-run after any retiming. Two rules it encodes:
 - **End-card cues are REAL seconds** and must bypass the map — nothing is spoken
   under them, and `T()` past the last anchor extrapolates.
 
-A timeline can also declare its own laser clicks as `var NAME = /*sfx:laser*/[t, ...];`, as the dark
-walkthrough does with `H1_CLICKS`. `scripts/add-sfx.py` reads every such array from `index.html` and adds
+A timeline can also declare its own laser clicks as `var NAME = /*sfx:laser*/[t, ...];`.
+`scripts/add-sfx.py` reads every such array from `index.html` and adds
 a laser at each time with the usual 0.05 s lead, so the click and its sound share one list.
 
 Its cue list mirrors the timeline. **When the timeline is retimed, update it too** — a

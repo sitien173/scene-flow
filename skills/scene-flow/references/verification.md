@@ -128,30 +128,6 @@ present. Read the cue times out of `index.html` rather than recomputing them.
   **consecutive-frame** PSNR. A seam at 30.6 dB against a 41.0 dB baseline is a
   visible jump; after a ping-pong fix, 38.5 dB against the same baseline is not.
 
-## World3d checks
-
-Build from the project root with `bash scripts/make.sh`. Check the printed world3d stop table to
-confirm that each anchor resolves to the intended spoken word. Do not run `scripts/build.py` alone;
-it does not add captions.
-
-Check label rectangles in a built project from a scene-flow source checkout, where `tests/` exists. Set `CHROME_PATH` to an installed `chrome-headless-shell`:
-
-```bash
-CHROME_PATH="<path-to-chrome-headless-shell>" node "<checkout>/tests/world3d-labels.mjs" "<project>"
-```
-
-The check seeks to labelled stops and reads browser layout. It fails when a label intersects captions,
-watermarks, or the frame edge. Use snapshots to inspect the rendered scene and allow extra setup time:
-
-```bash
-npx --yes hyperframes@0.8.140 snapshot --at "<stop-time>" --no-end --timeout 170000 -o snapshots/world3d
-```
-
-Use `--browser-gpu --player-ready-timeout 180000` for a full render and check that the render summary
-says `hardware gpu`. The model contact sheet is
-[`tests/world3d-kit.html`](https://github.com/sitien173/scene-flow/blob/main/tests/world3d-kit.html). World3d render measurements and the Colab
-limitation are in [the theme guide](themes/world3d.md).
-
 ## Neon3d checks
 
 Build with `bash scripts/make.sh` and check the printed neon3d vignette table. Then run the check from a

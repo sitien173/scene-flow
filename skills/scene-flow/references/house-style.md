@@ -41,9 +41,7 @@ over every option offered, including the recommended one. Offer; don't decide.
 > (English: Learn the style of the previous video.)
 
 Open the latest project and keep its theme, palette, type, bookends, sound set and
-scripts. A new series starts with the dark theme. If the latest project uses paper,
-ask before switching it to dark. Read the [dark theme guide](themes/dark.md) for the
-default and the [paper theme guide](themes/paper.md) when paper is selected.
+scripts. Neon3d is the only theme. Read the [neon3d theme guide](themes/neon3d.md).
 
 ---
 
@@ -53,17 +51,16 @@ default and the [paper theme guide](themes/paper.md) when paper is selected.
 
 Use a mascot about 800 px tall, with its head near y 1340 and its legs off the bottom
 edge. A full-body mascot at ~500 px was sent back. Leave room for a pointing arm that
-reaches x ≈ 600, so paper side captions start there (`.kc.side.hk { left:600px }`).
+reaches x ≈ 600, so side captions start there (`.kc.side.hk { left:600px }`).
 
-**The paper end card runs at 2x.**
+**The end card runs at 2x.**
 
 Scale every time and duration of the standard card by 0.5: 5.5 s -> 2.75 s (logo,
 cursor click, slogan, hold). Carry this forward; note it in the BRIEF so the author can
 ask for the full-length card back.
 
-The bookends are part of the template. Each theme ships its end card in
-`template/themes/<theme>/timeline.js`: dark shows the mark, name and slogan; paper shows the logo,
-a cursor click and the slogan at 2x. Use the selected theme's brand inputs; its guide
+The bookends are part of the template. The theme ships its end card in
+`template/themes/neon3d/timeline.js`. Use the theme's brand inputs; its guide
 lists the bundled mark and defaults. A mascot does not ship: use your own transparent
 `.webm`.
 

@@ -1,3 +1,0 @@
-      <video id="bgv" class="clip" data-start="0" data-duration="@@end@@" data-track-index="0" src="assets/video/paper-bg.mp4" muted playsinline></video>
-      <div id="wash"></div>
-      <div id="vig"></div>

@@ -6,12 +6,11 @@ and write project files in the working directory (`SCRIPT.md`, `beats.json`, `as
 
 ## Themes and project branding
 
-`new-project.py` accepts `--theme dark|paper|world3d|neon3d` and defaults to `dark`. It copies the selected theme into
-the project's `parts/`, records the theme in `meta.json`, and copies theme-specific assets for paper or
-world3d. An older project without a `theme` value continues to build as paper. World3d projects also
-receive `world.json` at the project root and the local Three.js runtime and model kit. See the
-[world3d theme guide](../references/themes/world3d.md). In `build.py`, `BRAND_NAME`
-defaults to `Soi Repo`; `BRAND_LOGO` selects `soi-repo-mark.svg` for dark, world3d, and neon3d, and `brand-logo.svg` for paper.
+`new-project.py` accepts `--theme neon3d` and defaults to `neon3d`, the only theme. It copies the theme into
+the project's `parts/`, records the theme in `meta.json`, and copies the neon3d assets. A project without a
+`theme` value builds as neon3d. A project that names `dark`, `paper`, or `world3d` stops with
+`theme <name> was removed; only neon3d is supported`. In `build.py`, `BRAND_NAME` defaults to `Soi Repo`
+and `BRAND_LOGO` to `soi-repo-mark.svg`.
 `SLOGAN` starts as `Slogan của bạn`.
 
 ## Voice first — the common case
@@ -33,13 +32,10 @@ npm run check
 
 ## Voice last — the author records after seeing the picture
 
-The voice-last recaption helpers are paper-only: `recaption.py` and `recaption-real.py`.
-
 ```bash
 python scripts/asr.py small
 python scripts/align-asr.py              # -> timing-map.json + vo-alignment.json
 python scripts/install-map.py            # writes OLD[]/NEW[] into index.html, reads back
-python scripts/recaption.py              # captions through the map
 python scripts/resfx.py                  # SFX at mapped times
 python scripts/audit-sync.py 0 110       # every cue vs the sentence playing then
 ```
@@ -48,7 +44,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 
 | script | generic? | edit per project |
 |---|---|---|
-| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d` (default `dark`) |
+| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d` (default `neon3d`) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |
@@ -62,7 +58,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 | `silences.py` | **yes** | — optional times as argv print whether each sits in silence |
 | `make-media.py` | engine yes | the `CLIPS` and `CROPS` lists (segments, crops, blur boxes) |
 | `cdp.mjs` | **yes** | — `shot <url> <out.png> [--w --h --dpr --wait --js --clip --pad]`, `eval <url> <out.txt> --expr`, `page <url> <out.webp> --targets "name=selector,..." [--json --max-h --wait]` |
-| `build.py` | mostly | `SC` (cuts), `PROMPTS`, `CTA_WORD`, `STEPS`, `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`, `CHAPTERS`, `PARTS` |
+| `build.py` | mostly | `SC` (cuts), `CTA_WORD`, `STEPS`, `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`, `PARTS` |
 | `karaoke.py` | mostly | `SIDES`, `DARK`, `SKIP`; add `COMPOUNDS` for new two-syllable words |
 | `add-sfx.py` | mostly | `RISER`, `LASER`, `CLICK`, `POP`, `EXTRA`, `BED`. Duration, voice end and swooshes are read from the files |
 | `sfx-gain.py` | **yes** | — gain for a new sound file from its measured mean: `--cue thud|swoosh|pop|pop-soft|click|bed` or `--target <dB>`; `--seconds <n>` measures only the first n seconds |
@@ -71,27 +67,17 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 | `sheet.py` | **yes** | — contact sheet of any video: `python scripts/sheet.py in.mp4 out.jpg 2.0` |
 | `edit_helpers.py` | **yes** | — import it; see below |
 | `install-map.py` | **yes** | — (voice-last only) |
-| `recaption.py` | paper only | `HILITE`, `GAP`, `MAXW` (voice-last only) |
-| `recaption-real.py` | paper only | older one-word caption generator |
 | `resfx.py` | no | the `CUES` list and `EC`; update on every retime (voice-last only) |
 | `word-times.py` | no | the `QUERIES` list of phrases you want times for |
 | `audit-sync.py` | **yes** | — |
 | `synth-sfx.py` | **yes** | a synthesised palette, for pieces that do not use the house cues |
 
-## World3d checks and renders
-
-Run `bash scripts/make.sh` from a world3d project before checking or rendering it. It builds the page,
-adds captions, stamps the seams, and writes sound cues. `scripts/build.py` alone does not add captions.
+## Checks and renders
 
 `render-colab.py` accepts a built project directory. Run it from the skill because
 `new-project.py` does not copy it into each project's `scripts/`. Its default path requests a Colab T4
 session. Use `--seconds 5` for a short render or `--dry-run` to inspect the commands. `--local` selects
-the software WebGL fallback. Render timings and limitations are in the
-[world3d theme guide](../references/themes/world3d.md).
-
-[`tests/world3d-labels.mjs`](https://github.com/sitien173/scene-flow/blob/main/tests/world3d-labels.mjs) checks rendered label positions against
-captions, watermarks, and frame edges. Set `CHROME_PATH` to `chrome-headless-shell` and pass the built project directory. The
-[`tests/world3d-kit.html`](https://github.com/sitien173/scene-flow/blob/main/tests/world3d-kit.html) page lays out every kit piece for a contact sheet.
+the software WebGL fallback.
 
 Neon3d projects receive `vignettes.json`, `vignettes/`, and a sample `SCRIPT.md` at the project root, plus
 the local Three.js runtime, bloom passes, and the neon kit. Build them with `bash scripts/make.sh` too.
@@ -99,7 +85,7 @@ the local Three.js runtime, bloom passes, and the neon kit. Build them with `bas
 without `portal()`, a cut outside silence, and more than 3 flashes in 1 s. See the
 [neon3d theme guide](../references/themes/neon3d.md).
 [`tests/neon3d-check.mjs`](https://github.com/sitien173/scene-flow/blob/main/tests/neon3d-check.mjs) checks determinism, blank frames, and
-layout in a built project. Set `CHROME_PATH` as for the world3d check.
+layout in a built project. Set `CHROME_PATH` to `chrome-headless-shell` and pass the built project directory.
 
 ## Patching an index.html the author has previewed
 

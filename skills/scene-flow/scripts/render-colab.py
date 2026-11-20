@@ -106,9 +106,9 @@ import shutil
 import subprocess
 import tarfile
 
-ARCHIVE = "/content/world3d-project.tar.gz"
+ARCHIVE = "/content/scene-flow-project.tar.gz"
 PROJECT = Path("/content/project")
-OUTPUT = "/content/world3d-render.mp4"
+OUTPUT = "/content/scene-flow-render.mp4"
 SECONDS = __SECONDS__
 
 def command_ok(command):
@@ -212,16 +212,16 @@ def dry_run(args, project, output, full_duration, limited_duration):
     name = "w3d-%d" % os.getpid()
     colab = colab_binary()
     print("Session command: " + shlex.join([colab, "new", "--session", name, "--gpu", "T4"]))
-    print("Upload: project-folder-only tar.gz -> /content/world3d-project.tar.gz")
-    print("Remote render (first attempt): " + shlex.join(render_command("/content/project", "/content/world3d-render.mp4", local=False)))
+    print("Upload: project-folder-only tar.gz -> /content/scene-flow-project.tar.gz")
+    print("Remote render (first attempt): " + shlex.join(render_command("/content/project", "/content/scene-flow-render.mp4", local=False)))
     print("Remote retry: " + shlex.join(["npx", "--yes", HYPERFRAMES, "render", "/content/project",
-                                        "--player-ready-timeout", PLAYER_READY_TIMEOUT, "-o", "/content/world3d-render.mp4"]))
-    print("Download: /content/world3d-render.mp4 -> " + str(output))
+                                        "--player-ready-timeout", PLAYER_READY_TIMEOUT, "-o", "/content/scene-flow-render.mp4"]))
+    print("Download: /content/scene-flow-render.mp4 -> " + str(output))
     print("Cleanup in finally: " + shlex.join([colab, "stop", "--session", name]))
 
 
 def render_local(project, output, seconds):
-    with tempfile.TemporaryDirectory(prefix="world3d-local-render-") as scratch:
+    with tempfile.TemporaryDirectory(prefix="scene-flow-local-render-") as scratch:
         source = project
         if seconds is not None:
             source = Path(scratch) / "project"
@@ -244,14 +244,14 @@ def render_colab(project, output, seconds):
         raise FileNotFoundError("Colab CLI not found: " + colab)
     session = "w3d-%d" % os.getpid()
     output.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="world3d-colab-render-") as scratch_dir:
+    with tempfile.TemporaryDirectory(prefix="scene-flow-colab-render-") as scratch_dir:
         scratch = Path(scratch_dir)
         staged = scratch / "project"
         project_copy(project, staged)
         if seconds is not None:
             duration = limit_duration(staged, seconds)
             print("Staged render duration: %.3fs" % duration)
-        archive = scratch / "world3d-project.tar.gz"
+        archive = scratch / "scene-flow-project.tar.gz"
         make_archive(staged, archive)
         remote = scratch / "remote-render.py"
         remote.write_text(remote_program(seconds), encoding="utf-8")
@@ -261,9 +261,9 @@ def render_colab(project, output, seconds):
         try:
             session_attempted = True
             run([colab, "new", "--session", session, "--gpu", "T4"])
-            run([colab, "upload", "--session", session, str(archive), "/content/world3d-project.tar.gz"])
+            run([colab, "upload", "--session", session, str(archive), "/content/scene-flow-project.tar.gz"])
             run([colab, "exec", "--session", session, "--file", str(remote), "--timeout", "0"])
-            run([colab, "download", "--session", session, "/content/world3d-render.mp4", str(output)])
+            run([colab, "download", "--session", session, "/content/scene-flow-render.mp4", str(output)])
             if not output.is_file() or output.stat().st_size == 0:
                 raise RuntimeError("Colab download completed without producing an MP4")
         except BaseException as error:

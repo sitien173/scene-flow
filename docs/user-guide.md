@@ -99,11 +99,7 @@ Kịch bản:
 ```
 *(English gloss: Create a TikTok video about topic. Voice file: "recordings/voice.wav". 1. Include product logos. 2. Use visuals/recordings instead of text. 3. Use intro.mp4 for the opening. 4. Use keyword CHATBOT in the comment CTA. Script: one sentence per line.)*
 
-New projects default to the dark theme (`--theme dark`). To select the paper background theme, include `--theme paper` in your prompt. If the previous project used paper, Claude confirms before switching to dark.
-
-For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera moves through one 3D world, and each stop starts on a spoken word you choose. The project has a `world.json` file that lists the objects and the camera stops. The starter project explains how ChatGPT answers a question. See [the world3d theme guide](../skills/scene-flow/references/themes/world3d.md).
-
-For short neon 3D scenes with one idea each, include `--theme neon3d` in your prompt. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
+New projects use the neon3d theme, the only theme: short neon 3D scenes with one idea each. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
 
 If you have not recorded audio yet, omit the audio file path. Claude offers the voice options above. To synthesize voice via Colab, state: `Dùng giọng AI từ Colab`.
 
@@ -128,8 +124,6 @@ If HyperFrames Studio reports "the preview did not reload" or continues displayi
 ## 5. Exporting Video
 
 When the preview looks right, enter **"render video"**. Claude renders a 1080x1920 MP4 file to the project's `renders/` directory.
-
-A world3d video renders fastest on a computer with a graphics chip, about 2 to 3 minutes for 60 seconds. Without one, rendering takes about 16 minutes, on this computer or on Colab. Colab's T4 card does not speed up 3D rendering.
 
 ## 6. Publishing with Postiz
 
@@ -192,4 +186,3 @@ Projects created before this feature do not have the publisher. Copy `scripts/po
 | `motion-doctrine not found` | Re-run HyperFrames skill installation from the [README installation section](../README.md#installation). |
 | `ffmpeg` / `node` / `python` not found | Install missing tools per the [README installation section](../README.md#installation) and restart terminal. |
 | ASR alignment match rate low (< 90%) | Ask Claude to run alignment using a larger Whisper model (`medium` or `large-v3`). |
-| Video exceeds 2 minutes and paper background cuts off | Tell Claude to "extend paper background plate" (see [README notes](../README.md#notes)). |

@@ -68,7 +68,7 @@ BED = "assets/audio/bgm-little-things.mp3"     # the house bed; any track works 
 RISER = []        # e.g. [(1.36, "risercut3", G_RISER)]   -> peaks at 4.56
 LASER = [(t - 0.05, "laser", G_LASER) for t in (
 )]                # e.g. 18.04, 27.22 — the moment of each click
-# clicks the timeline declares as `var NAME = /*sfx:laser*/[t, ...];` (the dark walkthrough's H1_CLICKS)
+# clicks the timeline declares as `var NAME = /*sfx:laser*/[t, ...];`
 LASER += [(float(t) - 0.05, "laser", G_LASER)
           for arr in re.findall(r"/\*sfx:laser\*/\s*\[([^\]]*)\]", _html) for t in re.findall(r"[\d.]+", arr)]
 CLICK = [(t, "click", G_CLICK) for t in (

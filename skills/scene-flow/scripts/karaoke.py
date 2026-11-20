@@ -35,29 +35,10 @@ COMPOUNDS = [
     "đường link", "gửi cho", "chỉ cần", "AI Agent", "ChatGPT App", "Claude App", "Claude Code", "Google Vids",
     "video AI", "prompt mẫu", "quan trọng", "thư giãn", "bây giờ", "Ví dụ", "ở đây", "file PDF", "xem nguồn",
 ]
-THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "paper")
+THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
+if THEME in ("dark", "paper", "world3d"):
+    raise SystemExit("theme %s was removed; only neon3d is supported" % THEME)
 THEME_SETTINGS = {
-    "paper": {
-        "maxu": 4, "maxc": 22, "maxc_side": 14,
-        "lit_color": "#FFFFFF", "lit_shadow": "LIT",
-        "unlit_color": "#1D1B3A", "unlit_shadow": "HALO",
-        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
-        "minu": 1,
-    },
-    "dark": {
-        "maxu": 5, "maxc": 30, "maxc_side": 30,
-        "lit_color": "#FB923C", "lit_shadow": "DHALO",
-        "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
-        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
-        "minu": 3,
-    },
-    "world3d": {
-        "maxu": 5, "maxc": 30, "maxc_side": 30,
-        "lit_color": "#FB923C", "lit_shadow": "DHALO",
-        "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
-        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
-        "minu": 3,
-    },
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
         "lit_color": "#FFC247", "lit_shadow": "DHALO",
