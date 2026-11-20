@@ -7,16 +7,40 @@
 
 scene-flow turns a script and a voice recording into a 9:16 video for TikTok, Reels, and YouTube Shorts. Pictures, captions, and sound effects follow the voice word by word. You describe the video in plain language, review it in your browser, and ask for changes until you are happy. Claude exports the MP4 only when you ask.
 
-## What you get
+## Prepare your channel first
 
-- **Real pictures over text:** product logos, your screen recordings, and captures of web pages.
-- **Captions in sync:** each spoken word lights up as it is said.
-- **Sound:** a music bed and sound effects on scene changes and key moments, leveled against the voice automatically.
-- **Voice:** use your own recording, ElevenLabs voices through Vibi, or the VieNeu-TTS AI voice on Google Colab.
+Prepare these once and every video on your channel carries the same identity. Anything you skip falls back to a built-in default, so you can still make your first video right away.
 
-### Three looks
+### 1. Channel logo
 
-Claude asks which look to use for each video. Pick by topic:
+Make a logo with an image tool or design it yourself. An SVG file, or a square PNG with a transparent background, works best. The logo appears on the end card of every video, next to the channel name and the slogan.
+
+Claude never draws a logo. The logo always comes from the file you provide. Without one, the end card uses the template logo for now.
+
+### 2. Voice
+
+Pick one voice and keep it for every video on the channel. scene-flow supports three voice sources:
+
+| Voice source | What you need | Default voice |
+|---|---|---|
+| Your own recording | A microphone and a quiet room. This is the most distinctive choice. | None |
+| Vibi, ElevenLabs voices | The `VIBI_API_KEY` environment variable. Vibi charges credits per character of the script. | Quang Toan |
+| VieNeu-TTS on Google Colab | The `colab` command signed in to your Google account. No per-character charge, but it uses Colab compute units. | Hải Đăng |
+
+If you are not sure which voice to use, just pick a source and scene-flow uses that source's default voice. For an AI voice that sounds like you, ask Claude to clone it from a sample recording. Clone only your own voice or the voice of someone who has agreed. Details are in [Choose a voice](#3-choose-a-voice).
+
+### 3. Sound
+
+Pick a music bed and a level of sound effects for your channel. The music bed can be any track; Claude measures it and levels it under the voice. Use only music you have the right to use. Say whether you want more or fewer sound effects.
+
+Without your own choices, scene-flow uses its built-in sound set:
+
+- **Music bed:** "Little Things Immaterial" for `neon3d` and `terra3d`. "Short Pizzicato Song" for `atlas3d`, looped when the video is longer than the track.
+- **Sound effects:** a whoosh on each scene change, one thud at the start of the video, a pop when an important icon appears, and a click for an important number. `atlas3d` adds pen, coin, and drum sounds. `terra3d` has no sound on scene changes.
+
+### 4. Visual look
+
+Claude asks which look to use for each video. Keep a channel to one or two looks so viewers recognize it from the first frame. Pick by topic:
 
 | Look | What it looks like | Good for |
 |---|---|---|
@@ -24,18 +48,15 @@ Claude asks which look to use for each video. Pick by topic:
 | `terra3d` | Daylight 3D scenes: a globe with route arcs, ships on the ocean, terrain from a drone, cutaways of soil and water. Hard cuts on spoken words, captions one word at a time | Engineering, construction, geography, history |
 | `atlas3d` | An old-style world map with camera pans between regions, territories raised in 3D, chibi figures on the map, and photo backdrop scenes | History, geography, geopolitics, and economics told on a map |
 
-Keep a channel to one or two looks so viewers recognize it from the first frame.
+### 5. Real pictures and footage
 
-### Make the channel your own
+Use real pictures and footage instead of text. Record your screen while you use a tool. Claude trims the clips, retimes them, and blurs private data. Send a web link and Claude captures the page. Product logos always come from official files. For pictures of an idea, Claude prefers licensed stock and uses AI images only when you have set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
 
-Look-alike videos get scrolled past. These make your channel different:
+### 6. Branding and voice of the channel
 
-- **Real pictures and footage.** Record your screen while you use a tool. Claude trims the clips, retimes them, and blurs private data. Send a web link and Claude captures the page. Logos always come from official files; Claude never draws a logo. For pictures of an idea, Claude prefers licensed stock and uses AI images only when you have set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL`.
-- **Voice.** Pick one voice and keep it for the whole channel. Your own recording is the most distinctive. For an AI voice that sounds like you, ask Claude to clone it from a sample recording. Clone only your own voice or the voice of someone who has agreed.
-- **Sound.** The music bed can be any track; Claude measures it and levels it under the voice. Use only music you have the right to use. Say whether you want more or fewer sound effects. `terra3d` has no sound on scene changes.
-- **Branding.** Your channel name, logo, and the slogan on the end card. Add your channel's address terms, fixed opening line, or fixed closing line.
+Choose your channel name, the slogan on the end card, how you address viewers, a fixed opening or closing line, and a fixed set of hashtags.
 
-Write these choices into `AGENTS.md` so Claude applies them to every later video. See [Your style](#your-style) and [A TikTok channel with many videos](#a-tiktok-channel-with-many-videos).
+The `/scene-flow:channel` command asks for these choices and writes them into the channel's `AGENTS.md`, so Claude applies them to every later video. See [A TikTok channel with many videos](#a-tiktok-channel-with-many-videos) and [Your style](#your-style).
 
 ## Install
 

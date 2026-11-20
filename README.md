@@ -7,16 +7,40 @@
 
 scene-flow biến một kịch bản và một file giọng đọc thành video 9:16 cho TikTok, Reels và YouTube Shorts. Hình ảnh, phụ đề và hiệu ứng âm thanh chạy khớp theo từng từ trong giọng đọc. Bạn mô tả video bằng lời bình thường, xem thử trên trình duyệt, rồi yêu cầu sửa cho tới khi ưng ý. Claude chỉ xuất file MP4 khi bạn yêu cầu.
 
-## Bạn có gì
+## Nên chuẩn bị trước cho kênh
 
-- **Hình thật thay cho chữ:** logo sản phẩm, video quay màn hình của bạn, ảnh chụp trang web.
-- **Phụ đề khớp giọng:** từ nào được đọc thì từ đó sáng lên.
-- **Âm thanh:** nhạc nền và hiệu ứng âm thanh ở các lần chuyển cảnh và điểm nhấn, được tự cân âm lượng theo giọng đọc.
-- **Giọng đọc:** dùng file bạn tự thu, giọng ElevenLabs qua Vibi, hoặc giọng AI VieNeu-TTS trên Google Colab.
+Chuẩn bị những thứ sau một lần, mọi video của kênh sẽ có cùng một dấu ấn. Thiếu thứ nào thì scene-flow dùng mặc định có sẵn, nên bạn vẫn làm được video đầu tiên ngay.
 
-### Ba phong cách
+### 1. Logo kênh
 
-Claude hỏi bạn chọn phong cách cho mỗi video. Chọn theo chủ đề:
+Tạo logo bằng một công cụ tạo ảnh hoặc tự thiết kế. Nên có file SVG, hoặc PNG nền trong suốt, hình vuông. Logo hiện ở màn hình cuối mỗi video, cạnh tên kênh và câu slogan.
+
+Claude không tự vẽ logo. Logo luôn lấy từ file bạn đưa. Chưa có logo thì màn hình cuối dùng tạm logo của template.
+
+### 2. Giọng đọc
+
+Chọn một giọng và giữ cố định cho mọi video của kênh. scene-flow hỗ trợ ba nguồn giọng:
+
+| Nguồn giọng | Cần chuẩn bị | Giọng mặc định |
+|---|---|---|
+| Tự thu giọng | Micro và một chỗ yên tĩnh. Đây là cách tạo dấu ấn rõ nhất. | Không có |
+| Vibi, giọng ElevenLabs | Biến môi trường `VIBI_API_KEY`. Vibi tính credit theo số ký tự của kịch bản. | Quang Toan |
+| VieNeu-TTS trên Google Colab | Lệnh `colab` đã đăng nhập tài khoản Google. Không tính phí theo ký tự, nhưng tốn compute unit của Colab. | Hải Đăng |
+
+Chưa biết chọn giọng nào thì chỉ cần chọn nguồn giọng, scene-flow dùng giọng mặc định của nguồn đó. Muốn giọng AI giống giọng thật của bạn thì nhờ Claude nhái giọng từ một đoạn thu mẫu. Chỉ nhái giọng của chính bạn hoặc của người đã đồng ý. Cách chọn giọng chi tiết ở [Chọn giọng đọc](#3-chọn-giọng-đọc).
+
+### 3. Âm thanh
+
+Chọn một bài nhạc nền và mức hiệu ứng âm thanh riêng cho kênh. Nhạc nền đổi được sang bất kỳ bài nào, Claude tự đo và cân âm lượng dưới giọng đọc. Chỉ dùng nhạc bạn có quyền sử dụng. Nói rõ bạn muốn nhiều hay ít hiệu ứng.
+
+Chưa có thì scene-flow dùng bộ âm thanh có sẵn:
+
+- **Nhạc nền:** "Little Things Immaterial" cho `neon3d` và `terra3d`. "Short Pizzicato Song" cho `atlas3d`, tự lặp lại khi video dài hơn bài nhạc.
+- **Hiệu ứng:** tiếng "whoosh" ở mỗi lần chuyển cảnh, một tiếng "thud" mở đầu video, tiếng "pop" khi biểu tượng quan trọng hiện ra, tiếng click cho con số quan trọng. `atlas3d` có thêm tiếng bút, tiếng xu và tiếng trống. Riêng `terra3d` không có tiếng chuyển cảnh.
+
+### 4. Phong cách hình ảnh
+
+Claude hỏi bạn chọn phong cách cho mỗi video. Một kênh nên giữ một hoặc hai phong cách để người xem nhận ra kênh ngay từ khung hình đầu. Chọn theo chủ đề:
 
 | Phong cách | Trông như thế nào | Hợp với chủ đề |
 |---|---|---|
@@ -24,18 +48,15 @@ Claude hỏi bạn chọn phong cách cho mỗi video. Chọn theo chủ đề:
 | `terra3d` | Các cảnh 3D ban ngày: quả địa cầu với tuyến đường, tàu trên biển, địa hình nhìn từ drone, mặt cắt đất và nước. Cắt cảnh dứt khoát theo từng từ, phụ đề hiện từng chữ | Kỹ thuật, công trình, địa lý, lịch sử |
 | `atlas3d` | Bản đồ thế giới kiểu cổ, máy quay lướt giữa các vùng, lãnh thổ nổi khối 3D, nhân vật chibi đứng trên bản đồ, xen cảnh nền ảnh | Lịch sử, địa lý, địa chính trị, kinh tế kể trên bản đồ |
 
-Một kênh nên giữ một hoặc hai phong cách để người xem nhận ra kênh ngay từ khung hình đầu.
+### 5. Hình ảnh và video thật
 
-### Cá nhân hóa kênh
+Dùng hình và video thật thay cho chữ. Tự quay màn hình khi thao tác công cụ. Claude cắt đoạn, chỉnh tốc độ và làm mờ dữ liệu riêng tư trong clip. Gửi link trang web để Claude chụp ảnh trang. Logo sản phẩm luôn lấy từ file chính thức. Với hình minh họa ý tưởng, Claude ưu tiên ảnh stock có giấy phép, và chỉ tạo ảnh bằng AI khi bạn đã cấu hình `IMAGE_API_URL`, `IMAGE_API_KEY` và `IMAGE_MODEL`.
 
-Video giống nhau dễ bị lướt qua. Những thứ sau làm kênh của bạn khác đi:
+### 6. Thương hiệu và cách nói
 
-- **Hình ảnh và video thật.** Tự quay màn hình khi thao tác công cụ. Claude cắt đoạn, chỉnh tốc độ và làm mờ dữ liệu riêng tư trong clip. Gửi link trang web để Claude chụp ảnh trang. Logo luôn lấy từ file chính thức, Claude không tự vẽ logo. Với hình minh họa ý tưởng, Claude ưu tiên ảnh stock có giấy phép, và chỉ tạo ảnh bằng AI khi bạn đã cấu hình `IMAGE_API_URL`, `IMAGE_API_KEY` và `IMAGE_MODEL`.
-- **Giọng đọc.** Chọn một giọng và giữ cố định cho cả kênh. Tự thu giọng tạo dấu ấn rõ nhất. Muốn dùng giọng AI giống giọng thật của bạn thì nhờ Claude nhái giọng từ một đoạn thu mẫu. Chỉ nhái giọng của chính bạn hoặc của người đã đồng ý.
-- **Âm thanh.** Nhạc nền đổi được sang bất kỳ bài nào, Claude tự đo và cân âm lượng dưới giọng đọc. Chỉ dùng nhạc bạn có quyền sử dụng. Nói rõ bạn muốn nhiều hay ít hiệu ứng âm thanh. Riêng `terra3d` không có âm thanh khi chuyển cảnh.
-- **Thương hiệu.** Tên kênh, logo và câu slogan ở màn hình cuối video. Thêm cách xưng hô, câu mở đầu hoặc câu kết cố định của kênh.
+Chọn tên kênh, câu slogan ở màn hình cuối, cách xưng hô với người xem, câu mở đầu hoặc câu kết cố định, và bộ hashtag cố định.
 
-Ghi những lựa chọn trên vào `AGENTS.md` để Claude áp dụng cho mọi video sau. Xem [Phong cách của bạn](#phong-cách-của-bạn) và [Dựng kênh TikTok nhiều video](#dựng-kênh-tiktok-nhiều-video).
+Lệnh `/scene-flow:channel` hỏi bạn các lựa chọn trên rồi ghi vào `AGENTS.md` của kênh, để Claude áp dụng cho mọi video sau. Xem [Dựng kênh TikTok nhiều video](#dựng-kênh-tiktok-nhiều-video) và [Phong cách của bạn](#phong-cách-của-bạn).
 
 ## Cài đặt
 
