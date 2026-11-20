@@ -99,7 +99,7 @@ Kịch bản:
 ```
 *(English gloss: Create a TikTok video about topic. Voice file: "recordings/voice.wav". 1. Include product logos. 2. Use visuals/recordings instead of text. 3. Use intro.mp4 for the opening. 4. Use keyword CHATBOT in the comment CTA. Script: one sentence per line.)*
 
-New projects default to the dark theme (`--theme dark`). To select the paper background theme, include `--theme paper` in your prompt. If the previous project used paper, Claude confirms before switching to dark.
+There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme dark` or `--theme paper` in your prompt.
 
 For a 3D cartoon explainer, include `--theme world3d` in your prompt. The camera moves through one 3D world, and each stop starts on a spoken word you choose. The project has a `world.json` file that lists the objects and the camera stops. The starter project explains how ChatGPT answers a question. See [the world3d theme guide](../skills/scene-flow/references/themes/world3d.md).
 
@@ -122,6 +122,27 @@ To adjust the composition, describe what needs refinement:
 | "chữ nhỏ quá", "chưa đẹp" (text small or unappealing) | Applies larger font sizes per house guidelines |
 | "đoạn đầu dùng video này..." (change intro video) | Swaps footage and recalculates timing |
 | "cho mascot to lên ở góc dưới bên trái" | Repositions or scales the mascot graphic (if you have one; no mascot ships with the skill) |
+
+### Keeping feedback for later videos
+
+Claude saves your feedback so it does not repeat a mistake. Rules come from three files, and the more specific file wins:
+
+| File | Holds | Who edits it |
+|---|---|---|
+| `references/style.md` in the plugin | Rules for every author, such as text size, real media, and fact checks | Only the plugin repository. A plugin update overwrites local edits |
+| `AGENTS.md` in the folder that holds your projects | Your preferences for every video, such as voice register, mascot, and sound density | You and Claude |
+| `CLAUDE.md` in the project folder | Feedback for this video only | You and Claude |
+
+If you do not say where a piece of feedback belongs, Claude asks: "Áp dụng cho mọi video sau, hay chỉ video này?" *(Apply to every later video, or only this one?)*
+
+To create your author file, ask Claude, or set it up yourself in the folder that holds your projects:
+
+```bash
+cp <plugin>/skills/scene-flow/author/AGENTS.template.md AGENTS.md
+echo '@AGENTS.md' > CLAUDE.md
+```
+
+The template contains example preferences. Edit them to match your style and delete the ones that do not apply. Claude Code loads this `CLAUDE.md` in every project below the folder. Do not create the file in your home folder, because Claude Code would then load it in every session you start there.
 
 If HyperFrames Studio reports "the preview did not reload" or continues displaying previous frames, reload the browser tab (F5) and wait 20 seconds.
 

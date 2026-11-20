@@ -3,9 +3,9 @@
 [![CI](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects default to the Soi Repo dark motion-graphics theme, with paper and world3d themes also selectable:
+This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. Claude asks which theme to use before creating each project; there is no default:
 
-- **Dark theme (default)**: Deep dark background with subtle drifting particles, Be Vietnam Pro typography, mint `#4ADE80` and cyan `#22D3EE` accents.
+- **Dark theme (selectable)**: The Soi Repo motion-graphics theme. Deep dark background with subtle drifting particles, Be Vietnam Pro typography, mint `#4ADE80` and cyan `#22D3EE` accents.
 - **Paper theme (selectable)**: Moving textured paper plate, K2D typography, violet `#7657FF` accents.
 - **World3d theme (selectable)**: A continuous Three.js scene driven by `world.json`, with camera stops anchored to spoken words.
 - **Visual evidence over text**: Real product logos, screen recordings, and public page captures rather than text slides.
@@ -27,7 +27,7 @@ Supply a script and voice recording. If you do not have audio yet, the skill sup
 | **Verification** | Frame snapshots for instant visual validation, seam gate audits, and sync checks. |
 | **Output** | HyperFrames Studio preview (`localhost`). Full 1080x1920 30fps MP4 render on request. |
 
-Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md), [skills/scene-flow/references/themes/dark.md](skills/scene-flow/references/themes/dark.md), [skills/scene-flow/references/themes/paper.md](skills/scene-flow/references/themes/paper.md), [skills/scene-flow/references/themes/world3d.md](skills/scene-flow/references/themes/world3d.md), and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
+Detailed guidelines reside in [skills/scene-flow/references/style.md](skills/scene-flow/references/style.md), [skills/scene-flow/references/themes/dark.md](skills/scene-flow/references/themes/dark.md), [skills/scene-flow/references/themes/paper.md](skills/scene-flow/references/themes/paper.md), [skills/scene-flow/references/themes/world3d.md](skills/scene-flow/references/themes/world3d.md), and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
 
 ## Requirements
 
@@ -175,7 +175,7 @@ README.md                             this overview and setup guide
 docs/user-guide.md                    non-programmer step-by-step user guide
 skills/scene-flow/requirements.txt    Python libraries (numpy, Pillow)
 skills/scene-flow/colab/server.py     Colab Whisper ASR and VieNeu-TTS server
-skills/scene-flow/references/         rules: house style, dark, paper, world3d and neon3d themes, traps, alignment, audio mixing
+skills/scene-flow/references/         rules: style, dark, paper, world3d and neon3d themes, traps, alignment, audio mixing
 skills/scene-flow/scripts/            pipeline: voice prep, ASR, syllable timing, scene build, captions, SFX mix
 skills/scene-flow/scripts/README.md   pipeline scripts reference
 skills/scene-flow/template/           starter project files, dark, paper, world3d and neon3d themes

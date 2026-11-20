@@ -2,7 +2,7 @@
          The component library below (badges, brand tiles, browser/app windows, glass bezel, rings, marker,
          cursor, step tracker + openers, Google box, download bar, prompt card, link chip, task rows, website
          sketch + chat widget, use-case cards, guide document, comment box, captions, end card) is shared by
-         every video — keep it, add what a scene needs. House rules: references/house-style.md. */
+         every video — keep it, add what a scene needs. Style rules: references/style.md. */
       :root {
         --ink:#1D1B3A; --ink2:#5B5873; --vio:#7657FF; --vio-hi:#A78BFA; --gold:#FFC857;
         --ok:#1F9D55; --bad:#E5484D; --hi:#FFE14D; --sk:#DAD8E4; --blue:#1A73E8; --tc:#D97757; --teal:#0E9F9A;

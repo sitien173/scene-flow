@@ -1,8 +1,7 @@
-# Dark theme (default)
+# Dark theme
 
-`scripts/new-project.py` selects this theme by default; pass `--theme dark` to choose
-it explicitly. Follow the shared series-selection rules in
-[`../house-style.md` §1](../house-style.md#1-workflow).
+Select this theme with `--theme dark` when creating a project. Follow the shared series-selection rules in
+[`../style.md` §1](../style.md#1-workflow).
 
 ## Identity
 
@@ -16,9 +15,8 @@ it explicitly. Follow the shared series-selection rules in
 | Watermark | Soi Repo mark and name at the top-left and bottom-right |
 | Brand | `BRAND_NAME` is `Soi Repo`; `BRAND_LOGO` is `assets/logos/soi-repo-mark.svg`; `SLOGAN` starts as `Slogan của bạn` |
 
-The shared rules for the opening mascot and end-card timing are in
-[`../house-style.md` §2](../house-style.md#2-bookends). Keep section titles mint or
-cyan.
+The shared bookend rules are in [`../style.md` §2](../style.md#2-bookends); mascot size and
+placement belong in the author's style file. Keep section titles mint or cyan.
 
 ## Opening recipe
 
@@ -176,7 +174,7 @@ rings and `.dn` completion marks.
 ## Generated image prefix
 
 Start every text-to-image prompt with this prefix, then name one subject
-([`../house-style.md` §5](../house-style.md#5-real-media)):
+([`../style.md` §5](../style.md#5-real-media)):
 
 ```text
 Flat vector illustration, one centred subject, near-black background, mint #4ADE80 and cyan #22D3EE accents with a soft glow, clean geometric shapes, no text, no letters, no logos.

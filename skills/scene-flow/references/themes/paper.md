@@ -2,7 +2,7 @@
 
 Choose this theme with `--theme paper`. Projects whose `meta.json` has no `theme` keep
 rebuilding as paper. Follow the shared series-selection rules in
-[`../house-style.md` §1](../house-style.md#1-workflow).
+[`../style.md` §1](../style.md#1-workflow).
 
 ## Identity
 
@@ -44,7 +44,7 @@ captions and end card. Dark components are documented in [`dark.md`](dark.md).
 ## Generated image prefix
 
 Start every text-to-image prompt with this prefix, then name one subject
-([`../house-style.md` §5](../house-style.md#5-real-media)):
+([`../style.md` §5](../style.md#5-real-media)):
 
 ```text
 Flat illustration, one centred subject, plain flat light lavender-grey background, violet #7657FF and #A78BFA fills with #05061F outlines, no text, no letters, no logos.

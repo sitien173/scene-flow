@@ -6,7 +6,7 @@ and write project files in the working directory (`SCRIPT.md`, `beats.json`, `as
 
 ## Themes and project branding
 
-`new-project.py` accepts `--theme dark|paper|world3d|neon3d` and defaults to `dark`. It copies the selected theme into
+`new-project.py` requires `--theme dark|paper|world3d|neon3d`; there is no default theme. It copies the selected theme into
 the project's `parts/`, records the theme in `meta.json`, and copies theme-specific assets for paper or
 world3d. An older project without a `theme` value continues to build as paper. World3d projects also
 receive `world.json` at the project root and the local Three.js runtime and model kit. See the
@@ -17,7 +17,7 @@ defaults to `Soi Repo`; `BRAND_LOGO` selects `soi-repo-mark.svg` for dark, world
 ## Voice first — the common case
 
 ```bash
-python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>"
+python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme <theme>
 cd "<folder>"
 python scripts/asr.py small              # -> asr-words.json
 python scripts/plan-beats.py             # -> beats.json (scaffold for the aligner only)
@@ -48,7 +48,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 
 | script | generic? | edit per project |
 |---|---|---|
-| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d` (default `dark`) |
+| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme dark|paper|world3d|neon3d` (required) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab |

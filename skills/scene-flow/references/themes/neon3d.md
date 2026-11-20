@@ -1,8 +1,8 @@
 # Neon3d theme
 
 Neon3d is a sequence of short 3D vignettes on a dark neon stage with bloom. Each vignette is one idea
-from the script. It starts on a spoken word and ends where the next vignette starts. Dark remains the
-default theme. Select neon3d explicitly when creating a project.
+from the script. It starts on a spoken word and ends where the next vignette starts. Select it with
+`--theme neon3d` when creating a project.
 
 ## Create and build a project
 

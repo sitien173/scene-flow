@@ -73,7 +73,7 @@ LASER += [(float(t) - 0.05, "laser", G_LASER)
           for arr in re.findall(r"/\*sfx:laser\*/\s*\[([^\]]*)\]", _html) for t in re.findall(r"[\d.]+", arr)]
 CLICK = [(t, "click", G_CLICK) for t in (
 )]                # e.g. 35.50 — an important number landing
-# (time, soft?) — only marks and objects that carry the point of their sentence (house-style §7:
+# (time, soft?) — only marks and objects that carry the point of their sentence (style.md §7:
 # about one every 3-4 s), never within ~0.5 s of a swoosh; lead a mark that lands ON its word by 0.16 s
 POP = [
 ]                 # e.g. (1.42, 0), (15.16, 0), (42.36, 1), ... and the end-card logo at EC + 0.06

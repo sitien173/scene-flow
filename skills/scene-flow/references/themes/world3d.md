@@ -1,7 +1,7 @@
 # World3d theme
 
-World3d builds one continuous Three.js scene. Its camera stops follow words in the voiceover. Dark
-remains the default theme. Select world3d explicitly when creating a project.
+World3d builds one continuous Three.js scene. Its camera stops follow words in the voiceover. Select
+it with `--theme world3d` when creating a project.
 
 ## Create and build a project
 
@@ -141,4 +141,4 @@ Studio and render pitfalls, see [traps.md](../traps.md).
 ## Images
 
 `world.json` has no image entry. Build every concept from kit objects; sourced and generated
-pictures from [`../house-style.md` §5](../house-style.md#5-real-media) do not apply to this theme.
+pictures from [`../style.md` §5](../style.md#5-real-media) do not apply to this theme.

@@ -3,7 +3,7 @@
 # K2D fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme dark|paper|world3d|neon3d]
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] --theme dark|paper|world3d|neon3d
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -70,7 +70,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["dark", "paper", "world3d", "neon3d"], default="dark")
+ap.add_argument("--theme", choices=["dark", "paper", "world3d", "neon3d"], required=True)
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 

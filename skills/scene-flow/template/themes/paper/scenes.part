@@ -90,7 +90,7 @@
 
       <!-- stage level: the flash, the step tracker (it outlives every chapter cut), captions, the voice.
            A hook mascot (optional, your own transparent .webm) goes here, BIG in the lower-left corner with
-           its feet off the frame, leaving under the hook's flash (house-style.md §2):
+           its feet off the frame, leaving under the hook's flash (the author's style file, ../AGENTS.md):
              <div class="abs" id="m1w" style="left:-60px; top:1309px; width:694px; height:843px;">
                <video id="m1" class="clip" data-start="0.25" data-duration="4.15" data-track-index="5"
                       src="assets/video/mascot.webm" muted playsinline style="width:694px; height:843px; display:block;"></video>
