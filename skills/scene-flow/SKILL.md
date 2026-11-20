@@ -73,6 +73,14 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 
 1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects, or the nearest `AGENTS.md` above the project, such as a channel folder from the `scene-flow-channel` skill. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, or atlas3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
 2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences. Three optional marks, read by `scripts/scriptmd.py`, never reach alignment or captions: a leading `[tense]`, `[normal]`, or `[calm]` sets the delivery, which `tts.py` sends to ElevenLabs and Vibi on `eleven_v3` as an audio tag; a `[pause:0.6s]` line sets the silence after the sentence above it; and `- term -> spelling` lines respell English terms for VieNeu-TTS only.
+
+   The author may bring a script written anywhere, such as ChatGPT, in any shape: a scene table, labelled prose, or paragraphs. Normalize it into `SCRIPT.md` before step 3:
+   - Save the author's text unchanged as `SCRIPT.source.md`.
+   - Keep only the spoken words: the voiceover column of a table, or the body of prose. Drop beat labels such as `Hook:`, timestamps, list numbers, quotes around a line, markdown, and visual, camera, music, or sound notes; those stay in `SCRIPT.source.md` for the storyboard.
+   - Put one sentence per line, splitting at `.`, `?`, and `!`. Keep the author's words and their order. Change only numbers, times, percentages, and symbols into the words a speaker says, such as `90%` into "chín mươi phần trăm".
+   - Carry over what maps onto the marks: tone cues as `[tense]`, `[normal]`, or `[calm]`; a pause without a length as `[pause:0.6s]`; a phonetic glossary as `- term -> spelling` lines; bold keywords as the `# Từ khóa phụ đề` list. Leave out marks the source does not suggest.
+   - Run `python "<skill>/scripts/scriptmd.py" SCRIPT.md`. It prints the sentences, or stops on lines that still hold markdown, timestamps, labels, or list numbers.
+   - Tell the author what changed, which sentences pass 20 syllables, and that the facts are not checked yet. Do not rewrite the script unless the author asks.
 3. **Get the voice.** If there is no recording yet, see [Voice sources](#voice-sources).
 4. **Start the project.**
    ```bash

@@ -12,6 +12,8 @@ Run the one-line installer from the [README](../README.EN.md#install). You need 
 
 Write your script in plain text with **one sentence per line**, exactly as it will be spoken. If a prompt or command should appear in full on screen, place that prompt on its own single line.
 
+You can also paste a script written elsewhere, such as by ChatGPT, in any shape: a scene table, prose with labels like `Hook:`, or paragraphs. Claude keeps your original as `SCRIPT.source.md`, pulls out only the spoken words into `SCRIPT.md` one sentence per line, and tells you what it changed. It keeps your words and only spells out numbers and symbols. Visual and sound notes in your original go to the storyboard.
+
 ### Voiceover
 
 Select one of four audio sources:
