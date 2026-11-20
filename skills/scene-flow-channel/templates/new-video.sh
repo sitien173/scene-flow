@@ -14,7 +14,7 @@ DEST="videos/$(date +%Y-%m)-$SLUG"
 # else the path written at setup. The environment is not read.
 SKILL="$( { sed -n 's/^[[:space:]]*\(export[[:space:]]*\)\{0,1\}SCENE_FLOW_SKILL[[:space:]]*=//p' "$HOME/.config/scene-flow/.env" 2>/dev/null || true; } \
   | tail -1 | tr -d "\"'\r" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-SKILL="${SKILL:-$(ls -d "$HOME"/.claude/plugins/cache/scene-flow/scene-flow/*/skills/scene-flow 2>/dev/null | sort -V | tail -1)}"
+SKILL="${SKILL:-$( { ls -d "$HOME"/.claude/plugins/cache/scene-flow/scene-flow/*/skills/scene-flow 2>/dev/null || true; } | sort -V | tail -1)}"
 SKILL="${SKILL:-__SCENE_FLOW_SKILL__}"
 [ -f "$SKILL/scripts/new-project.py" ] || { echo "scene-flow skill not found; set SCENE_FLOW_SKILL in ~/.config/scene-flow/.env" >&2; exit 1; }
 
