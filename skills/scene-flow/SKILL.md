@@ -53,7 +53,7 @@ Install `pip install -r requirements.txt` (numpy, Pillow). Run `npx --yes hyperf
 
 Credentials and machine config live only in `~/.config/scene-flow/.env` (mode 600, one `NAME=value` per line), read through `scripts/settings.py`; scripts never read them from environment variables. The author adds each key to that file. Never ask for a key in chat, never print the file or a key, and never copy a key into a project. If the author pastes a key into chat, do not use it: ask them to add it to the file and tell them once to rotate it.
 
-Run `python "<skill>/scripts/gpu-check.py"` once per machine. On `recommendation: local`, an NVIDIA GPU or Apple Silicon was found: suggest local speech to the author before any Colab session, for example "Máy bạn có GPU, dùng whisper.cpp và VieNeu-TTS ngay trên máy thay vì Colab nhé?", and give the install steps it prints. Once the author agrees and the steps are done, use `asr.py --local` and `tts.py --provider local`. On `recommendation: colab`, the Colab server covers speech.
+Run `python "<skill>/scripts/gpu-check.py"` once per machine. On `recommendation: local`, an NVIDIA GPU or Apple Silicon was found: suggest local speech to the author before any Colab session, for example "Máy bạn có GPU, dùng whisper.cpp và VieNeu-TTS ngay trên máy thay vì Colab nhé?", and give the install steps it prints. Once the author picks local and the steps are done, use `asr.py --local` and `tts.py --provider local`. On `recommendation: colab`, the Colab server covers speech.
 
 ## What ships with this skill
 
@@ -118,13 +118,13 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 
 ## Voice sources
 
-When a script arrives without audio, offer these three options in this order. If the author says "dùng giọng AI miễn phí" or "tạo giọng luôn", go straight to option 3.
+When a script arrives without audio, offer these three options in this order. If the author says "dùng giọng AI miễn phí" or "tạo giọng luôn", go straight to option 3. The author's choice of provider is final: run its scripts without asking again, including services that charge credits and Colab sessions.
 
 1. **Self-recording.** Give the author the script line by line and wait for the audio.
 2. **Third-party TTS** such as ElevenLabs or OpenAI. The key goes in `~/.config/scene-flow/.env` (see [Setup](#setup)).
-   For Vibi (`api.vibi.pro`, ElevenLabs voices), with `VIBI_API_KEY` in that file, `tts.py` does the whole voice with `python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`; confirm with the author before running.
-   For ElevenLabs directly, with `ELEVENLABS_API_KEY` in that file, run `python scripts/tts.py --provider elevenlabs` with the same `--voice`, `--lang`, and `--model` options and the same default voice. `--list` prints the voices in the author's ElevenLabs account. A Voice Library voice must be added to that account first. ElevenLabs also charges credits per character; confirm with the author before running.
-3. **VieNeu-TTS on this machine or on Colab.** With local speech set up (see [Setup](#setup)), run `python scripts/tts.py --provider local [--voice "<name>" | --ref "<clip.wav>"]`; `--list` works too, and no Colab session is needed. Otherwise use Colab. Ask the author before starting a session, because it spends their Colab compute units. The `colab` CLI must be signed in to the author's Google account.
+   For Vibi (`api.vibi.pro`, ElevenLabs voices), with `VIBI_API_KEY` in that file, `tts.py` does the whole voice with `python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`.
+   For ElevenLabs directly, with `ELEVENLABS_API_KEY` in that file, run `python scripts/tts.py --provider elevenlabs` with the same `--voice`, `--lang`, and `--model` options and the same default voice. `--list` prints the voices in the author's ElevenLabs account. A Voice Library voice must be added to that account first. ElevenLabs also charges credits per character.
+3. **VieNeu-TTS on this machine or on Colab.** With local speech set up (see [Setup](#setup)), run `python scripts/tts.py --provider local [--voice "<name>" | --ref "<clip.wav>"]`; `--list` works too, and no Colab session is needed. Otherwise use Colab. A session spends the author's Colab compute units. The `colab` CLI must be signed in to the author's Google account.
    ```bash
    python "<skill>/scripts/colab-session.py" up       # T4 session; waits for /health
    python scripts/tts.py --list                      # preset voices

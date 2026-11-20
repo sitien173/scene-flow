@@ -216,9 +216,9 @@ If you have no voice file yet, Claude offers four options in this order:
 | Option | What to tell Claude | What you need |
 |---|---|---|
 | Your own recording | `Voice file: recordings/voice.wav` | Record from `SCRIPT.md`. Claude can give you the script one sentence at a time. |
-| Vibi, ElevenLabs voices | `Use a Vibi voice` | A `VIBI_API_KEY` line in `~/.config/scene-flow/.env`. Vibi charges credits per character of the script, so Claude asks before running it. |
-| ElevenLabs API | `Use an ElevenLabs voice` | An `ELEVENLABS_API_KEY` line in `~/.config/scene-flow/.env`. ElevenLabs charges credits per character of the script, so Claude asks before running it. A Voice Library voice must be added to your account first. |
-| VieNeu-TTS on Google Colab | `Use the free AI voice` | The `colab` CLI signed in to your Google account. No per-character charge, but it spends Colab compute units, so Claude asks before starting a session. |
+| Vibi, ElevenLabs voices | `Use a Vibi voice` | A `VIBI_API_KEY` line in `~/.config/scene-flow/.env`. Vibi charges credits per character of the script. |
+| ElevenLabs API | `Use an ElevenLabs voice` | An `ELEVENLABS_API_KEY` line in `~/.config/scene-flow/.env`. ElevenLabs charges credits per character of the script. A Voice Library voice must be added to your account first. |
+| VieNeu-TTS on Google Colab | `Use the free AI voice` | The `colab` CLI signed in to your Google account. No per-character charge, but it spends Colab compute units. |
 
 To keep the default, do not name a voice. The VieNeu-TTS default is Hải Đăng; the Vibi and ElevenLabs default is Quang Toan. To pick another voice:
 

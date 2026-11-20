@@ -181,9 +181,9 @@ Nếu bạn chưa có file giọng, Claude đưa ra bốn lựa chọn theo th�
 | Lựa chọn | Cách nói với Claude | Cần chuẩn bị |
 |---|---|---|
 | Tự thu giọng | `File giọng đọc: recordings/voice.wav` | Thu theo đúng `SCRIPT.md`. Claude có thể đưa từng câu để bạn đọc. |
-| Vibi, giọng ElevenLabs | `Dùng giọng Vibi` | Dòng `VIBI_API_KEY` trong `~/.config/scene-flow/.env`. Vibi tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. |
-| ElevenLabs API | `Dùng giọng ElevenLabs` | Dòng `ELEVENLABS_API_KEY` trong `~/.config/scene-flow/.env`. ElevenLabs tính credit theo số ký tự của kịch bản, nên Claude hỏi lại trước khi chạy. Giọng lấy từ Voice Library phải được thêm vào tài khoản trước. |
-| VieNeu-TTS trên Google Colab | `Dùng giọng AI miễn phí` | Lệnh `colab` đã đăng nhập tài khoản Google của bạn. Không tính phí theo ký tự, nhưng tốn compute unit của Colab, nên Claude hỏi trước khi mở phiên. |
+| Vibi, giọng ElevenLabs | `Dùng giọng Vibi` | Dòng `VIBI_API_KEY` trong `~/.config/scene-flow/.env`. Vibi tính credit theo số ký tự của kịch bản. |
+| ElevenLabs API | `Dùng giọng ElevenLabs` | Dòng `ELEVENLABS_API_KEY` trong `~/.config/scene-flow/.env`. ElevenLabs tính credit theo số ký tự của kịch bản. Giọng lấy từ Voice Library phải được thêm vào tài khoản trước. |
+| VieNeu-TTS trên Google Colab | `Dùng giọng AI miễn phí` | Lệnh `colab` đã đăng nhập tài khoản Google của bạn. Không tính phí theo ký tự, nhưng tốn compute unit của Colab. |
 
 Muốn để mặc định thì không cần nêu tên giọng. Giọng mặc định của VieNeu-TTS là Hải Đăng, của Vibi và ElevenLabs là Quang Toan. Muốn chọn giọng khác:
 
