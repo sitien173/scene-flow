@@ -40,6 +40,15 @@ function Install-Tool($id, $label) {
 try {
   Write-Host 'scene-flow installer'
   Update-SessionPath
+
+  # Coding agents scene-flow runs in. The installer needs one of them and installs nothing else.
+  Step 'Coding agent'
+  $labels = @{ claude = 'Claude Code'; codex = 'Codex'; pi = 'Pi'; agy = 'agy'; antigravity = 'Antigravity IDE' }
+  $agents = @(@('claude', 'codex', 'pi', 'agy') | Where-Object { Test-Command $_ })
+  if ((Test-Command antigravity) -or (Test-Path "$env:LOCALAPPDATA\Programs\Antigravity*")) { $agents += 'antigravity' }
+  if (-not $agents) { Stop-Install 'no coding agent found. Install one of Claude Code, Codex, Pi, agy, or the Antigravity IDE, then run this script again.' }
+  foreach ($a in $agents) { Ok $labels[$a] }
+
   if (-not (Test-Command winget)) {
     Stop-Install 'winget is missing. Install "App Installer" from the Microsoft Store, then run this script again.'
   }
@@ -118,32 +127,59 @@ for line in open(sys.argv[1]):
     Ok 'Python packages installed'
   }
 
-  Step 'Claude Code'
-  $v = Get-ToolVersion claude @('--version')
-  if ($v) { Ok "claude $v" }
-  else {
-    Miss 'Claude Code'
-    if (-not (Ask 'Install Claude Code?')) { Stop-Install 'Claude Code is required.' }
-    powershell -NoProfile -ExecutionPolicy Bypass -Command 'irm https://claude.ai/install.ps1 | iex'
-    Update-SessionPath
-    if (-not (Test-Command claude)) { Stop-Install 'Claude Code installed, but this window cannot find it yet. Open a new PowerShell window and run this script again.' }
-    Ok 'Claude Code installed. Run "claude" once to sign in.'
-  }
-
   Step 'scene-flow plugin'
-  $plugins = claude plugin list --json | Out-String | ConvertFrom-Json
-  if ($plugins | Where-Object { $_.id -eq 'scene-flow@scene-flow' -and $_.scope -eq 'user' }) {
-    Ok 'scene-flow (update later with: claude plugin update scene-flow@scene-flow)'
+  # agy and the Antigravity IDE load the plugin from the same folder.
+  $geminiPlugin = "$HOME\.gemini\config\plugins\scene-flow"
+  # agy and the Antigravity IDE install from a local copy of the repository.
+  function Get-Source {
+    if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot 'install-agy-ide.py'))) { return $PSScriptRoot }
+    $d = Join-Path $env:LOCALAPPDATA 'scene-flow'
+    if (Test-Path "$d\.git") { git -C $d pull -q --ff-only | Out-Host } else { git clone -q --depth 1 "https://github.com/$Repo" $d | Out-Host }
+    if ($LASTEXITCODE -ne 0) { throw 'git could not download scene-flow.' }
+    return $d
   }
-  else {
-    Miss 'scene-flow plugin for Claude Code'
-    if (-not (Ask 'Install the scene-flow plugin?')) { Stop-Install 'the plugin was not installed.' }
-    $markets = claude plugin marketplace list --json | Out-String | ConvertFrom-Json
-    if (-not ($markets | Where-Object { $_.name -eq 'scene-flow' })) { claude plugin marketplace add $Repo }
-    claude plugin install scene-flow@scene-flow
-    if ($LASTEXITCODE -ne 0) { Stop-Install 'the plugin did not install.' }
-    Ok 'scene-flow installed. Restart Claude Code to load it.'
+  function Test-Installed($a) {
+    $ErrorActionPreference = 'Continue'
+    switch ($a) {
+      'claude' {
+        $plugins = claude plugin list --json 2>$null | Out-String | ConvertFrom-Json
+        [bool]($plugins | Where-Object { $_.id -eq 'scene-flow@scene-flow' -and $_.scope -eq 'user' })
+      }
+      'codex' { (codex plugin list 2>$null | Out-String) -match '(?m)^scene-flow@scene-flow +installed' }
+      'pi' { (pi list 2>$null | Out-String) -match [regex]::Escape($Repo) }
+      default { Test-Path "$geminiPlugin\plugin.json" }
+    }
   }
+  function Install-Plugin($a) {
+    $ErrorActionPreference = 'Continue'
+    switch ($a) {
+      'claude' {
+        $markets = claude plugin marketplace list --json 2>$null | Out-String | ConvertFrom-Json
+        if (-not ($markets | Where-Object { $_.name -eq 'scene-flow' })) { claude plugin marketplace add $Repo | Out-Host }
+        claude plugin install scene-flow@scene-flow | Out-Host
+      }
+      'codex' {
+        if ((codex plugin list 2>$null | Out-String) -notmatch 'Marketplace `scene-flow`') { codex plugin marketplace add $Repo | Out-Host }
+        codex plugin add scene-flow@scene-flow | Out-Host
+      }
+      'pi' { pi install "https://github.com/$Repo" | Out-Host }
+      'agy' { agy plugin install (Get-Source) | Out-Host }
+      'antigravity' { python (Join-Path (Get-Source) 'install-agy-ide.py') | Out-Host }
+    }
+    $LASTEXITCODE -eq 0
+  }
+  $ready = @()
+  foreach ($a in $agents) {
+    if ($a -eq 'antigravity' -and $agents -contains 'agy') { continue }  # the agy install covers it
+    $name = $labels[$a]
+    if (Test-Installed $a) { Ok "scene-flow for $name"; $ready += $name; continue }
+    Miss "scene-flow for $name"
+    if (-not (Ask "Install the scene-flow plugin for ${name}?")) { continue }
+    try { $done = Install-Plugin $a } catch { $done = $false }
+    if ($done) { Ok "scene-flow installed for $name. Restart $name to load it."; $ready += $name }
+    else { Write-Host "  [failed]  scene-flow for $name" }
+  }
+  if (-not $ready) { Stop-Install 'scene-flow is not installed for any coding agent.' }
 
   Step 'HyperFrames check'
   Write-Host '  The first check downloads the headless Chrome browser that HyperFrames renders with.'
@@ -153,7 +189,7 @@ for line in open(sys.argv[1]):
   }
   else { Write-Host "  Skipped. Run it later with: npx --yes $Hyperframes doctor" }
 
-  Write-Host "`nDone. Open a new PowerShell window, run ""claude"" in the folder for your videos, and ask for a video."
+  Write-Host "`nDone. Open a new PowerShell window, start $($ready -join '/') in the folder for your videos, and ask for a video."
 }
 catch {
   Write-Host "`nStopped: $($_.Exception.Message)" -ForegroundColor Red

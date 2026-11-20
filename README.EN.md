@@ -62,6 +62,8 @@ The `/scene-flow:channel` command asks for these choices and writes them into th
 
 Open a terminal and paste one line. The installer checks each tool first and skips the ones you already have. Before installing anything, it asks you to confirm.
 
+You need at least one coding agent installed first: Claude Code, Codex, Pi, agy, or the Antigravity IDE. The installer does not install an agent. If it finds none, it stops before doing anything else.
+
 **Windows:** open PowerShell and run:
 
 ```powershell
@@ -82,18 +84,19 @@ The installer sets up:
 | Python, with the numpy and Pillow packages | 3.10 or newer |
 | Node.js | 22 or newer |
 | FFmpeg | any |
-| Claude Code and the scene-flow plugin | latest |
+| The scene-flow plugin, for each agent on your computer that you agree to | latest |
 
-At the end it offers to run a HyperFrames check, which downloads the browser used to draw the video. When it finishes, open a new terminal and run `claude` once to sign in.
+At the end it offers to run a HyperFrames check, which downloads the browser used to draw the video. When it finishes, open a new terminal and start your agent in the folder for your videos.
 
 Speech recognition and the AI voice run on Google Colab. You need a Google account. Setup is in the [user guide](docs/user-guide.md#voiceover).
 
-### Other agents
+### Install the plugin by hand
 
-scene-flow also works in Codex, Pi, agy, and the Antigravity IDE. Install the tools above first, then add the plugin:
+The installer adds the plugin for each agent it finds. To add it yourself, install the tools above first, then run:
 
 | Agent | Command |
 |---|---|
+| Claude Code | `claude plugin marketplace add sitien173/scene-flow` then `claude plugin install scene-flow@scene-flow` |
 | Codex | `codex plugin marketplace add sitien173/scene-flow` then `codex plugin add scene-flow@scene-flow` |
 | Pi | `pi install https://github.com/sitien173/scene-flow` |
 | agy | `git clone https://github.com/sitien173/scene-flow` then `agy plugin install scene-flow` |

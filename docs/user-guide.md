@@ -4,7 +4,7 @@ This guide is designed for creators and non-programmers. Follow the steps in seq
 
 ## 1. Installation
 
-Run the one-line installer from the [README](../README.EN.md#install). It checks Git, Python, Node.js, FFmpeg, the Python packages, Claude Code, and the scene-flow plugin, and asks before installing anything that is missing. When it finishes, open a new terminal and run `claude` once to sign in.
+Run the one-line installer from the [README](../README.EN.md#install). You need at least one coding agent installed first: Claude Code, Codex, Pi, agy, or the Antigravity IDE. The installer does not install an agent. It checks Git, Python, Node.js, FFmpeg, and the Python packages, then adds the scene-flow plugin to each agent it finds, and asks before installing anything. When it finishes, open a new terminal and start your agent.
 
 ## 2. Preparing Content
 

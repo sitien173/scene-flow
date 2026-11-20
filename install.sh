@@ -78,6 +78,15 @@ install_tool() {  # install_tool TOOL LABEL
 
 printf 'scene-flow installer\n'
 
+# Coding agents scene-flow runs in. The installer needs one of them and installs nothing else.
+label() { case $1 in claude) echo "Claude Code" ;; codex) echo Codex ;; pi) echo Pi ;; agy) echo agy ;; antigravity) echo "Antigravity IDE" ;; esac; }
+step "Coding agent"
+agents=()
+for a in claude codex pi agy; do has $a && agents+=("$a"); done
+if has antigravity || compgen -G "/Applications/Antigravity*.app" >/dev/null; then agents+=(antigravity); fi
+(( ${#agents[@]} )) || die "no coding agent found. Install one of Claude Code, Codex, Pi, agy, or the Antigravity IDE, then run this script again."
+for a in "${agents[@]}"; do ok "$(label "$a")"; done
+
 if [[ $PM == brew ]] && ! has brew; then
   step "Homebrew"
   miss "Homebrew, the macOS package manager used to install the other tools"
@@ -174,29 +183,47 @@ else
   ok "Python packages installed"
 fi
 
-step "Claude Code"
-if has claude; then ok "claude $(claude --version </dev/null 2>/dev/null | awk '{print $1}')"
-else
-  miss "Claude Code"
-  ask "Install Claude Code?" || die "Claude Code is required."
-  curl -fsSL https://claude.ai/install.sh | bash
-  has claude || die "Claude Code installed, but this terminal cannot find it yet. Open a new terminal and run this script again."
-  ok "Claude Code installed. Run \"claude\" once to sign in."
-fi
-
 step "scene-flow plugin"
-installed=$(claude plugin list --json </dev/null 2>/dev/null | python -c '
-import json, sys
-print(any(p.get("id") == "scene-flow@scene-flow" and p.get("scope") == "user" for p in json.load(sys.stdin)))' 2>/dev/null || echo False)
-if [[ $installed == True ]]; then
-  ok "scene-flow (update later with: claude plugin update scene-flow@scene-flow)"
-else
-  miss "scene-flow plugin for Claude Code"
-  ask "Install the scene-flow plugin?" || die "the plugin was not installed."
-  claude plugin marketplace list --json </dev/null 2>/dev/null | grep -q '"name": *"scene-flow"' || claude plugin marketplace add "$REPO"
-  claude plugin install scene-flow@scene-flow
-  ok "scene-flow installed. Restart Claude Code to load it."
-fi
+# agy and the Antigravity IDE load the plugin from the same folder.
+GEMINI_PLUGIN=$HOME/.gemini/config/plugins/scene-flow
+# agy and the Antigravity IDE install from a local copy of the repository.
+source_dir() {
+  if [[ -f $HERE/install-agy-ide.py ]]; then echo "$HERE"; return; fi
+  local d=${XDG_DATA_HOME:-$HOME/.local/share}/scene-flow
+  if [[ -d $d/.git ]]; then git -C "$d" pull -q --ff-only >&2; else git clone -q --depth 1 "https://github.com/$REPO" "$d" >&2; fi && echo "$d"
+}
+installed_for() {
+  case $1 in
+    claude) claude plugin list --json </dev/null 2>/dev/null | python -c 'import json, sys
+sys.exit(not any(p.get("id") == "scene-flow@scene-flow" and p.get("scope") == "user" for p in json.load(sys.stdin)))' 2>/dev/null ;;
+    codex) grep -qE '^scene-flow@scene-flow +installed' <<<"$(codex plugin list </dev/null 2>/dev/null)" ;;
+    pi) grep -q "$REPO" <<<"$(pi list </dev/null 2>/dev/null)" ;;
+    agy|antigravity) [[ -f $GEMINI_PLUGIN/plugin.json ]] ;;
+  esac
+}
+install_for() {
+  local src
+  case $1 in
+    claude) { grep -q '"name": *"scene-flow"' <<<"$(claude plugin marketplace list --json </dev/null 2>/dev/null)" ||
+                claude plugin marketplace add "$REPO"; } && claude plugin install scene-flow@scene-flow ;;
+    codex) { grep -q 'Marketplace `scene-flow`' <<<"$(codex plugin list </dev/null 2>/dev/null)" ||
+               codex plugin marketplace add "$REPO"; } && codex plugin add scene-flow@scene-flow ;;
+    pi) pi install "https://github.com/$REPO" ;;
+    agy) src=$(source_dir) && agy plugin install "$src" ;;
+    antigravity) src=$(source_dir) && python "$src/install-agy-ide.py" ;;
+  esac
+}
+ready=()
+for a in "${agents[@]}"; do
+  [[ $a == antigravity && " ${agents[*]} " == *" agy "* ]] && continue   # the agy install covers it
+  name=$(label "$a")
+  if installed_for "$a"; then ok "scene-flow for $name"; ready+=("$name"); continue; fi
+  miss "scene-flow for $name"
+  ask "Install the scene-flow plugin for $name?" || continue
+  if install_for "$a"; then ok "scene-flow installed for $name. Restart $name to load it."; ready+=("$name")
+  else printf '  [failed]  scene-flow for %s\n' "$name"; fi
+done
+(( ${#ready[@]} )) || die "scene-flow is not installed for any coding agent."
 
 step "HyperFrames check"
 printf '  The first check downloads the headless Chrome browser that HyperFrames renders with.\n'
@@ -206,4 +233,4 @@ else
   printf '  Skipped. Run it later with: npx --yes %s doctor\n' "$HYPERFRAMES"
 fi
 
-printf '\nDone. Open a new terminal, run "claude" in the folder for your videos, and ask for a video.\n'
+printf '\nDone. Open a new terminal, start %s in the folder for your videos, and ask for a video.\n' "$(IFS=/; echo "${ready[*]}")"

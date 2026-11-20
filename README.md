@@ -62,6 +62,8 @@ Lệnh `/scene-flow:channel` hỏi bạn các lựa chọn trên rồi ghi vào 
 
 Mở cửa sổ dòng lệnh và dán một dòng. Trình cài đặt kiểm tra từng công cụ trước và bỏ qua những gì máy đã có. Trước khi cài bất cứ thứ gì, nó hỏi bạn xác nhận.
 
+Bạn cần cài sẵn ít nhất một coding agent: Claude Code, Codex, Pi, agy hoặc Antigravity IDE. Trình cài đặt không cài agent. Nếu không tìm thấy agent nào, nó dừng ngay từ đầu.
+
 **Windows:** mở PowerShell và chạy:
 
 ```powershell
@@ -82,18 +84,19 @@ Trình cài đặt chuẩn bị:
 | Python, kèm gói numpy và Pillow | 3.10 trở lên |
 | Node.js | 22 trở lên |
 | FFmpeg | bất kỳ |
-| Claude Code và plugin scene-flow | mới nhất |
+| Plugin scene-flow, cho từng agent trên máy mà bạn đồng ý cài | mới nhất |
 
-Cuối cùng, trình cài đặt đề nghị chạy bước kiểm tra HyperFrames. Bước này tải trình duyệt dùng để vẽ video. Khi xong, mở cửa sổ dòng lệnh mới và chạy `claude` một lần để đăng nhập.
+Cuối cùng, trình cài đặt đề nghị chạy bước kiểm tra HyperFrames. Bước này tải trình duyệt dùng để vẽ video. Khi xong, mở cửa sổ dòng lệnh mới và khởi động agent của bạn trong thư mục làm video.
 
 Nhận dạng giọng nói và giọng AI chạy trên Google Colab, nên bạn cần một tài khoản Google. Cách thiết lập có trong [hướng dẫn sử dụng](docs/user-guide.md#voiceover), bản tiếng Anh.
 
-### Agent khác
+### Cài plugin bằng tay
 
-scene-flow cũng chạy trong Codex, Pi, agy và Antigravity IDE. Cài các công cụ ở trên trước, rồi thêm plugin:
+Trình cài đặt tự thêm plugin cho các agent nó tìm thấy. Muốn tự thêm plugin thì cài các công cụ ở trên trước, rồi chạy:
 
 | Agent | Lệnh |
 |---|---|
+| Claude Code | `claude plugin marketplace add sitien173/scene-flow` rồi `claude plugin install scene-flow@scene-flow` |
 | Codex | `codex plugin marketplace add sitien173/scene-flow` rồi `codex plugin add scene-flow@scene-flow` |
 | Pi | `pi install https://github.com/sitien173/scene-flow` |
 | agy | `git clone https://github.com/sitien173/scene-flow` rồi `agy plugin install scene-flow` |
