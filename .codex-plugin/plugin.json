@@ -1,7 +1,7 @@
 {
   "name": "scene-flow",
   "description": "Build a vertical narrated short in HyperFrames from a script and a voiceover, with picture and voice in sync.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "repository": "https://github.com/sitien173/scene-flow",
   "license": "Apache-2.0",
   "skills": "./skills/"
