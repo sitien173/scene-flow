@@ -1,8 +1,7 @@
 # Video project made with the `scene-flow` skill
 
 Read the skill first: `SKILL.md` is the pipeline, `references/house-style.md` holds shared rules, and
-`references/themes/dark.md` is the default theme guide. Read `references/themes/paper.md` when paper is
-selected. The generic HyperFrames notes follow.
+`references/themes/neon3d.md` is the theme guide. The generic HyperFrames notes follow.
 
 # HyperFrames Composition Project
 

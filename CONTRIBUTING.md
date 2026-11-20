@@ -42,7 +42,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/). release-please
 | `perf` | a speed or size improvement | Performance |
 | `refactor`, `test`, `ci`, `chore` | everything else | hidden |
 
-Mark a breaking change with `!` after the type, for example `feat!: rename the paper theme`, or with a `BREAKING CHANGE:` footer.
+Mark a breaking change with `!` after the type, for example `feat!: rename the neon3d theme`, or with a `BREAKING CHANGE:` footer.
 
 Do not edit version numbers or `CHANGELOG.md` by hand. release-please updates them in its release pull request.
 

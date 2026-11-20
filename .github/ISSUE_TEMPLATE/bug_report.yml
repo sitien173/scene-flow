@@ -23,7 +23,7 @@ body:
     id: theme
     attributes:
       label: Theme
-      options: [dark, paper, world3d, neon3d, Not theme related]
+      options: [neon3d, Not theme related]
   - type: input
     id: os
     attributes:

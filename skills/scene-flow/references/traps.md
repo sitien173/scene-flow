@@ -66,16 +66,12 @@ It leaves CSS and the `<script>` block alone. So:
   snapshots still looked right. Name fragments `.part` (not `.html`), and stop the
   preview (`preview --stop`) while a build-and-check loop is running.
 
-## World3d builds and rendering
+## 3D builds and rendering
 
 - **Run `bash scripts/make.sh` from the project root.** Running `python scripts/build.py` alone
   creates the page without captions.
-- **`world.json` is the source for world data.** Studio edits `index.html`, where the world data is
-  inlined. Edit `world.json` and rebuild with `bash scripts/make.sh` to refresh it. The Studio `sub()`
-  helper replaces literal text in CSS and script blocks; it does not update `world.json`. A rebuild
-  regenerates `index.html`, so preserve or reapply other Studio-only edits.
 - **Allow time for 3D setup.** Use `--player-ready-timeout 180000` for renders and `--timeout 170000`
-  for snapshots. Studio thumbnails can show an empty world while 3D assets load. That alone does not
+  for snapshots. Studio thumbnails can show an empty stage while 3D assets load. That alone does not
   indicate a broken scene.
 - **Local GPU rendering is the main path.** On this machine's Intel Iris Xe, a test measured about
   137 seconds per 60-second video. Software WebGL took about 971 seconds per 60-second video at
@@ -111,7 +107,7 @@ kept the CPU busy for minutes and the preview sat frozen at 00:00. What made it 
 
 ## Generators that must stay idempotent
 
-`recaption-real.py` and `add-sfx.py` delete what they wrote and regenerate. Prove it:
+`add-sfx.py` deletes what it wrote and regenerates. Prove it:
 run twice and confirm the element count does not change.
 
 - **Never clear a container with `(.*?)</div>`** — it stops at the first child. A
@@ -160,9 +156,8 @@ run twice and confirm the element count does not change.
 
 ## Type
 
-- **Dark uses Be Vietnam Pro 600, 700 and 800.**
-- **Paper uses K2D.** Never pair it with DM Mono on Vietnamese; DM Mono has no Vietnamese subset.
-- **`≠` (U+2260) is outside every K2D subset.** Draw it as SVG in paper projects.
+- **Neon3d uses Be Vietnam Pro 600, 700 and 800.**
+- **Never use DM Mono on Vietnamese.** DM Mono has no Vietnamese subset.
 - **`line-height` under 1.14 on Vietnamese** stacks tone marks into the line above.
   Prompt cards want 1.42.
 
@@ -189,7 +184,7 @@ run twice and confirm the element count does not change.
   that "landed on the laptop screen" were hidden under the laptop SVG (its screen is filled) —
   give the travelling element a `z-index`, then snapshot the landing.
 - **A scene must open on something even when its first word comes late.** A use-case scene
-  opened on bare paper for 1.7 s because its cards waited for "chăm sóc"; the chatbot icon now
+  opened on an empty background for 1.7 s because its cards waited for "chăm sóc"; the chatbot icon now
   opens it on the cut and steps aside when the cards arrive.
 - **The browser pane's viewport is ~800px** — screenshots from it scale up blurry.
   Use `npx hyperframes capture <url>` (1920×1080).

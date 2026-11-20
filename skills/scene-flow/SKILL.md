@@ -3,8 +3,8 @@ name: scene-flow
 description: >-
   Build a vertical narrated short (TikTok/Reels/Shorts, 1080x1920) in HyperFrames from a script and
   a voiceover, with picture and voice exactly in sync. The voice can be the author's recording, a
-  TTS API, or VieNeu-TTS on a Colab server. The default theme is the Soi Repo dark motion-graphics
-  theme. Paper, world3d, and neon3d themes are optional. It uses real logos and real footage instead of
+  TTS API, or VieNeu-TTS on a Colab server. The only theme is neon3d, a sequence of
+  3D vignettes on a neon stage. It uses real logos and real footage instead of
   text, karaoke captions, a comment-box CTA, the house sound set, and a theme-matched end card.
   Ships the project template, pipeline, and assets. Use this for ANY narrated short: when the user
   sends a script to make into a video, says "làm video", "tạo video tiktok", "đây là file audio nói",
@@ -28,13 +28,12 @@ Read `/hyperframes` for routing and composition contracts, and load `/motion-doc
 
 | folder | what |
 |---|---|
-| `template/` | shared starter files in `parts/` plus `themes/dark/`, `themes/paper/`, `themes/world3d/`, and `themes/neon3d/`; `new-project.py` copies the selected theme into `parts/` |
-| `references/themes/` | [dark.md](references/themes/dark.md) default, [paper.md](references/themes/paper.md), [world3d.md](references/themes/world3d.md), and [neon3d.md](references/themes/neon3d.md) selectable themes |
+| `template/` | shared starter files in `parts/` plus `themes/neon3d/`; `new-project.py` copies the theme into `parts/` |
+| `references/themes/` | [neon3d.md](references/themes/neon3d.md), the theme guide |
 | `scripts/` | pipeline copied into each project by `new-project.py` ([scripts/README.md](scripts/README.md)) |
 | `assets/audio/` | house sound set: `sfx-thud`, `sfx-swoosh`, `sfx-pop`, `sfx-laser`, `sfx-click` (shutter), `sfx-riser`, `sfx-risercut3`, `bgm-little-things.mp3` |
-| `assets/background/` | paper only: `paper-bg.mp4` (moving plate, 124s, 1080x1920) and `paper.webp` (still plate) |
-| `assets/fonts/` | Be Vietnam Pro (dark) and K2D (paper), localized woff2 subsets under SIL OFL |
-| `assets/logos/` | official marks, `soi-repo-mark.svg` (dark), and `brand-logo.svg` (paper placeholder) |
+| `assets/fonts/` | Be Vietnam Pro, localized woff2 subsets under SIL OFL |
+| `assets/logos/` | official marks and `soi-repo-mark.svg` |
 
 No mascot ships with the skill. Add your own transparent `.webm` if you have one (§Bookends).
 
@@ -42,12 +41,12 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
 
 ## The order of work
 
-1. **Read house-style.md and the selected theme guide.** Open the latest project if there is one and carry its theme forward. A new series starts with dark. If the latest project uses paper, ask before switching it to dark.
+1. **Read house-style.md and the selected theme guide.** Open the latest project if there is one and carry its choices forward.
 2. **Start the project** (voice first, the common case):
    ```bash
-   python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme dark
+   python "<skill>/scripts/new-project.py" "<folder>" --name "Tên video" --voice "<recording>" --theme neon3d
    ```
-   `--theme dark|paper|world3d|neon3d` selects the theme (dark default). Paper projects get paper background assets only. World3d projects include `world.json` and the local 3D kit. Neon3d projects include `vignettes.json`, `vignettes/`, and the neon kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
+   `--theme neon3d` is the only theme and the default. Projects include `vignettes.json`, `vignettes/`, and the neon kit. Levels voice to -21.0 LUFS (`prep-voice.py`, plain gain).
 3. **The script** goes in `SCRIPT.md`, one sentence per plain line, exactly as spoken. Group sentences into scenes in `scripts/plan-beats.py` (`SCENES`). `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|` (a markdown table script yields zero sentences).
 4. **Align** (every cue is written in recorded seconds):
    ```bash
@@ -59,7 +58,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    python scripts/silences.py           # cut points in silence
    ```
 5. **Prepare media.** Retime recordings and apply privacy blur via `scripts/make-media.py`. Capture public web pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Product logos use official files only; never generate or trace them. Use the selected theme's bundled house mark for its brand. Pictures of an idea follow the source order in [house-style.md §5](references/house-style.md#5-real-media): licensed stock through `media-use` first, text-to-image through an OpenAI-compatible API only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY` and `IMAGE_MODEL`.
-6. **Author composition.** Build scenes in `parts/` at syllable timestamps from `syl-times.json`. Configure per-project knobs in `scripts/build.py`: `SC` (scene cuts), `PROMPTS` (prompt cards), `CTA_WORD` (comment keyword), `STEPS` (step counter), `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`. Define captions in `scripts/karaoke.py` (`SIDES`, `DARK`, `SKIP`), and SFX in `scripts/add-sfx.py` (`RISER`, `LASER`, `CLICK`, `POP`).
+6. **Author composition.** Build scenes in `parts/` at syllable timestamps from `syl-times.json`. Configure per-project knobs in `scripts/build.py`: `SC` (scene cuts), `CTA_WORD` (comment keyword), `STEPS` (step counter), `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN`. Define captions in `scripts/karaoke.py` (`SIDES`, `DARK`, `SKIP`), and SFX in `scripts/add-sfx.py` (`RISER`, `LASER`, `CLICK`, `POP`).
 7. **Build and verify with snapshots**:
    ```bash
    bash scripts/make.sh
@@ -71,7 +70,7 @@ No mascot ships with the skill. Add your own transparent `.webm` if you have one
    `check` passing verifies structure only, not composition layout or sync.
    The seams: `node "<motion-doctrine>/scripts/seam-gate.mjs" verify --ledger ledger.json --url http://127.0.0.1:3002` against preview (set `CHROME_PATH` to HyperFrames headless Chrome).
    Never verify sync against captions; compare against recording via `scripts/audit-sync.py`, rare-word check, or author ears ([references/verification.md](references/verification.md)).
-8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000` for world3d and neon3d. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
+8. **Preview handoff.** Start preview via `npx hyperframes preview --background` and provide URL. Never render immediately following modifications. Render only upon explicit user request, with `npx --yes hyperframes@0.8.140 render --browser-gpu -o renders/<name>.mp4`. Add `--player-ready-timeout 180000`. The summary's second line must say `hardware gpu`; `software gpu` means the capture runs on the CPU.
 9. **Publish via Postiz** (optional). Run `scripts/postiz.py` only when the author explicitly asks, and only after the author has reviewed the render. The default creates drafts. Use `--schedule <ISO 8601 with offset>` or `--now` only when the author asks for automatic publishing. This is not `npm run publish`, which uploads to HyperFrames hosting. Never add it to `make.sh` or to a render.
    ```bash
    python scripts/postiz.py channels
@@ -120,7 +119,7 @@ Author visuals against timing estimates before voice recording:
    var TL = { to: (a,b,t) => tl.to(a,b,T(t)), fromTo: (a,b,c,t) => tl.fromTo(a,b,c,T(t)), set: (a,b,t) => tl.set(a,b,T(t)) };
    ```
    `T()` is a piecewise-linear map from estimate to recorded time: positions move; durations do not. Note that `T()` extrapolates past the last anchor.
-4. Run scripts that finish the mapping: `install-map.py` fills `OLD`/`NEW`, `recaption.py` regenerates captions, and `resfx.py` remaps SFX in Python. Keep bookends and end cards in real seconds.
+4. Run scripts that finish the mapping: `install-map.py` fills `OLD`/`NEW` and `resfx.py` remaps SFX in Python. Keep bookends and end cards in real seconds.
 
 ## Alignment verification
 
@@ -164,8 +163,8 @@ Refer to [references/audio-mix.md](references/audio-mix.md) for audio guidelines
 
 ## Bookends
 
-- **Opening mascot (optional, no mascot ships)**: your own transparent `.webm`, BIG in lower-left corner with feet off frame, 0.25 s to hook dead stop, leaves under flash so nothing sits on following full-screen clip (commented in `template/themes/paper/scenes.part`).
-- **End card**: defined in `template/themes/<theme>/timeline.js`. Dark theme shows Soi Repo mark, brand name (`BRAND_NAME`), and slogan (`SLOGAN`). Paper theme shows logo (`BRAND_LOGO`, starts with `assets/logos/brand-logo.svg`), oversized cursor click, and slogan (`SLOGAN`) at 2x for 2.75 s. Both use placeholder `Slogan của bạn`. See theme guides and knobs `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN` in `scripts/build.py`.
+- **Opening mascot (optional, no mascot ships)**: your own transparent `.webm`, BIG in lower-left corner with feet off frame, 0.25 s to hook dead stop, leaves under flash so nothing sits on following full-screen clip.
+- **End card**: defined in `template/themes/<theme>/timeline.js`. It shows the Soi Repo mark (`BRAND_LOGO`), brand name (`BRAND_NAME`), and slogan (`SLOGAN`, placeholder `Slogan của bạn`) at 2x for 2.75 s. See the theme guide and knobs `BRAND_NAME`, `BRAND_LOGO`, `SLOGAN` in `scripts/build.py`.
 
 ## Critical traps
 
@@ -174,7 +173,6 @@ Review [references/traps.md](references/traps.md) before composition authoring:
 - Supplying `autoAlpha` only in `fromTo` from-vars causes elements to vanish on seek. Supply in to-vars as well.
 - Timed `<video>` elements inside timed scenes produce lint errors. Keep container scenes untimed.
 - DOM sequence determines visual layering (z-order).
-- World3d labels and camera stops come from spoken-word anchors in `world.json`. Read [references/themes/world3d.md](references/themes/world3d.md) before editing that theme.
 - Neon3d vignettes start on spoken-word anchors in `vignettes.json`. Read [references/themes/neon3d.md](references/themes/neon3d.md) before writing a vignette.
 
 ## Troubleshooting author feedback

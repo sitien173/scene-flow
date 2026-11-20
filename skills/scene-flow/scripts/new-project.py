@@ -1,9 +1,9 @@
 # Start a new video project from the skill: the template (parts/, package.json, hyperframes.json,
-# SCRIPT.md), the pipeline scripts, and the house assets (sound effects, music bed, paper background,
-# K2D fonts, brand marks) — everything the series uses, in the places the scripts expect.
+# SCRIPT.md), the pipeline scripts, and the house assets (sound effects, music bed,
+# fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme dark|paper|world3d|neon3d]
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] [--theme neon3d]
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -25,7 +25,7 @@ SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PIPELINE = [
     "colab.py", "prep-voice.py", "tts.py", "asr.py", "plan-beats.py", "align-asr.py", "syl-times.py", "fix-syl.py", "silences.py",
     "karaoke.py", "add-sfx.py", "build.py", "make.sh", "make-media.py", "cdp.mjs", "sheet.py", "edit_helpers.py",
-    "audit-sync.py", "word-times.py", "install-map.py", "recaption.py", "resfx.py", "synth-sfx.py",
+    "audit-sync.py", "word-times.py", "install-map.py", "resfx.py", "synth-sfx.py",
     "postiz.py", "sfx-gain.py",
 ]
 # (skill source, project destination)
@@ -34,17 +34,9 @@ ASSETS = [
     ("assets/fonts", "assets/fonts"),
     ("assets/logos", "assets/logos"),
 ]
-# paper only: the moving paper background and its still
-PAPER_ASSETS = [
-    ("assets/background/paper-bg.mp4", "assets/video/paper-bg.mp4"),
-    ("assets/background/paper.webp", "assets/img/paper.webp"),
-]
-WORLD3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/world3d", "assets/world3d")]
 NEON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/neon3d", "assets/neon3d")]
 # neon3d only: the vignette list and modules live at the project root, read by build.py and the page
 NEON3D_ROOT = ("vignettes.json", "vignettes", "SCRIPT.md")
-# dark only: the h1 walkthrough capture and its layout JSON, read by build.py
-DARK_ASSETS = [("assets/walkthrough/h1-page.webp", "assets/img/h1-page.webp"), ("assets/walkthrough/h1-page.json", "h1-page.json")]
 
 
 def slug(s):
@@ -70,7 +62,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["dark", "paper", "world3d", "neon3d"], default="dark")
+ap.add_argument("--theme", choices=["neon3d"], default="neon3d")
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 
@@ -88,8 +80,6 @@ for entry in os.listdir(os.path.join(SKILL, "template")):
     if entry != "themes":  # the chosen theme goes into parts/ below
         put(os.path.join(SKILL, "template", entry), os.path.join(dest, entry), a.force)
 for entry in os.listdir(THEME_DIR):
-    if a.theme == "world3d" and entry == "world.json":
-        continue
     if a.theme == "neon3d" and entry in NEON3D_ROOT:
         target = os.path.join(dest, entry)
         # the theme's sample script replaces the shared one, never an author's script
@@ -100,10 +90,8 @@ for entry in os.listdir(THEME_DIR):
     put(os.path.join(THEME_DIR, entry), os.path.join(dest, "parts", entry), a.force)
 for f in PIPELINE:
     put(os.path.join(SKILL, "scripts", f), os.path.join(dest, "scripts", f), a.force)
-for src, dst in ASSETS + (PAPER_ASSETS if a.theme == "paper" else []) + (WORLD3D_ASSETS if a.theme == "world3d" else []) + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (DARK_ASSETS if a.theme == "dark" else []):
+for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []):
     put(os.path.join(SKILL, src), os.path.join(dest, dst), a.force)
-if a.theme == "world3d":
-    put(os.path.join(THEME_DIR, "world.json"), os.path.join(dest, "world.json"), a.force)
 for d in ("assets/video/src", "assets/img", "research/shots", "snapshots"):
     os.makedirs(os.path.join(dest, d), exist_ok=True)
 pointer = os.path.join(dest, ".skills-dir")

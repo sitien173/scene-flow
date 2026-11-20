@@ -3,11 +3,9 @@
 [![CI](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/sitien173/scene-flow/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects default to the Soi Repo dark motion-graphics theme, with paper and world3d themes also selectable:
+This Agent Skills plugin for Claude Code, Codex, Pi, and agy generates **vertical 9:16 shorts (TikTok, Reels, YouTube Shorts)** from a **script and voiceover audio**. Visual cues align to narration down to individual syllables. New projects use the neon3d theme:
 
-- **Dark theme (default)**: Deep dark background with subtle drifting particles, Be Vietnam Pro typography, mint `#4ADE80` and cyan `#22D3EE` accents.
-- **Paper theme (selectable)**: Moving textured paper plate, K2D typography, violet `#7657FF` accents.
-- **World3d theme (selectable)**: A continuous Three.js scene driven by `world.json`, with camera stops anchored to spoken words.
+- **Neon3d theme**: A sequence of short 3D vignettes on a dark neon stage with bloom, each one starting on a spoken word.
 - **Visual evidence over text**: Real product logos, screen recordings, and public page captures rather than text slides.
 - **Karaoke captions**: Spoken words highlight in sync with audio.
 - **Full prompts on cards**: Prompts light up word by word as spoken.
@@ -27,7 +25,7 @@ Supply a script and voice recording. If you do not have audio yet, the skill sup
 | **Verification** | Frame snapshots for instant visual validation, seam gate audits, and sync checks. |
 | **Output** | HyperFrames Studio preview (`localhost`). Full 1080x1920 30fps MP4 render on request. |
 
-Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md), [skills/scene-flow/references/themes/dark.md](skills/scene-flow/references/themes/dark.md), [skills/scene-flow/references/themes/paper.md](skills/scene-flow/references/themes/paper.md), [skills/scene-flow/references/themes/world3d.md](skills/scene-flow/references/themes/world3d.md), and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
+Detailed guidelines reside in [skills/scene-flow/references/house-style.md](skills/scene-flow/references/house-style.md) and [skills/scene-flow/references/themes/neon3d.md](skills/scene-flow/references/themes/neon3d.md).
 
 ## Requirements
 
@@ -142,9 +140,6 @@ Kịch bản:
 *(English gloss: Create a TikTok video about building an AI chatbot. Here is the voiceover: D:\recordings\chatbot.wav. 1. Include product logos. 2. Minimize text, use visuals/recordings. 3. Use demo.mp4 for hook. 4. Use CHATBOT in comment CTA. Script: one sentence per line.)*
 
 Additional prompt options:
-- `"Dùng theme paper"` *(Use the paper theme)*
-- `"Dùng theme world3d"` *(Use the world3d theme)*
-- `"Dùng theme neon3d"` *(Use the neon3d theme)*
 - `"Dùng giọng AI từ Colab"` *(Synthesize voiceover via Colab)*
 
 Workflow steps executed by Claude:
@@ -175,16 +170,15 @@ README.md                             this overview and setup guide
 docs/user-guide.md                    non-programmer step-by-step user guide
 skills/scene-flow/requirements.txt    Python libraries (numpy, Pillow)
 skills/scene-flow/colab/server.py     Colab Whisper ASR and VieNeu-TTS server
-skills/scene-flow/references/         rules: house style, dark, paper, world3d and neon3d themes, traps, alignment, audio mixing
+skills/scene-flow/references/         rules: house style, neon3d theme, traps, alignment, audio mixing
 skills/scene-flow/scripts/            pipeline: voice prep, ASR, syllable timing, scene build, captions, SFX mix
 skills/scene-flow/scripts/README.md   pipeline scripts reference
-skills/scene-flow/template/           starter project files, dark, paper, world3d and neon3d themes
+skills/scene-flow/template/           starter project files, neon3d theme
 tests/                                theme fixture, spec, version and bundled-skill checks
 .github/                              CI, release workflow, issue and PR templates
 skills/scene-flow/assets/SOURCES.md   asset licensing and source references
 skills/scene-flow/assets/audio/       house sound effects and background music bed
-skills/scene-flow/assets/background/  paper background video (124s) and still image
-skills/scene-flow/assets/fonts/       Be Vietnam Pro (dark) and K2D (paper)
+skills/scene-flow/assets/fonts/       Be Vietnam Pro
 skills/scene-flow/assets/logos/       official product logos and theme marks
 skills/3dviz-pro-max/                 bundled dependency skill
 skills/cut-the-curve/                 bundled dependency skill
@@ -202,10 +196,6 @@ No mascot ships with the skill. If you have your own mascot (a transparent `.web
 
 ## Notes
 
-- **Paper background loop:** The bundled moving paper video is 124 seconds long. For longer films, loop the plate before building:
-  ```bash
-  ffmpeg -stream_loop 1 -i paper-bg.mp4 -c copy paper-bg-long.mp4
-  ```
 - **Pinned HyperFrames version:** Each project pins `hyperframes@0.8.140` in `package.json` to preserve consistent visual output over time.
 - **Studio "did not reload":** If HyperFrames Studio shows "the preview did not reload (it took too long to load)", refresh the page (F5) and wait 20 seconds.
 
@@ -213,7 +203,7 @@ No mascot ships with the skill. If you have your own mascot (a transparent `.web
 
 Skill code and documentation are licensed under [Apache-2.0](LICENSE); see [NOTICE](NOTICE). Bundled assets belong to their original creators, detailed in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md):
 
-- **Fonts:** SIL Open Font License 1.1 ([K2D](skills/scene-flow/assets/fonts/OFL.txt), [Be Vietnam Pro](skills/scene-flow/assets/fonts/BeVietnamPro-OFL.txt)).
+- **Fonts:** SIL Open Font License 1.1 ([Be Vietnam Pro](skills/scene-flow/assets/fonts/BeVietnamPro-OFL.txt)).
 - **Icons:** [Lucide](https://lucide.dev) under ISC license.
 - **Logos:** Trademarks of their respective owners, used solely for product reference within videos.
 - **Audio and background media:** Sourced from the author's library, mostly Pixabay. Check individual licenses in [skills/scene-flow/assets/SOURCES.md](skills/scene-flow/assets/SOURCES.md) prior to commercial use.
