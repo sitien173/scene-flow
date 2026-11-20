@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.4.0](https://github.com/sitien173/scene-flow/compare/v0.3.1...v0.4.0) (2026-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* **scene-flow:** environment variables such as VIBI_API_KEY, COLAB_URL, POSTIZ_API_KEY, CHROME_PATH, and SCENE_FLOW_SKILL are no longer read; put them in ~/.config/scene-flow/.env. XDG_CONFIG_HOME is no longer honored.
+
+### Features
+
+* **scene-flow:** add ElevenLabs TTS provider and read config only from ~/.config/scene-flow/.env ([d130a07](https://github.com/sitien173/scene-flow/commit/d130a07d1448ae894e79c10e9bf4fd03bf172415))
+* **scene-flow:** five-beat script writer with tone, pause, and fallback-spelling marks ([0466ac3](https://github.com/sitien173/scene-flow/commit/0466ac3a18d97956590d2e0bb44c78ac5907039c))
+* **scene-flow:** normalize scripts written elsewhere into SCRIPT.md ([12b3fc1](https://github.com/sitien173/scene-flow/commit/12b3fc115d530b51d140a41f85f317d3506ebd43))
+* **scene-flow:** run the chosen voice and speech provider without asking again ([1439808](https://github.com/sitien173/scene-flow/commit/14398086bb9c4ea1e7ad4cad1edbfbaa512b7fe8))
+* **scene-flow:** suggest local whisper.cpp and VieNeu-TTS when a GPU is present ([dd3b080](https://github.com/sitien173/scene-flow/commit/dd3b0806260e26944e9fbd54351c48ca68c9d3a7))
+
+
+### Bug Fixes
+
+* **scene-flow-channel:** fall back to the setup path when no plugin cache exists ([4c990c3](https://github.com/sitien173/scene-flow/commit/4c990c3f7a9c400f0cda58dfec493925f976161e))
+
 ## [0.3.1](https://github.com/sitien173/scene-flow/compare/v0.3.0...v0.3.1) (2026-11-20)
 
 
