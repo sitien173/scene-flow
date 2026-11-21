@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/sitien173/scene-flow/compare/v0.4.4...v0.4.5) (2026-11-21)
+
+
+### Features
+
+* **agents:** add scene-composer sub-agent for 3D vignettes ([#21](https://github.com/sitien173/scene-flow/issues/21)) ([58de2bf](https://github.com/sitien173/scene-flow/commit/58de2bf80458a237f5019a15154283528f106ebc))
+
 ## [0.4.4](https://github.com/sitien173/scene-flow/compare/v0.4.3...v0.4.4) (2026-11-21)
 
 
