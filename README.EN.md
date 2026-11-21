@@ -93,6 +93,22 @@ At the end it offers to run a HyperFrames check, which downloads the browser use
 
 Speech recognition and the AI voice run on Google Colab. You need a Google account. Setup is in the [user guide](docs/user-guide.md#voiceover).
 
+### Update
+
+The updater brings scene-flow to the latest version for each agent that already has it. It skips agents without scene-flow and prints one line per agent. Restart each updated agent afterward.
+
+**Windows:** open PowerShell and run:
+
+```powershell
+irm https://raw.githubusercontent.com/sitien173/scene-flow/main/update.ps1 | iex
+```
+
+**macOS and Linux:** open Terminal and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sitien173/scene-flow/main/update.sh | bash
+```
+
 ### Install the plugin by hand
 
 The installer adds the plugin for each agent it finds. To add it yourself, install the tools above first, then run:

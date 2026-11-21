@@ -25,6 +25,7 @@ skills/<other>/                 bundled third-party skills, unmodified from upst
 agents/                         Claude Code sub-agents (topic-scout, script-writer, ...)
 commands/                       Claude Code slash commands, invoked as /scene-flow:<name>
 install.sh, install.ps1         end-user installers for macOS/Linux and Windows
+update.sh, update.ps1           end-user updaters for agents that already have the plugin
 docs/user-guide.md              step-by-step guide for non-programmers
 tests/                          CI checks; see "Checks"
 .claude-plugin/, .codex-plugin/, plugin.json, package.json   manifests for each host
@@ -53,7 +54,7 @@ tests/                          CI checks; see "Checks"
 - `agents/` and `commands/` work only in Claude Code. Skill text must still work on hosts without
   them.
 - Add only assets you may redistribute, and record each in `assets/SOURCES.md`.
-- `install.ps1` must stay ASCII and must not call `exit`, because users run it through `iex`.
+- `install.ps1` and `update.ps1` must stay ASCII and must not call `exit`, because users run them through `iex`.
 
 ## Checks
 
