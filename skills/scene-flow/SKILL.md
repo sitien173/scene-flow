@@ -40,6 +40,7 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
 | Build or reuse a 3D character or object for neon3d, terra3d, toon3d, or atlas3d | theme guide, "Models" section: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [toon3d.md](references/themes/toon3d.md), [atlas3d.md](references/themes/atlas3d.md) | sub-agent `model-builder`, which uses skill `3dviz-pro-max` |
+| Compose 3D vignettes for neon3d, terra3d, toon3d, or atlas3d | theme guide, [traps.md](references/traps.md) | sub-agent `scene-composer` |
 | Build cleanui cards, tiles, and the mascot | [cleanui.md](references/themes/cleanui.md) | none |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
@@ -99,7 +100,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
    ```
    Trust the map only at 90% exact match or better; below that, rerun ASR with a larger model. Cross-check distinct brand names and numbers directly in `asr-words.json`.
 6. **Prepare media and models.** On neon3d, terra3d, toon3d, and atlas3d, theme kits hold only the look and the stage; every character and object the storyboard needs is a model in the project's `vignettes/<name>/`. For each model the storyboard lists, reuse it from the channel library `<channel>/library/<theme>/<name>/` by copying the folder into `vignettes/`, or build it. Use the sub-agent `model-builder` where sub-agents exist; otherwise follow `agents/model-builder.md` in the plugin root yourself. Save a new model to the channel library only after the author agrees. The model contract is in the theme guide's "Models" section. Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
-7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. Per-project settings:
+7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. On 3D themes, compose each vignette in `vignettes/<id>.js` with the sub-agent `scene-composer` where sub-agents exist; otherwise follow `agents/scene-composer.md` in the plugin root yourself. Per-project settings:
 
    | File | Settings |
    |---|---|
