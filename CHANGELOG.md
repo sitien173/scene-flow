@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.1](https://github.com/sitien173/scene-flow/compare/v0.4.0...v0.4.1) (2026-11-21)
+
+
+### Features
+
+* **scene-flow:** add character-builder sub-agent and optional Blender install ([#12](https://github.com/sitien173/scene-flow/issues/12)) ([702cafe](https://github.com/sitien173/scene-flow/commit/702cafe7c2a56c652843188a6451348a1ac27637))
+* **scene-flow:** add cleanui theme ([#11](https://github.com/sitien173/scene-flow/issues/11)) ([ed72c98](https://github.com/sitien173/scene-flow/commit/ed72c98631150fa501e1b7b3184737d77560207c))
+* **scene-flow:** poll Vibi TTS without a deadline and show live progress ([#10](https://github.com/sitien173/scene-flow/issues/10)) ([17ab61d](https://github.com/sitien173/scene-flow/commit/17ab61d6b727661d1abae0fe9992e6d90791c90e))
+
 ## [0.4.0](https://github.com/sitien173/scene-flow/compare/v0.3.1...v0.4.0) (2026-11-20)
 
 
