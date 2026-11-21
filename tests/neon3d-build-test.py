@@ -134,7 +134,7 @@ class Neon3dBuild(unittest.TestCase):
     def test_fly_without_portal(self):
         d = self.project()
         p = os.path.join(d, "vignettes", "hack.js")
-        src = open(p, encoding="utf-8").read().replace(", portal: () => board.exit", "")
+        src = open(p, encoding="utf-8").read().replace(", portal: () => board.portal()", "")
         open(p, "w", encoding="utf-8").write(src)
         self.rejects(d, "fly without portal", "'reward' flies out of 'hack'")
 

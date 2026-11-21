@@ -89,13 +89,14 @@ reference for every option.
 | Group | Members |
 |---|---|
 | Look, `look.js` | `PALETTE`, `stage({ fog })`, `neon(color)` toon material with rim light, `glow(color, intensity)` for bloom, `halo(color)`, `canvasTexture` |
-| Character, `blob.js` | `blob({ shape: "drop" \| "bean" \| "bowl" \| "cube", color, size, seed })`. One large eye, blink, bob, look, squash, and pixel steam. It returns `group`, `body`, `iris`, `portal`, and `update(t, { popAt, hop, look, bob, squint })`. |
-| Props, `props.js` | `network`, `maze`, `hexCore`, `uiWindow`, `laptop`, `serverRack` |
+| GLB, `glb.js` | `loadGlb`, `validateClip`, `cloneGlb`, `clipPose`; see [Models](#models) |
 | Motion, `motion.js` | `clamp01`, `lerp`, `ease`, `progress`, `pop`, `rand`, `dolly`, `orbit`, `pixels`, `trail`, `type` |
 | Per vignette | `THREE`, `camera(fov)`, `beat(name)`, and `type(text, opts)` bound to the vignette's text layer |
 
-Glowing parts use colors brighter than 1.0, so only they cross the bloom threshold. The character is
-this theme's own design. Do not copy a channel's mascot.
+Glowing parts use colors brighter than 1.0, so only they cross the bloom threshold. The kit ships no
+characters or objects. The sample project's models in `vignettes/agent-bot/`, `holo-panel/`,
+`maze-board/`, `reward-core/`, `server-tower/`, and `thought-graph/` show the theme's construction
+style. Do not copy a channel's mascot.
 
 ## Models
 

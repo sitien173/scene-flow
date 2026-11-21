@@ -1,0 +1,18 @@
+{
+  "name": "holo-panel",
+  "theme": "neon3d",
+  "kind": "object",
+  "factory": "holoPanel",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "width": 2,
+    "height": 1.25,
+    "title": "Task 01",
+    "lines": 4,
+    "accent": "#3DE8FF",
+    "stamp": "",
+    "seed": 1
+  },
+  "scene_flow_version": "0.4.0"
+}

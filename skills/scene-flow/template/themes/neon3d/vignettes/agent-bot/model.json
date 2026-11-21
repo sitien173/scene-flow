@@ -1,0 +1,10 @@
+{
+  "name": "agent-bot",
+  "theme": "neon3d",
+  "kind": "character",
+  "factory": "agentBot",
+  "glb": "",
+  "clips": [],
+  "opts": {"color": "#7C4DFF", "eyeColor": "#3DE8FF", "size": 1, "seed": 1},
+  "scene_flow_version": "0.4.0"
+}
