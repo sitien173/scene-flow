@@ -1,0 +1,86 @@
+      <div class="scene clip" id="sc-hook" data-start="@@start:hook@@" data-duration="@@dur:hook@@" data-track-index="1">
+        <div class="wrap" id="w-hook">
+          <div class="logo logo-claude" id="hook-claude" style="left:228px; top:700px;"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mk-claude"/></svg></div>
+          <div class="logo logo-openai" id="hook-gpt" style="left:668px; top:700px;"><svg viewBox="0 0 256 260" aria-hidden="true"><use href="#mk-openai"/></svg></div>
+          <div class="name" id="hook-claude-name" style="left:170px; top:910px;">Claude</div>
+          <div class="name" id="hook-gpt-name" style="left:610px; top:910px;">ChatGPT</div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-ch1" data-start="@@start:ch1@@" data-duration="@@dur:ch1@@" data-track-index="1">
+        <div class="wrap" id="w-ch1">
+          <div class="num" style="top:560px;">01</div>
+          <div class="tile big" style="left:380px; top:700px;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sparkles"/></svg></div>
+          <div class="h1 chap" id="ch1-title" style="top:1070px;"><span class="bot">Viết bản nháp</span></div>
+          <img class="burst" src="assets/cleanui/starburst.svg" alt="" style="left:820px; top:520px;">
+          <img class="mascot" id="ch1-mascot" src="assets/cleanui/mascot.svg" alt="" style="left:760px; top:1230px;">
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-draft" data-start="@@start:draft@@" data-duration="@@dur:draft@@" data-track-index="1">
+        <div class="wrap" id="w-draft">
+          <div class="chat" style="top:600px;">
+            <div class="chat-head"><span class="chat-mini"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mk-claude"/></svg></span>Claude</div>
+            <div class="chat-body">Mở bài · Thân bài · Kết luận</div>
+            <div class="send" id="draft-send"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-send"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-ch2" data-start="@@start:ch2@@" data-duration="@@dur:ch2@@" data-track-index="1">
+        <div class="wrap" id="w-ch2">
+          <div class="num" style="top:560px;">02</div>
+          <div class="tile big" style="left:380px; top:700px;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg></div>
+          <div class="h1 chap" id="ch2-title" style="top:1070px;"><span class="bot">Kiểm tra lại</span></div>
+          <img class="burst" src="assets/cleanui/starburst.svg" alt="" style="left:820px; top:520px;">
+          <img class="mascot" id="ch2-mascot" src="assets/cleanui/mascot.svg" alt="" style="left:760px; top:1230px;">
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-check" data-start="@@start:check@@" data-duration="@@dur:check@@" data-track-index="1">
+        <div class="wrap" id="w-check">
+          <div class="logo logo-openai" style="left:448px; top:720px;"><svg viewBox="0 0 256 260" aria-hidden="true"><use href="#mk-openai"/></svg></div>
+          <div class="name" style="left:390px; top:930px;">ChatGPT</div>
+          <div class="chip" style="left:390px; top:1040px;"><span class="box"></span>Số liệu</div>
+          <div class="chip" id="check-logic" style="left:390px; top:1130px;"><span class="box"></span>Lỗi logic</div>
+          <div class="chip" style="left:390px; top:1220px;"><span class="box"></span>Thiếu sót</div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-pick" data-start="@@start:pick@@" data-duration="@@dur:pick@@" data-track-index="1">
+        <div class="wrap" id="w-pick">
+          <div class="logo logo-claude" id="pick-claude" style="left:228px; top:700px;"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mk-claude"/></svg></div>
+          <div class="logo logo-openai" id="pick-gpt" style="left:668px; top:700px;"><svg viewBox="0 0 256 260" aria-hidden="true"><use href="#mk-openai"/></svg></div>
+          <div class="name" style="left:170px; top:920px;">Claude</div>
+          <div class="name" style="left:610px; top:920px;">ChatGPT</div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-done" data-start="@@start:done@@" data-duration="@@dur:done@@" data-track-index="1">
+        <div class="wrap" id="w-done">
+          <div class="tile big" id="done-file" style="left:380px; top:640px;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-file"/></svg></div>
+          <div class="term" style="top:1040px;"><span class="dim">$</span> quy-trinh --ghi<br>saved quy-trinh.md</div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-ask" data-start="@@start:ask@@" data-duration="@@dur:ask@@" data-track-index="1">
+        <div class="wrap" id="w-ask">
+          <div class="logo logo-claude" style="left:228px; top:640px;"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mk-claude"/></svg></div>
+          <div class="logo logo-openai" style="left:668px; top:640px;"><svg viewBox="0 0 256 260" aria-hidden="true"><use href="#mk-openai"/></svg></div>
+          <div class="name" style="left:170px; top:850px;">Claude</div>
+          <div class="name" style="left:610px; top:850px;">ChatGPT</div>
+          <div class="send-big" id="ask-send" style="left:460px; top:1000px;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-send"/></svg></div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-ec" data-start="@@start:ec@@" data-duration="@@dur:ec@@" data-track-index="1">
+        <div class="wrap" id="w-ec">
+          <img id="ec-logo" src="@@logo@@" alt="">
+          <div id="ec-brand">@@brand@@</div>
+          <div id="ec-slogan">@@slogan@@</div>
+        </div>
+      </div>
+
+      <div id="kara" data-layout-allow-overlap="true"></div>
+      <audio id="vo" class="clip" data-start="0" data-duration="@@vo@@" data-track-index="8" src="assets/audio/voiceover.mp3" data-volume="1" data-audio-group="voiceover"></audio>
+      <!-- sfx cues are written by scripts/add-sfx.py -->

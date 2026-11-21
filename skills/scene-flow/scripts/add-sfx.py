@@ -83,13 +83,15 @@ CUE_GAIN = {"thud": G_THUD, "swoosh": G_SWOOSH, "pop": G_POP, "laser": G_LASER, 
 #           of the hook's first sentence, where the picture stops dead (flash + snap)
 THUD = [(0.00, "thud", G_THUD)]
 LEDGER = json.load(io.open("ledger.json", encoding="utf-8"))
-# terra3d has no sound on cuts, its seams into the CTA and end card included
-SWOOSH = [] if LEDGER.get("theme") == "terra3d" else [(float(r["cut"]), "swoosh", G_SWOOSH) for r in LEDGER["seams"]]
+# terra3d has no sound on cuts, its seams into the CTA and end card included. A seam row may set "swoosh": false
+# (cleanui: slides get none, only hard cuts and chapter openers do); every other seam row gets one.
+SWOOSH = [] if LEDGER.get("theme") == "terra3d" else [(float(r["cut"]), "swoosh", G_SWOOSH) for r in LEDGER["seams"] if r.get("swoosh", True)]
 ATLAS3D = os.path.exists("meta.json") and json.load(io.open("meta.json", encoding="utf-8")).get("theme") == "atlas3d"
+CLEANUI = os.path.exists("meta.json") and json.load(io.open("meta.json", encoding="utf-8")).get("theme") == "cleanui"
 # atlas3d: build.py resolves a whoosh per `pan` and each vignettes.json `sfx` beat into ledger cues. A pan that
-# lands on a seam already has the seam's swoosh, so it adds none. Every other theme ignores ledger cues.
+# lands on a seam already has the seam's swoosh, so it adds none. cleanui: cues.json `sfx` beats. Other themes ignore ledger cues.
 CUES = []
-for c in LEDGER.get("cues", []) if ATLAS3D else []:
+for c in LEDGER.get("cues", []) if (ATLAS3D or CLEANUI) else []:
     assert c["sound"] in CUE_GAIN, "ledger cue at %.2fs names an unknown sound: %s" % (c["t"], c["sound"])
     if c["sound"] == "swoosh" and any(abs(c["t"] - t) < 0.05 for t, _, _ in SWOOSH):
         continue

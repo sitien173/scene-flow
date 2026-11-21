@@ -1,0 +1,89 @@
+      :root {
+        --paper:#F5F5F5; --dot:#DCDCDC; --ink:#1C1C1C; --unread:#A3A3A3; --accent:#D87454;
+        --claude:#D97757; --blue:#2F6FDE; --token:#F2C230; --term:#141414; --teal:#2A9D8F;
+        --font:"Be Vietnam Pro","Segoe UI",sans-serif;
+      }
+      html, body { width:1080px; height:1920px; margin:0; padding:0; overflow:hidden; background:var(--paper); }
+      body { color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+      #root { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--paper); }
+
+      /* the page: a faint dot grid, 156 px pitch, one dot per cell (ink-free, no shading) */
+      #bg { position:absolute; inset:0; background-image:radial-gradient(circle, var(--dot) 3px, transparent 3.5px);
+            background-size:156px 156px; background-position:78px 78px; }
+
+      .scene { position:absolute; inset:0; z-index:1; }
+      .wrap { position:absolute; inset:0; will-change:transform, opacity; }
+
+      /* icons: Lucide symbols from the page sprite; stroke comes from the outer svg */
+      .ico { fill:none; stroke:var(--ink); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+
+      /* white icon tile with a soft shadow (184 px, radius 40) */
+      .tile { position:absolute; width:184px; height:184px; border-radius:40px; background:#FFFFFF;
+              box-shadow:0 18px 40px rgba(0,0,0,0.14); display:flex; align-items:center; justify-content:center; }
+      .tile .ico { width:96px; height:96px; }
+      /* large tile for a chapter opener or a result: 320 px, glyph 170 px (style.md section 3 icon floor) */
+      .tile.big { width:320px; height:320px; border-radius:72px; }
+      .tile.big .ico { width:170px; height:170px; }
+
+      /* product marks: read from the house logo set (style.md section 6) */
+      .logo { position:absolute; width:184px; height:184px; border-radius:40px; display:flex; align-items:center;
+              justify-content:center; box-shadow:0 18px 40px rgba(0,0,0,0.14); }
+      .logo-claude { background:var(--claude); }
+      .logo-claude svg { width:100px; height:100px; fill:#FFFFFF; }
+      .logo-openai { background:#FFFFFF; }
+      .logo-openai svg { width:104px; height:106px; fill:var(--ink); }
+      .name { position:absolute; width:300px; text-align:center; font-size:44px; font-weight:600; line-height:1.2; color:var(--ink); }
+
+      /* two-line heading: light top line, bold second line; both centred on the 72 px margins */
+      .h1 { position:absolute; left:72px; right:72px; text-align:center; color:var(--ink); }
+      .h1 .top { display:block; font-size:72px; font-weight:500; line-height:1.15; }
+      .h1 .bot { display:block; font-size:88px; font-weight:800; line-height:1.1; }
+      .h1.chap .bot { font-size:104px; font-weight:800; line-height:1.05; }   /* chapter title floor, style.md section 3 */
+      .num { position:absolute; left:72px; font-size:104px; font-weight:800; line-height:1; color:var(--accent); }
+
+      /* chat card: a white panel with a Claude header and an accent send button */
+      .chat { position:absolute; left:72px; width:936px; height:520px; box-sizing:border-box; padding:48px;
+              border-radius:36px; background:#FFFFFF; box-shadow:0 18px 40px rgba(0,0,0,0.14); }
+      .chat-head { display:flex; align-items:center; gap:20px; font-size:44px; font-weight:600; color:var(--ink); }
+      .chat-mini { width:72px; height:72px; border-radius:20px; background:var(--claude); display:flex;
+                   align-items:center; justify-content:center; }
+      .chat-mini svg { width:44px; height:44px; fill:#FFFFFF; }
+      .chat-body { margin-top:40px; font-size:56px; font-weight:700; line-height:1.3; color:var(--ink); }
+      .send { position:absolute; right:48px; bottom:48px; width:88px; height:88px; border-radius:50%;
+              background:var(--accent); display:flex; align-items:center; justify-content:center; }
+      .send .ico { stroke:#FFFFFF; width:44px; height:44px; }
+      .send-big { position:absolute; width:160px; height:160px; border-radius:50%; background:var(--accent);
+                  display:flex; align-items:center; justify-content:center; box-shadow:0 18px 40px rgba(0,0,0,0.14); }
+      .send-big .ico { stroke:#FFFFFF; width:72px; height:72px; }
+
+      /* checklist chip: white pill, square tick box, 44 px/600 */
+      .chip { position:absolute; width:300px; height:68px; box-sizing:border-box; border-radius:34px; background:#FFFFFF;
+              box-shadow:0 10px 24px rgba(0,0,0,0.10); display:flex; align-items:center; gap:14px; padding:0 22px;
+              font-size:44px; font-weight:600; color:var(--ink); white-space:nowrap; }
+      .chip .box { width:30px; height:30px; flex:none; border-radius:8px; border:3px solid var(--ink); }
+
+      /* terminal panel: near-black, rounded 28 px, green text */
+      .term { position:absolute; left:72px; width:936px; height:340px; box-sizing:border-box; padding:44px;
+              border-radius:28px; background:var(--term); color:#39D353; font-size:44px; font-weight:600; line-height:1.5;
+              box-shadow:0 18px 40px rgba(0,0,0,0.20); }
+      .term .dim { color:#8F8F8F; }
+
+      /* black label pill: 62 px/800 */
+      .label { position:absolute; padding:14px 30px; border-radius:24px; background:var(--ink); color:#FFFFFF;
+               font-size:62px; font-weight:800; line-height:1.1; white-space:nowrap; }
+
+      /* teal mascot and orange corner accent: art files in assets/cleanui */
+      .mascot { position:absolute; width:240px; height:240px; }
+      .burst { position:absolute; width:180px; height:180px; }
+
+      /* captions: top band, y 300 to 460, below the 240 px top safe area; unread grey, read ink, no halo */
+      #kara { position:absolute; z-index:21; inset:0; pointer-events:none; }
+      .kc { position:absolute; left:72px; right:72px; top:300px; height:160px; line-height:1.25; text-align:center; }
+      .kin { display:block; color:var(--ink); font-size:56px; font-weight:700; line-height:1.25; white-space:nowrap; opacity:0; }
+      .kw { position:relative; display:inline-block; padding:0 6px; margin:0; }
+      .kb { position:relative; color:var(--unread); }
+
+      /* end card: the house mark, brand and slogan */
+      #ec-logo { position:absolute; top:548px; left:420px; display:block; width:240px; height:240px; object-fit:contain; }
+      #ec-brand { position:absolute; top:850px; left:72px; width:936px; color:var(--ink); font-size:72px; font-weight:800; line-height:1.15; text-align:center; }
+      #ec-slogan { position:absolute; top:960px; left:84px; width:912px; color:var(--ink); font-size:44px; font-weight:600; line-height:1.4; text-align:center; }

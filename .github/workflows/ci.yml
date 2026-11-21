@@ -88,6 +88,15 @@ jobs:
       - name: Atlas3d build checks
         run: python3 tests/atlas3d-build-test.py
 
+      - name: Cleanui build checks
+        run: python3 tests/cleanui-build-test.py
+
+      - name: Cleanui fixture hash
+        run: |
+          got="$(bash tests/theme-fixture.sh "$RUNNER_TEMP/sf-check-cleanui" --theme cleanui | tail -1)"
+          echo "$got"
+          test "$got" = bc095d2c850f0878b13fcbbac4d3705f2a3b22014929d902e6c4311b771389bc
+
   actionlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

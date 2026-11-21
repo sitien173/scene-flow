@@ -18,8 +18,8 @@ import unicodedata
 
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
-if THEME not in ("neon3d", "terra3d", "atlas3d"):
+    raise SystemExit("theme %s was removed; only neon3d, terra3d, atlas3d and cleanui are supported" % THEME)
+if THEME not in ("neon3d", "terra3d", "atlas3d", "cleanui"):
     raise SystemExit("unknown theme: " + THEME)
 
 # ── PER-PROJECT ──────────────────────────────────────────────────────────────────────────
@@ -345,6 +345,109 @@ if THEME in VIGNETTE_THEMES:
     DUR = {sid: round(NEXT[sid] - START[sid], 2) for sid in START}
     check_vignettes(VIGNETTES, cta_start, THEME)
 
+# cleanui: a 2D flow with no vignettes. cues.json lists the scenes in order; each scene after the first opens on the
+# recorded time of its anchor word, with its `in` kind. A beat is a named anchor word the timeline reads as @@t:name@@;
+# it is named <scene>-<what> and must sit inside its scene. Beat sounds go to the ledger as cues (add-sfx.py).
+# in kind -> seam: a chapter opener slides up, a slide goes left (blurred), a cut is hard (type "hard": visibility only).
+CLEANUI_IN = {
+    "open": {"kind": "slide", "axis": "y", "dir": -1, "exit": 0.36, "dur": 0.50, "swoosh": True, "blur": 0},
+    "slide": {"kind": "slide", "axis": "x", "dir": -1, "exit": 0.34, "dur": 0.42, "swoosh": False, "blur": 8},
+    "cut": {"kind": "hard", "axis": "x", "dir": -1, "swoosh": True, "blur": 0},
+}
+CLEANUI_SOUNDS = ("pop", "laser", "click")
+
+
+def cues_error(problem, detail):
+    raise SystemExit("cues.json %s: %s" % (problem, detail))
+
+
+def resolve_cleanui():
+    data = json.load(io.open("cues.json", encoding="utf-8"))
+    rows = data.get("scenes") if isinstance(data, dict) else None
+    if not isinstance(rows, list) or not rows:
+        cues_error("invalid scenes", "scenes must be a non-empty list")
+    scenes, kinds, last = [], {}, 0.0
+    for k, row in enumerate(rows):
+        sid = row.get("id") if isinstance(row, dict) else None
+        if not isinstance(sid, str) or not re.fullmatch(r"[a-z][a-z0-9]*", sid) or sid == "ec" or sid in kinds:
+            cues_error("invalid scene id", "entry %d: %r needs a unique id of lowercase letters or digits, not ec" % (k, sid))
+        if k == 0:
+            if "in" in row or "at" in row:
+                cues_error("invalid first scene", "%r starts at 0; remove its in and at" % sid)
+            t = 0.0
+        else:
+            if row.get("in") not in CLEANUI_IN:
+                cues_error("invalid in", "%r in must be one of %s" % (sid, ", ".join(CLEANUI_IN)))
+            if not isinstance(row.get("at"), dict):
+                cues_error("invalid at", "%r needs at = {sentence, word}" % sid)
+            t = anchor_time(row["at"], "scene %r" % sid, cues_error)
+            if t <= last:
+                cues_error("scenes not in order", "%r at %.2f is not after %.2f" % (sid, t, last))
+            kinds[sid] = row["in"]
+        kinds.setdefault(sid, "open")
+        scenes.append((sid, t))
+        last = t
+    spoken_end = max((x["e"] for x in syl), default=VO - 9.45)
+    ec = round(max(last + 2.50, spoken_end + 0.30), 2)   # the end card waits for the last spoken syllable
+    ids = [sid for sid, _ in scenes]
+    beats = {}
+    for name, anchor in (data.get("beats") or {}).items():
+        if not re.fullmatch(r"[a-z][a-z0-9]*-[a-z0-9-]*", name) or name.split("-")[0] not in ids:
+            cues_error("invalid beat", "%r must be <scene>-<what>, with a scene id from scenes" % name)
+        if not isinstance(anchor, dict):
+            cues_error("invalid beat", "%r must be {sentence, word}" % name)
+        t = anchor_time(anchor, "beat %r" % name, cues_error)
+        i = ids.index(name.split("-")[0])
+        end = scenes[i + 1][1] if i + 1 < len(scenes) else ec
+        if not scenes[i][1] <= t < end:
+            cues_error("beat outside its scene", "%r at %.3f is outside %s %.2f-%.2f" % (name, t, ids[i], scenes[i][1], end))
+        beats[name] = t
+    sfx = []
+    for row in data.get("sfx", []):
+        if not isinstance(row, dict) or row.get("beat") not in beats or row.get("sound") not in CLEANUI_SOUNDS:
+            cues_error("invalid sfx", "each sfx needs beat (a beat name) and sound (one of %s)" % ", ".join(CLEANUI_SOUNDS))
+        sfx.append({"t": beats[row["beat"]], "sound": row["sound"]})
+    kinds["ec"] = "cut"
+    return {"scenes": scenes + [("ec", ec)], "in": kinds, "beats": beats,
+            "sfx": sorted(sfx, key=lambda c: (c["t"], c["sound"]))}
+
+
+CLEANUI = resolve_cleanui() if THEME == "cleanui" else {}
+if THEME == "cleanui":
+    SC = CLEANUI["scenes"]
+    START = dict(SC)
+    END = round(SC[-1][1] + EC_DUR, 2)
+    NEXT = {sid: (SC[k + 1][1] if k + 1 < len(SC) else END) for k, (sid, _) in enumerate(SC)}
+    DUR = {sid: round(NEXT[sid] - START[sid], 2) for sid in START}
+
+
+def cleanui_seams():
+    """One ledger row per cut. Slides are seam-stamp `cut` rows (x or y, dir -1) with a swoosh only on chapter
+    openers; hard cuts are type "hard" rows with visibility only. Blurred slides also go to timeline.js."""
+    seams, slides = [], []
+    for k in range(1, len(SC)):
+        a, b = SC[k - 1][0], SC[k][0]
+        spec = CLEANUI_IN[CLEANUI["in"][b]]
+        hard = spec["kind"] == "hard"
+        exit_side = {"selector": "#w-" + a, "axis": spec["axis"], "dir": spec["dir"]}
+        entry_side = {"selector": "#w-" + b, "axis": spec["axis"], "dir": spec["dir"]}
+        row = {"id": "%s->%s" % (a, b), "cut": SC[k][1], "swoosh": spec["swoosh"],
+               "technique": "hard cut" if hard else ("chapter slide up" if spec["axis"] == "y" else "slide left")}
+        if hard:
+            row["type"] = "hard"
+        else:
+            exit_side["dur"], entry_side["dur"] = spec["exit"], spec["dur"]
+            if spec["blur"]:
+                slides.append({"exit": exit_side["selector"], "entry": entry_side["selector"], "cut": SC[k][1],
+                               "exDur": spec["exit"], "enDur": spec["dur"], "blur": spec["blur"]})
+        row["exit"], row["entry"] = exit_side, entry_side
+        seams.append(row)
+    return seams, slides
+
+
+if THEME == "cleanui":
+    CLEANUI_SEAMS, CLEANUI_SLIDES = cleanui_seams()
+
 html = "".join(io.open("parts/" + f, encoding="utf-8").read() for f in PARTS)
 ff = io.open("parts/fontfaces.txt", encoding="utf-8").read().rstrip("\n")
 assert html.count("      /* @fontfaces */") == 1
@@ -373,18 +476,28 @@ for sid in START:
     html = html.replace("@@start:%s@@" % sid, "%.2f" % START[sid])
     html = html.replace("@@dur:%s@@" % sid, "%.2f" % DUR[sid])
 html = html.replace("@@vo@@", "%.2f" % VO).replace("@@end@@", "%.2f" % END)
+if THEME == "cleanui":
+    for name, t in CLEANUI["beats"].items():
+        html = html.replace("@@t:%s@@" % name, "%.3f" % t)
+    assert html.count("@@slides@@") == 1
+    html = html.replace("@@slides@@", json.dumps(CLEANUI_SLIDES, separators=(",", ":")))
 assert "@@" not in html, "unfilled token: " + html[html.index("@@") - 40: html.index("@@") + 40]
 assert "<!-- @" not in html and "/* @" not in html, "unfilled placeholder"
 io.open("index.html", "w", encoding="utf-8").write(html)
 
-# the seam ledger: every cut is a Z blur push
+# the seam ledger: every cut is a Z blur push, except cleanui's slides and hard cuts (cleanui_seams)
 seams = []
-for k in range(1, len(SC)):
-    a, b = SC[k - 1][0], SC[k][0]
-    seams.append({"id": "%s->%s" % (a, b), "cut": SC[k][1], "technique": "blur push", "blur": 10,
-                  "exit": {"selector": "#w-" + a, "axis": "z", "dir": 1},
-                  "entry": {"selector": "#w-" + b, "axis": "z", "dir": 1}})
+if THEME == "cleanui":
+    seams = CLEANUI_SEAMS
+else:
+    for k in range(1, len(SC)):
+        a, b = SC[k - 1][0], SC[k][0]
+        seams.append({"id": "%s->%s" % (a, b), "cut": SC[k][1], "technique": "blur push", "blur": 10,
+                      "exit": {"selector": "#w-" + a, "axis": "z", "dir": 1},
+                      "entry": {"selector": "#w-" + b, "axis": "z", "dir": 1}})
 ledger = {"fps": 30, "seams": seams}
+if THEME == "cleanui":  # add-sfx.py reads these: each beat sound, at its recorded time
+    ledger["cues"] = CLEANUI["sfx"]
 if THEME in VIGNETTE_THEMES:  # vignette transitions live inside the theme's 3D scene: not HyperFrames seams, no sound cue
     ledger["vignettes"] = [{k: v[k] for k in ("id", "t", "end", "in", "ambience") if k in v} for v in VIGNETTES]
 if THEME == "terra3d":  # add-sfx.py reads this: terra3d has no sound on cuts, so no swoosh on its seams

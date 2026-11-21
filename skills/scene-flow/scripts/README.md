@@ -6,10 +6,10 @@ and write project files in the working directory (`SCRIPT.md`, `beats.json`, `as
 
 ## Themes and project branding
 
-`new-project.py` requires `--theme neon3d|terra3d|atlas3d`; there is no default theme. It copies the selected theme into
+`new-project.py` requires `--theme neon3d|terra3d|atlas3d|cleanui`; there is no default theme. It copies the selected theme into
 the project's `parts/`, records the theme in `meta.json`, and copies that theme's assets. An older project without a
 `theme` value builds as neon3d. A project that names `dark`, `paper`, or `world3d` stops with
-`theme <name> was removed; only neon3d, terra3d and atlas3d are supported`. In `build.py`, `BRAND_NAME` defaults to `Soi Repo`
+`theme <name> was removed; only neon3d, terra3d, atlas3d and cleanui are supported`. In `build.py`, `BRAND_NAME` defaults to `Soi Repo`
 and `BRAND_LOGO` to `soi-repo-mark.svg`.
 `SLOGAN` starts as `Slogan của bạn`.
 
@@ -44,7 +44,7 @@ python scripts/audit-sync.py 0 110       # every cue vs the sentence playing the
 
 | script | generic? | edit per project |
 |---|---|---|
-| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d|terra3d|atlas3d` (required) |
+| `new-project.py` | **yes** | — run from the skill: shared template + selected theme + scripts + assets into a new folder; `--theme neon3d|terra3d|atlas3d|cleanui` (required) |
 | `prep-voice.py` | **yes** | `--tempo` only when the author chooses a faster read |
 | `tts.py` | **yes** | — Vietnamese voice from SCRIPT.md via VieNeu-TTS on Colab, or on this machine with `--provider local`: default voice Hải Đăng, `--voice <preset>`, `--ref <clip.wav>`, `--list`; or via Vibi with `--provider vibi` (`VIBI_API_KEY` from `.env`, `--voice <ElevenLabs id>`, `--lang`, `--model`); or via the ElevenLabs API with `--provider elevenlabs` (`ELEVENLABS_API_KEY` from `.env`, same options plus `--list`); applies the `scriptmd.py` marks; levels it with prep-voice.py |
 | `asr.py` | mostly | `language="vi"`; model as argv (`small`, `medium`) via OpenAI Whisper on Colab, or whisper.cpp on this machine with `--local` through `hyperframes transcribe` |

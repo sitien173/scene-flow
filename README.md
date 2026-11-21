@@ -36,8 +36,8 @@ Chọn một bài nhạc nền và mức hiệu ứng âm thanh riêng cho kênh
 
 Chưa có thì scene-flow dùng bộ âm thanh có sẵn:
 
-- **Nhạc nền:** "Little Things Immaterial" cho `neon3d` và `terra3d`. "Short Pizzicato Song" cho `atlas3d`, tự lặp lại khi video dài hơn bài nhạc.
-- **Hiệu ứng:** tiếng "whoosh" ở mỗi lần chuyển cảnh, một tiếng "thud" mở đầu video, tiếng "pop" khi biểu tượng quan trọng hiện ra, tiếng click cho con số quan trọng. `atlas3d` có thêm tiếng bút, tiếng xu và tiếng trống. Riêng `terra3d` không có tiếng chuyển cảnh.
+- **Nhạc nền:** "Little Things Immaterial" cho `neon3d`, `terra3d` và `cleanui`. "Short Pizzicato Song" cho `atlas3d`, tự lặp lại khi video dài hơn bài nhạc.
+- **Hiệu ứng:** tiếng "whoosh" ở mỗi lần chuyển cảnh, một tiếng "thud" mở đầu video, tiếng "pop" khi biểu tượng quan trọng hiện ra, tiếng click cho con số quan trọng. `atlas3d` có thêm tiếng bút, tiếng xu và tiếng trống. Riêng `terra3d` không có tiếng chuyển cảnh. `cleanui` chỉ có "whoosh" ở cắt cảnh dứt khoát và ở đầu mỗi chương.
 
 ### 4. Phong cách hình ảnh
 
@@ -48,6 +48,7 @@ Claude hỏi bạn chọn phong cách cho mỗi video. Một kênh nên giữ m�
 | `neon3d` | Các cảnh 3D ngắn trên sân khấu neon tối, ánh sáng phát quang | Công nghệ, công cụ AI, phần mềm, sản phẩm số |
 | `terra3d` | Các cảnh 3D ban ngày: quả địa cầu với tuyến đường, tàu trên biển, địa hình nhìn từ drone, mặt cắt đất và nước. Cắt cảnh dứt khoát theo từng từ, phụ đề hiện từng chữ | Kỹ thuật, công trình, địa lý, lịch sử |
 | `atlas3d` | Bản đồ thế giới kiểu cổ, máy quay lướt giữa các vùng, lãnh thổ nổi khối 3D, nhân vật chibi đứng trên bản đồ, xen cảnh nền ảnh | Lịch sử, địa lý, địa chính trị, kinh tế kể trên bản đồ |
+| `cleanui` | Nền sáng 2D, thẻ và ô biểu tượng bo góc, chữ phụ đề tô sáng từng từ, nhân vật mascot gốc. Hiển thị các bước dùng công cụ AI và phần mềm | Công cụ AI, ứng dụng, phần mềm, hướng dẫn từng bước |
 
 ### 5. Hình ảnh và video thật
 
@@ -133,13 +134,13 @@ Nếu bạn chưa có ý tưởng, Claude hỏi bạn thích chủ đề gì, mu
 Tạo video mới cho kênh:
 
 ```bash
-./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
+./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d|cleanui> [file giọng đọc]
 ```
 
 Trên Windows:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d> [file giọng đọc]
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d|cleanui> [file giọng đọc]
 ```
 
 Ghi vào `AGENTS.md` những điều áp dụng cho mọi video của kênh, ví dụ màu thương hiệu, cách xưng hô, câu kết cố định, hoặc "tối đa 5 hashtag, luôn có #xuhuong". Mỗi lần làm video, mở Claude Code trong thư mục của video đó, không mở ở thư mục kênh. Nếu dùng Git, bỏ qua `publish/` và các thư mục `renders/`, `snapshots/`, `assets/audio/src/` của từng video vì chúng nặng.
@@ -205,7 +206,7 @@ Tự thêm `VIBI_API_KEY=<key>` hoặc `ELEVENLABS_API_KEY=<key>` vào `~/.confi
 Tạo video từ kịch bản này. Phải có logo của các công cụ được nhắc tới. Hạn chế chữ trên hình.
 ```
 
-Claude hỏi bạn chọn `neon3d`, `terra3d` hay `atlas3d`, căn hình theo giọng đọc, rồi gửi link xem thử. Nhắc tên phong cách ngay trong prompt nếu bạn đã biết mình muốn gì.
+Claude hỏi bạn chọn `neon3d`, `terra3d`, `atlas3d` hay `cleanui`, căn hình theo giọng đọc, rồi gửi link xem thử. Nhắc tên phong cách ngay trong prompt nếu bạn đã biết mình muốn gì.
 
 ### 5. Góp ý, xuất file và đăng
 

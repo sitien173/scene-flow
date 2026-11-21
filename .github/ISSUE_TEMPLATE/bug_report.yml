@@ -23,7 +23,7 @@ body:
     id: theme
     attributes:
       label: Theme
-      options: [neon3d, terra3d, atlas3d, Not theme related]
+      options: [neon3d, terra3d, atlas3d, cleanui, Not theme related]
   - type: input
     id: os
     attributes:

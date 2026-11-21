@@ -131,3 +131,12 @@ Natural Earth map data, public domain. Licence note and download details: [atlas
 | File | Source | Notes |
 |---|---|---|
 | `template/themes/atlas3d/backdrops/sample.webp` | Original generated work (author/project-owned) | Deterministic 1080x1920 painted cartographic landscape generated with Python + Pillow (`random.Random(1803)`): sky gradient, clouds, layered rolling hills, sunlit meadow foreground, and subtle parchment grain. SHA-256: `a089bbe30fc5cefe660a4c188b67256f3656ee9e4cd85d59572ef7f7c60359dd`. |
+
+## Cleanui assets: `assets/cleanui/`
+
+Original art drawn for the cleanui theme with plain SVG geometry. No third-party character, logo, or artwork is used. Licence: the same as this repository.
+
+| File | Source | Notes | SHA-256 |
+|---|---|---|---|
+| `assets/cleanui/mascot.svg` | Original work, scene-flow project | Teal squircle with two dot eyes and a smile. Not derived from any reference character. | `4e253f5bc6f130a0f67e980a5b95babb0b62dc7fcaeeb29ebbdd43e6bb9ff011` |
+| `assets/cleanui/starburst.svg` | Original work, scene-flow project | Six-ray orange accent drawn as a stroked asterisk. | `d9eb550a43f89624895e8865669576456f71fae3181351453e7448e5d0f1d414` |
