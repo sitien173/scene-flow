@@ -243,6 +243,8 @@ Make a video from this script. Show the logos of the tools it mentions. Keep tex
 
 Claude asks you to pick `neon3d`, `terra3d`, `atlas3d`, or `cleanui`, lines up the pictures with the voice, and sends a preview link. Name the look in the prompt if you already know which one you want.
 
+A look sets only color, light, camera, and motion. 3D characters and objects come from your script: Claude builds them new in that look, then asks whether to save them to the channel library. If you agree, the model is saved under the channel's `library/<look>/`, and later videos on the channel reuse it instead of building it again.
+
 ### 5. Give feedback, render, and publish
 
 - Open the preview link and press play. Ask for changes in plain words, for example "the text is too small" or "switch scene 3 to the GitHub logo".
