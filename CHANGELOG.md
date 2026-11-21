@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/sitien173/scene-flow/compare/v0.4.3...v0.4.4) (2026-11-21)
+
+
+### Features
+
+* **themes:** add toon3d theme ([#19](https://github.com/sitien173/scene-flow/issues/19)) ([84d65af](https://github.com/sitien173/scene-flow/commit/84d65af33408f1ed6631a961f08635b587ee83d3))
+
 ## [0.4.3](https://github.com/sitien173/scene-flow/compare/v0.4.2...v0.4.3) (2026-11-21)
 
 
