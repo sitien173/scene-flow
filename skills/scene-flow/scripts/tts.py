@@ -60,15 +60,19 @@ def xi_call(url, key, body=None):
     except urllib.error.HTTPError as e:
         msg = e.read().decode("utf-8", "replace")[:300]
         # error bodies must never echo the key into the terminal
-        raise RuntimeError("HTTP %d: %s" % (e.code, msg.replace(key, "[redacted]") if key else msg))
+        err = RuntimeError("HTTP %d: %s" % (e.code, msg.replace(key, "[redacted]") if key else msg))
+        err.code = e.code
+        raise err
     except urllib.error.URLError as e:
         raise RuntimeError("cannot reach %s: %s" % (urllib.parse.urlsplit(url).netloc, e.reason))
 
 
 def vibi_synthesize(texts, voice, lang, model, key):
     # Vibi is asynchronous and slow per task (~50 s for one short sentence), so every sentence is
-    # queued first, then /history/{id} is polled for all of them together (every 2 s, up to 5 min),
-    # then each result.audio_url is downloaded without the key. Returns the audio bytes in order.
+    # queued first, then /history/{id} is polled for all of them together every 2 s with no deadline,
+    # showing a live progress line on stderr, then each result.audio_url is downloaded without the key.
+    # A poll that fails on the network, 429, or 5xx is retried next round; other 4xx and a failed task
+    # stop the run. Returns the audio bytes in order.
     url = "%s/text-to-speech/%s" % (VIBI_API, urllib.parse.quote(voice, safe=""))
     ids = []
     for i, text in enumerate(texts):
@@ -77,16 +81,25 @@ def vibi_synthesize(texts, voice, lang, model, key):
             raise RuntimeError("sentence %d (%s): no task id in response" % (i + 1, text[:40]))
         ids.append(task["id"])
     done = {}
-    deadline = time.monotonic() + 300
+    progress = [0] * len(ids)
+    start = time.monotonic()
+    tty = sys.stderr.isatty()
+    shown = None
     while len(done) < len(ids):
-        if time.monotonic() > deadline:
-            pending = [ids[i] for i in range(len(ids)) if i not in done]
-            raise RuntimeError("Vibi tasks still processing after 5 min: %s" % ", ".join(pending))
         time.sleep(2)
+        retry = None
         for i, task_id in enumerate(ids):
             if i in done:
                 continue
-            task = json.loads(xi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
+            try:
+                task = json.loads(xi_call("%s/history/%s" % (VIBI_API, urllib.parse.quote(task_id, safe="")), key))
+            except (RuntimeError, OSError, ValueError) as e:
+                code = getattr(e, "code", None)
+                if code and 400 <= code < 500 and code != 429:
+                    raise RuntimeError("sentence %d: polling task %s: %s" % (i + 1, task_id, e))
+                retry = str(e)[:80]
+                continue
+            progress[i] = min(task.get("progress") or 0, 100)
             if task.get("status") == "failed":
                 raise RuntimeError("sentence %d (%s): task %s failed: %s"
                                    % (i + 1, texts[i][:40], task_id, task.get("error") or "no reason"))
@@ -94,6 +107,20 @@ def vibi_synthesize(texts, voice, lang, model, key):
                 done[i] = (task.get("result") or {}).get("audio_url") or task.get("audio_url")
                 if not done[i]:
                     raise RuntimeError("sentence %d: task %s returned no audio_url" % (i + 1, task_id))
+        pct = sum(100 if i in done else progress[i] for i in range(len(ids))) // len(ids)
+        state = "%d/%d done, %d%%%s" % (len(done), len(ids), pct, ", retrying: " + retry if retry else "")
+        m, s = divmod(int(time.monotonic() - start), 60)
+        line = "  Vibi %d:%02d %s" % (m, s, state)
+        if tty:
+            # pad instead of an ANSI clear so the line also redraws on old Windows consoles
+            sys.stderr.write("\r" + line.ljust(len(shown or "")))
+            sys.stderr.flush()
+            shown = line
+        elif state != shown:
+            print(line, file=sys.stderr, flush=True)  # logs get one line per change, not one per poll
+            shown = state
+    if tty:
+        sys.stderr.write("\n")
     return [xi_call(done[i], None) for i in range(len(ids))]
 
 
