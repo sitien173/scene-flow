@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/sitien173/scene-flow/compare/v0.4.2...v0.4.3) (2026-11-21)
+
+
+### Features
+
+* **themes:** agent-built 3D models with a per-channel library ([#17](https://github.com/sitien173/scene-flow/issues/17)) ([32709bf](https://github.com/sitien173/scene-flow/commit/32709bf60b6b7e402ee7eea6293c52d2a5f0ff2b))
+
 ## [0.4.2](https://github.com/sitien173/scene-flow/compare/v0.4.1...v0.4.2) (2026-11-21)
 
 
