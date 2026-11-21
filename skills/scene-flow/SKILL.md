@@ -11,7 +11,7 @@ description: >-
   video trước"), says voice and picture do not line up ("chưa khớp", "hình nhanh hơn voice",
   "mất voice"), or asks to post a render via Postiz. Load it before designing the first frame.
 license: Apache-2.0
-compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and for ASR and TTS either a Colab server started with scripts/colab-session.py up, or whisper.cpp and vieneu on a local NVIDIA GPU or Apple Silicon, per scripts/gpu-check.py. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
+compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and for ASR and TTS either a Colab server started with scripts/colab-session.py up, or whisper.cpp and vieneu on a local NVIDIA GPU or Apple Silicon, per scripts/gpu-check.py. Optional Blender 4.2+ for detailed 3D models. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
 ---
 
 # Narrated short pipeline
@@ -41,6 +41,7 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
 | Build 3D objects for neon3d, terra3d, or atlas3d | [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | skill `3dviz-pro-max` |
 | Build cleanui cards, tiles, and the mascot | [cleanui.md](references/themes/cleanui.md) | none |
+| Build a 3D character for neon3d, terra3d, or atlas3d | theme guide | sub-agent `character-builder`, which uses skill `3dviz-pro-max` |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
 | Write post caption and hashtags | none | sub-agent `caption-writer` |
@@ -131,7 +132,7 @@ When a script arrives without audio, offer these three options in this order. If
 
 1. **Self-recording.** Give the author the script line by line and wait for the audio.
 2. **Third-party TTS** such as ElevenLabs or OpenAI. The key goes in `~/.config/scene-flow/.env` (see [Setup](#setup)).
-   For Vibi (`api.vibi.pro`, ElevenLabs voices), with `VIBI_API_KEY` in that file, `tts.py` does the whole voice with `python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`.
+   For Vibi (`api.vibi.pro`, ElevenLabs voices), with `VIBI_API_KEY` in that file, `tts.py` does the whole voice with `python scripts/tts.py --provider vibi [--voice <ElevenLabs voice id>] [--lang vi] [--model eleven_v3]`. Default voice is Quang Toan (`ZsjEJaLQy3sgvwxicmDx`). Vibi charges credits per character of `SCRIPT.md`. The run has no time limit, prints its progress, and can take several minutes. Run it in the background and wait for it to finish, so a command timeout does not kill it after credits are spent.
    For ElevenLabs directly, with `ELEVENLABS_API_KEY` in that file, run `python scripts/tts.py --provider elevenlabs` with the same `--voice`, `--lang`, and `--model` options and the same default voice. `--list` prints the voices in the author's ElevenLabs account. A Voice Library voice must be added to that account first. ElevenLabs also charges credits per character.
 3. **VieNeu-TTS on this machine or on Colab.** With local speech set up (see [Setup](#setup)), run `python scripts/tts.py --provider local [--voice "<name>" | --ref "<clip.wav>"]`; `--list` works too, and no Colab session is needed. Otherwise use Colab. A session spends the author's Colab compute units. The `colab` CLI must be signed in to the author's Google account.
    ```bash
