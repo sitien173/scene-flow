@@ -224,6 +224,6 @@ Projects created before this feature do not have the publisher. Copy `scripts/po
 
 | Symptom | Resolution |
 |---|---|
-| `motion-doctrine not found` | The plugin is incomplete. Run the [installer](../README.EN.md#install) again, or run `claude plugin update scene-flow@scene-flow`, then restart Claude Code. |
+| `motion-doctrine not found` | The plugin is incomplete. Run the [updater](../README.EN.md#update), or run `claude plugin update scene-flow@scene-flow`, then restart Claude Code. |
 | `ffmpeg` / `node` / `python` not found | Run the [installer](../README.EN.md#install) again, then open a new terminal. |
 | ASR alignment match rate low (< 90%) | Ask Claude to run alignment using a larger Whisper model (`medium` or `large-v3`). |

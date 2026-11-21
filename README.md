@@ -93,6 +93,22 @@ Cuối cùng, trình cài đặt đề nghị chạy bước kiểm tra HyperFra
 
 Nhận dạng giọng nói và giọng AI chạy trên Google Colab, nên bạn cần một tài khoản Google. Cách thiết lập có trong [hướng dẫn sử dụng](docs/user-guide.md#voiceover), bản tiếng Anh.
 
+### Cập nhật
+
+Trình cập nhật đưa scene-flow lên bản mới nhất cho từng agent đã cài nó. Agent nào chưa có scene-flow thì được bỏ qua. Mỗi agent in ra một dòng kết quả. Sau đó, khởi động lại các agent vừa được cập nhật.
+
+**Windows:** mở PowerShell và chạy:
+
+```powershell
+irm https://raw.githubusercontent.com/sitien173/scene-flow/main/update.ps1 | iex
+```
+
+**macOS và Linux:** mở Terminal và chạy:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sitien173/scene-flow/main/update.sh | bash
+```
+
 ### Cài plugin bằng tay
 
 Trình cài đặt tự thêm plugin cho các agent nó tìm thấy. Muốn tự thêm plugin thì cài các công cụ ở trên trước, rồi chạy:
