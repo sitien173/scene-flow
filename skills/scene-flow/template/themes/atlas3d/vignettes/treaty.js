@@ -1,4 +1,5 @@
 // Sentences 12-13: Wide North Atlantic view showing Paris signing and ratification route to Washington.
+import { tradeShip } from "./trade-ship/trade-ship.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -33,7 +34,7 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const ship = kit.props.sailingShip({
+  const ship = tradeShip(kit, {
     scale: 2.2,
     position: kit.lonLatToWorld(-10.0, 47.0, 0.015),
     rotationY: -1.45,

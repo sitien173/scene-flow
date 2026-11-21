@@ -1,4 +1,5 @@
 // Sentences 18-21: Wider view of the persistent Louisiana territory with modern states and Indigenous impact labels.
+import { mapArrow } from "./map-arrow/map-arrow.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -18,7 +19,7 @@ export function build(kit) {
   kit.map.label([-100, 39.5], "Hàng chục bộ tộc bản địa", { at: nativeAt, dur: 0.35, offset: [0, 0] });
   kit.map.label([-100, 34.5], "Bị bỏ qua", { at: impactAt, dur: 0.35, offset: [0, 28] });
 
-  const arrow = kit.props.arrow({
+  const arrow = mapArrow(kit, {
     pointing: "down",
     scale: 2.3,
     position: kit.lonLatToWorld(-93, 44.5, 0.09),

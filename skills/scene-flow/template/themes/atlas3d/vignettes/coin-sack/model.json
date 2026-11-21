@@ -1,0 +1,10 @@
+{
+  "name": "coin-sack",
+  "theme": "atlas3d",
+  "kind": "object",
+  "factory": "coinSack",
+  "glb": "",
+  "clips": [],
+  "opts": {"scale": 1.9, "at": 0.75, "popDur": 0.45},
+  "scene_flow_version": "0.4.0"
+}

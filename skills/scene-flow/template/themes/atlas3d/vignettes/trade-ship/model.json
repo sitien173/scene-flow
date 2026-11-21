@@ -1,0 +1,10 @@
+{
+  "name": "trade-ship",
+  "theme": "atlas3d",
+  "kind": "object",
+  "factory": "tradeShip",
+  "glb": "",
+  "clips": [],
+  "opts": {"scale": 2.2, "rotationY": 0.4},
+  "scene_flow_version": "0.4.0"
+}

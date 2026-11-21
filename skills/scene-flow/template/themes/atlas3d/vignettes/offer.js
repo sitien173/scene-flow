@@ -1,4 +1,6 @@
 // Sentences 9-11: Backdrop scene for Napoleon's surprise offer of all Louisiana for $15M.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { priceTag } from "./price-tag/price-tag.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -13,7 +15,8 @@ export function build(kit) {
   const priceAt = kit.beat("price");
   const envoysAt = kit.beat("envoys");
 
-  const king = kit.figure("king", {
+  const king = townsfolk(kit, {
+    role: "king",
     expression: "shocked",
     gesture: "shrug",
     scale: 1.2,
@@ -23,7 +26,7 @@ export function build(kit) {
     popDur: 0.45,
   });
 
-  const tag = kit.props.priceTag({
+  const tag = priceTag(kit, {
     text: "15 triệu $",
     scale: 1.0,
     position: [-0.26, 0.0, 0.42],
@@ -32,7 +35,8 @@ export function build(kit) {
     popDur: 0.4,
   });
 
-  const envoy1 = kit.figure("diplomat", {
+  const envoy1 = townsfolk(kit, {
+    role: "diplomat",
     expression: "smile",
     gesture: "wave",
     scale: 1.02,
@@ -42,7 +46,8 @@ export function build(kit) {
     popDur: 0.4,
   });
 
-  const envoy2 = kit.figure("diplomat", {
+  const envoy2 = townsfolk(kit, {
+    role: "diplomat",
     expression: "smile",
     gesture: "idle",
     scale: 1.0,

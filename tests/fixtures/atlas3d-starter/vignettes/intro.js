@@ -1,4 +1,8 @@
 // Sentence 1: shared parchment map focusing on France, with two chibi figures and three props on the vignette's layer.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { coinSack } from "./coin-sack/coin-sack.js";
+import { cargoCrate } from "./cargo-crate/cargo-crate.js";
+import { tradeShip } from "./trade-ship/trade-ship.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -18,7 +22,8 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const king = kit.figure("king", {
+  const king = townsfolk(kit, {
+    role: "king",
     expression: "smile",
     gesture: "wave",
     scale: 1.0,
@@ -29,7 +34,8 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const diplomat = kit.figure("diplomat", {
+  const diplomat = townsfolk(kit, {
+    role: "diplomat",
     expression: "neutral",
     gesture: "point",
     scale: 0.98,
@@ -41,7 +47,7 @@ export function build(kit) {
     outDur: 0.35,
   });
 
-  const ship = kit.props.sailingShip({
+  const ship = tradeShip(kit, {
     position: kit.lonLatToWorld(-2.4, 45.6, 0.015),
     rotationY: 0.6,
     scale: 1.15,
@@ -50,7 +56,7 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const crate = kit.props.cargoCrate({
+  const crate = cargoCrate(kit, {
     position: kit.lonLatToWorld(0.4, 45.2, 0.145),
     rotationY: 0.35,
     scale: 0.95,
@@ -59,7 +65,7 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const bag = kit.props.moneyBag({
+  const bag = coinSack(kit, {
     position: kit.lonLatToWorld(4.1, 45.4, 0.145),
     rotationY: -0.25,
     scale: 1.0,

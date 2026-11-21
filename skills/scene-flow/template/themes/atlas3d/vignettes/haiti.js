@@ -1,4 +1,5 @@
 // Sentence 5: Caribbean view on Hispaniola showing Saint-Domingue crisis.
+import { townsfolk } from "./townsfolk/townsfolk.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -19,7 +20,8 @@ export function build(kit) {
   scene.add(layerGroup);
 
   const [htiLon, htiLat] = kit.map.regionCenter("hti");
-  const soldier = kit.figure("soldier", {
+  const soldier = townsfolk(kit, {
+    role: "soldier",
     expression: "shocked",
     gesture: "shrug",
     scale: 1.05,

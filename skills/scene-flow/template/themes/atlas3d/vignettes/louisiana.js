@@ -1,4 +1,6 @@
 // Sentences 14-17: Louisiana territory fill, size, price per acre, and westward expansion arrow.
+import { priceTag } from "./price-tag/price-tag.js";
+import { mapArrow } from "./map-arrow/map-arrow.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -23,7 +25,7 @@ export function build(kit) {
   scene.add(layerGroup);
 
   const tagText = "4 xu/mẫu Anh";
-  const tag = kit.props.priceTag({
+  const tag = priceTag(kit, {
     text: tagText,
     scale: 2.5,
     position: kit.lonLatToWorld(-96.5, 34.2, 0.09),
@@ -70,7 +72,7 @@ export function build(kit) {
     }
   });
 
-  const arrow = kit.props.arrow({
+  const arrow = mapArrow(kit, {
     pointing: "left",
     scale: 2.3,
     position: kit.lonLatToWorld(-104.5, 42.0, 0.09),

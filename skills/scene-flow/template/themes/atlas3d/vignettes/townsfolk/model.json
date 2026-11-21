@@ -1,0 +1,10 @@
+{
+  "name": "townsfolk",
+  "theme": "atlas3d",
+  "kind": "character",
+  "factory": "townsfolk",
+  "glb": "",
+  "clips": [],
+  "opts": {"role": "merchant", "expression": "smile", "gesture": "wave", "scale": 1.25, "at": 0.4, "popDur": 0.45},
+  "scene_flow_version": "0.4.0"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "price-tag",
+  "theme": "atlas3d",
+  "kind": "object",
+  "factory": "priceTag",
+  "glb": "",
+  "clips": [],
+  "opts": {"text": "$15M", "accent": "#BD4B3B", "tilt": -0.14, "scale": 1.55},
+  "scene_flow_version": "0.4.0"
+}

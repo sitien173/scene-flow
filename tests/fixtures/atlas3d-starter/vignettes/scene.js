@@ -1,4 +1,6 @@
 // Sentence 3 onward: backdrop vignette showing painted landscape plate, shadow-receiving floor, farmer figure, and price tag prop.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { priceTag } from "./price-tag/price-tag.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -10,7 +12,8 @@ export function build(kit) {
   const camFrom = [0.2, 1.35, 7.6];
   const camTo = [-0.15, 1.32, 7.2];
 
-  const farmer = kit.figure("farmer", {
+  const farmer = townsfolk(kit, {
+    role: "farmer",
     expression: "smile",
     gesture: "wave",
     scale: 1.35,
@@ -19,7 +22,7 @@ export function build(kit) {
     at: 0.15,
     popDur: 0.45,
   });
-  const tag = kit.props.priceTag({
+  const tag = priceTag(kit, {
     text: "$15M",
     position: [0.58, 0.0, 0.15],
     rotationY: -0.2,
