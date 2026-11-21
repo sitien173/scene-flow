@@ -40,6 +40,15 @@ def karaoke_compounds():
     return values["COMPOUNDS"] + values["THEME_SETTINGS"]["terra3d"].get("compounds", [])
 
 
+def vignette_sources(vdir):
+    """Every .js file under vignettes/, model subfolders included, in stable order."""
+    out = []
+    for dirpath, dirnames, filenames in os.walk(vdir):
+        dirnames.sort()
+        out += [os.path.join(dirpath, f) for f in sorted(filenames) if f.endswith(".js")]
+    return out
+
+
 class Terra3dBuild(unittest.TestCase):
     def project(self):
         self.assertEqual(FIXTURE_RUN.returncode, 0, "theme-fixture.sh --theme terra3d failed: " + FIXTURE_RUN.stderr[-400:])
@@ -264,7 +273,7 @@ if (missing.length) {
   const effects = {
     rain: kit.rain({ count: 16, seed: 11 }),
     swarm: kit.swarm({ count: 12, seed: 23 }),
-    fleet: kit.fleet({ count: 6, seed: 37, heightAt: kit.heightAt }),
+    fleet: kit.fleet({ count: 6, seed: 37, heightAt: kit.heightAt, geometry: new kit.THREE.BoxGeometry(0.3, 0.2, 0.6) }),
   };
   const summary = {};
   for (const [name, fx] of Object.entries(effects)) {
@@ -522,52 +531,49 @@ console.log(JSON.stringify({{ hingeZs, blockers }}));
         self.assertEqual(len(out["hingeZs"]), 2)
         self.assertEqual(out["blockers"], [], f"wall meshes intersect open gate opening: {out['blockers']}")
 
-    def test_actors_exports_and_unknown_clip_rejection(self):
-        assets_json = os.path.join(ROOT, "skills", "scene-flow", "assets", "terra3d", "assets.json")
+    def test_sample_models_and_unknown_clip_rejection(self):
+        vdir = os.path.join(ROOT, "skills", "scene-flow", "template", "themes", "terra3d", "vignettes")
+        cship_url = "file://" + os.path.join(vdir, "container-ship", "container-ship.js")
+        loco_url = "file://" + os.path.join(vdir, "rail-engine", "rail-engine.js")
         out = self.run_node_kit(f"""
-import fs from "node:fs";
-const assets = JSON.parse(fs.readFileSync({json.dumps(assets_json)}, "utf8"));
 const {{ createKit }} = await import(KIT_URL);
+const {{ containerShip }} = await import({json.dumps(cship_url)});
+const {{ railEngine }} = await import({json.dumps(loco_url)});
 const kit = createKit({{ id: "canal_workers", beats: {{}} }});
-const missing = ["shipGlb", "containerShip", "locomotive", "human", "validateClip"].filter(k => typeof kit[k] !== "function");
-if (missing.length) {{
-  console.log(JSON.stringify({{ missing }}));
-}} else {{
-  const cship = kit.containerShip({{ seed: 71, from: [0, 0, -4], to: [0, 0, 4], dur: 4 }});
-  cship.update(2.0);
-  const cs2a = cship.object.position.toArray();
-  cship.update(0.5);
-  cship.update(2.0);
-  const cs2b = cship.object.position.toArray();
-  const hasInstanced = Boolean(cship.containers && cship.containers.isInstancedMesh && cship.containers.count > 0);
+const missing = ["loadGlb", "cloneGlb", "clipPose", "followPath", "validateClip"].filter(k => typeof kit[k] !== "function");
+const cship = containerShip(kit, {{ seed: 71, from: [0, 0, -4], to: [0, 0, 4], dur: 4 }});
+cship.update(2.0);
+const cs2a = cship.group.position.toArray();
+cship.update(0.5);
+cship.update(2.0);
+const cs2b = cship.group.position.toArray();
+const hasInstanced = Boolean(cship.containers && cship.containers.isInstancedMesh && cship.containers.count > 0);
 
-  const loco = kit.locomotive({{ from: [-8, 0, 0], to: [8, 0, 0], dur: 4 }});
-  loco.update(1.5);
-  const l15a = loco.object.position.toArray();
-  loco.update(3.5);
-  const l35 = loco.object.position.toArray();
-  loco.update(1.5);
-  const l15b = loco.object.position.toArray();
+const loco = railEngine(kit, {{ from: [-8, 0, 0], to: [8, 0, 0], dur: 4 }});
+loco.update(1.5);
+const l15a = loco.group.position.toArray();
+loco.update(3.5);
+const l35 = loco.group.position.toArray();
+loco.update(1.5);
+const l15b = loco.group.position.toArray();
 
-  const knightClips = assets.models["Knight.glb"].clips.map(c => c.name);
-  kit.validateClip("Knight.glb", "Idle", kit.id, knightClips);
-  let badClipError = "";
-  try {{
-    await kit.human({{ model: "Knight.glb", clip: "Fantasy_Backflip", vignetteId: kit.id, clipNames: knightClips }});
-  }} catch (err) {{
-    badClipError = err.message;
-  }}
-  console.log(JSON.stringify({{ missing, cs2a, cs2b, hasInstanced, l15a, l15b, l35, badClipError }}));
+kit.validateClip("clipper.glb", "Sway", kit.id, ["Sway"]);
+let badClipError = "";
+try {{
+  kit.validateClip("clipper.glb", "Fantasy_Backflip", kit.id, ["Sway"]);
+}} catch (err) {{
+  badClipError = err.message;
 }}
+console.log(JSON.stringify({{ missing, cs2a, cs2b, hasInstanced, l15a, l15b, l35, badClipError }}));
 """)
-        self.assertEqual(out["missing"], [], f"missing actors exports: {out['missing']}")
-        self.assertTrue(out["hasInstanced"], "containerShip must use InstancedMesh for containers")
+        self.assertEqual(out["missing"], [], f"missing kit exports: {out['missing']}")
+        self.assertTrue(out["hasInstanced"], "container-ship must use InstancedMesh for containers")
         self.assertEqual(out["cs2a"], out["cs2b"])
         self.assertEqual(out["l15a"], out["l15b"])
         self.assertNotEqual(out["l15a"], out["l35"])
         self.assertIn("canal_workers", out["badClipError"])
         self.assertIn("Fantasy_Backflip", out["badClipError"])
-        self.assertIn("Knight.glb", out["badClipError"])
+        self.assertIn("clipper.glb", out["badClipError"])
 
     def test_overlay_helpers_are_pure_functions_of_t(self):
         out = self.run_node_kit("""
@@ -620,9 +626,8 @@ if (missing.length) {
 
     def test_phase4_vignettes_cover_all_required_primitives_and_table(self):
         vdir = os.path.join(ROOT, "skills", "scene-flow", "template", "themes", "terra3d", "vignettes")
-        sources = "\n".join(open(os.path.join(vdir, f), encoding="utf-8").read()
-                            for f in sorted(os.listdir(vdir)) if f.endswith(".js"))
-        for prim in ("kit.globe", "kit.cutaway", "kit.human", "kit.callout", "kit.pill"):
+        sources = "\n".join(open(f, encoding="utf-8").read() for f in vignette_sources(vdir))
+        for prim in ("kit.globe", "kit.cutaway", "kit.callout", "kit.pill"):
             self.assertIn(prim, sources, f"missing Phase 4 vignette primitive: {prim}")
         self.assertTrue("kit.ibar" in sources or "kit.span" in sources, "missing dimension marker (kit.ibar or kit.span)")
 
@@ -636,10 +641,9 @@ console.log(JSON.stringify({ keys: Object.keys(kit) }));
         exports = [k for k in out["keys"] if k not in plumbing]
         vdir = os.path.join(ROOT, "skills", "scene-flow", "template", "themes", "terra3d", "vignettes")
         raw_sources = []
-        for f in sorted(os.listdir(vdir)):
-            if f.endswith(".js"):
-                with open(os.path.join(vdir, f), encoding="utf-8") as fh:
-                    raw_sources.append(fh.read())
+        for f in vignette_sources(vdir):
+            with open(f, encoding="utf-8") as fh:
+                raw_sources.append(fh.read())
         code = re.sub(r"//.*", "", "\n".join(raw_sources))
         destructured = set()
         for m in re.finditer(r"const\s*\{([^}]+)\}\s*=\s*kit\b", code):

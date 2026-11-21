@@ -1,4 +1,5 @@
 // Vignette 12: Low water-level ground dolly as a container ship approaches the lock channel.
+import { containerShip } from "./container-ship/container-ship.js";
 export async function build(kit) {
   const { THREE, PALETTE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 26 } });
@@ -11,7 +12,7 @@ export async function build(kit) {
   const rightWall = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.2, 16), wallMat);
   rightWall.position.set(4.2, 0.8, -8);
 
-  const ship = kit.containerShip({
+  const ship = containerShip(kit, {
     length: 8.6,
     beam: 2.3,
     seed: 105,
@@ -21,7 +22,7 @@ export async function build(kit) {
     heightAt: sea.heightAt,
   });
 
-  scene.add(sea.object, leftWall, rightWall, ship.object);
+  scene.add(sea.object, leftWall, rightWall, ship.group);
 
   kit.pill({ text: "Cửa âu", at: [0, 8.2, -4.5], offset: [0, 0], start: 0.2 });
 
@@ -36,7 +37,7 @@ export async function build(kit) {
     });
     sea.update(t);
     ship.update(t);
-    kit.projectPoint(ship.object.position, camera);
+    kit.projectPoint(ship.group.position, camera);
   }
-  return { scene, camera, update, hero: ship.object };
+  return { scene, camera, update, hero: ship.group };
 }

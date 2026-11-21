@@ -1,4 +1,5 @@
 // Vignette 14: Container ship rising inside the cutaway lock chamber under orbit.
+import { containerShip } from "./container-ship/container-ship.js";
 export async function build(kit) {
   const scene = await kit.stage({
     ground: false,
@@ -16,7 +17,7 @@ export async function build(kit) {
     wallHeight: 2.7,
     chambers: [fillSpec],
   });
-  const ship = kit.containerShip({
+  const ship = containerShip(kit, {
     length: 4.6,
     beam: 1.5,
     hullHeight: 0.65,
@@ -27,7 +28,7 @@ export async function build(kit) {
     rotationY: Math.PI * 0.5,
     position: [0, cut.deckY + 0.4, 0.2],
   });
-  scene.add(cut.object, ship.object);
+  scene.add(cut.object, ship.group);
 
   kit.callout({
     from: 0,
@@ -55,7 +56,7 @@ export async function build(kit) {
       dur: 3.2,
     });
     cut.update(t);
-    ship.object.position.y = cut.deckY + lvl - 0.18 + u * 0.05;
+    ship.group.position.y = cut.deckY + lvl - 0.18 + u * 0.05;
     ship.update(t);
   }
   return { scene, camera, update, hero: cut.object };

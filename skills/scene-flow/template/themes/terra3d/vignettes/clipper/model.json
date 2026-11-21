@@ -1,0 +1,14 @@
+{
+  "name": "clipper",
+  "theme": "terra3d",
+  "kind": "object",
+  "factory": "clipper",
+  "glb": "clipper.glb",
+  "clips": [
+    "Sway"
+  ],
+  "opts": {
+    "scale": 0.5
+  },
+  "scene_flow_version": "0.4.0"
+}

@@ -5,47 +5,6 @@ import { rand } from "./motion.js";
 const mod1 = x => ((x % 1) + 1) % 1;
 const wrapSpan = (v, span) => ((((v + span * 0.5) % span) + span) % span) - span * 0.5;
 
-function buildBoatGeometry() {
-  // Low-poly sailing vessel facing +Z: tapered hull + triangular sail with vertex colors.
-  const tris = [];
-  const cols = [];
-  const pushTri = (a, b, c, color) => {
-    tris.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
-    for (let i = 0; i < 3; i++) cols.push(color[0], color[1], color[2]);
-  };
-  const hullC = [0.55, 0.34, 0.18];
-  const deckC = [0.76, 0.56, 0.36];
-  const sailC = [0.97, 0.95, 0.90];
-  const w = 0.28;
-  const h = 0.24;
-  const bow = [0, h, 0.72];
-  const bowB = [0, 0, 0.52];
-  const sl = [-w, h, -0.56];
-  const sr = [w, h, -0.56];
-  const slB = [-w * 0.7, 0, -0.46];
-  const srB = [w * 0.7, 0, -0.46];
-  // Deck and hull sides
-  pushTri(bow, sl, sr, deckC);
-  pushTri(bow, bowB, sl, hullC);
-  pushTri(bowB, slB, sl, hullC);
-  pushTri(bow, sr, bowB, hullC);
-  pushTri(bowB, sr, srB, hullC);
-  pushTri(sl, slB, sr, hullC);
-  pushTri(sr, slB, srB, hullC);
-  // Triangular sail (double-sided)
-  const mastBase = [0, h, 0.05];
-  const mastTop = [0, h + 1.05, 0.0];
-  const sailBack = [0, h + 0.14, -0.44];
-  pushTri(mastBase, mastTop, sailBack, sailC);
-  pushTri(mastBase, sailBack, mastTop, sailC);
-
-  const geom = new THREE.BufferGeometry();
-  geom.setAttribute("position", new THREE.Float32BufferAttribute(tris, 3));
-  geom.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-  geom.computeVertexNormals();
-  return geom;
-}
-
 // Falling rain streaks: one InstancedMesh with closed-form vertical loop and slant.
 export function rain({
   count = 420,
@@ -156,7 +115,7 @@ export function swarm({
 // Fleet of ships gliding across an ocean/water surface; reads heightAt(x, z, t) if provided.
 // geometry is one ship facing +Z with its waterline at y = 0; vertex colors are used when it has them.
 export function fleet({
-  geometry = buildBoatGeometry(),
+  geometry,
   color = "#E8E2D4",
   count = 12,
   area = [48, 56],
@@ -167,6 +126,7 @@ export function fleet({
   waterLevel = 0,
   seed = 37,
 } = {}) {
+  if (!geometry) throw new Error("terra3d: fleet needs a geometry, such as skiff(kit).geometry");
   const len = Math.hypot(direction[0], direction[1]) || 1;
   const dx = direction[0] / len;
   const dz = direction[1] / len;

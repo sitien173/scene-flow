@@ -1,4 +1,5 @@
 // Vignette 7: Rain, insect swarm, red-earth cut terrain, and dry-bank locomotive under crane rise.
+import { railEngine } from "./rail-engine/rail-engine.js";
 export async function build(kit) {
   const { THREE, PALETTE } = kit;
   const scene = await kit.stage({
@@ -44,13 +45,13 @@ export async function build(kit) {
   pier.receiveShadow = true;
   pier.castShadow = true;
 
-  const train = kit.locomotive({
+  const train = railEngine(kit, {
     cars: 1,
     from: [railX, pierY + 0.2, 4.0],
     to: [railX, pierY + 0.2, -2.5],
     dur: 3.2,
   });
-  scene.add(land.object, stormRain.object, insects.object, pier, train.object);
+  scene.add(land.object, stormRain.object, insects.object, pier, train.group);
 
   kit.beat("storm");
   function update(t) {
@@ -66,5 +67,5 @@ export async function build(kit) {
     insects.update(t);
     train.update(t);
   }
-  return { scene, camera, update, hero: train.object };
+  return { scene, camera, update, hero: train.group };
 }

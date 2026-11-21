@@ -1,4 +1,8 @@
-// Vignette 15: Towing locomotives along lock walls guiding a container ship with GLB escort and worker.
+// Vignette 15: Towing locomotives along lock walls guiding a container ship with a moored GLB clipper and a worker.
+import { clipper } from "./clipper/clipper.js";
+import { containerShip } from "./container-ship/container-ship.js";
+import { railEngine } from "./rail-engine/rail-engine.js";
+import { worker } from "./worker/worker.js";
 export async function build(kit) {
   const { THREE, PALETTE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 26 } });
@@ -14,7 +18,7 @@ export async function build(kit) {
   rightWall.receiveShadow = true;
 
   const convoy = new THREE.Group();
-  const ship = kit.containerShip({
+  const ship = containerShip(kit, {
     length: 6.4,
     beam: 2.0,
     seed: 51,
@@ -23,42 +27,30 @@ export async function build(kit) {
     dur: 2.8,
     heightAt: sea.heightAt,
   });
-  const muleL = kit.locomotive({
+  const muleL = railEngine(kit, {
     cars: 0,
     from: [-3.6, 1.8, 3.2],
     to: [-3.6, 1.8, -1.2],
     dur: 2.8,
   });
-  const muleR = kit.locomotive({
+  const muleR = railEngine(kit, {
     cars: 0,
     from: [3.6, 1.8, 3.2],
     to: [3.6, 1.8, -1.2],
     dur: 2.8,
   });
 
-  // Validate clip explicitly and hide medieval accessories on Knight worker.
-  const clipList = ["Idle", "Walking_A", "Cheer"];
-  kit.validateClip("Knight.glb", "Idle", kit.id, clipList);
-  const guide = await kit.human({
-    model: "Knight.glb",
-    clip: "Idle",
-    clipNames: clipList,
+  const guide = worker(kit, {
+    gesture: "idle",
     scale: 1.0,
     position: [-4.2, 1.8, -4.5],
     rotationY: 0.3,
   });
-  for (const name of kit.HIDDEN_NODES["Knight.glb"]) {
-    const node = guide.model.getObjectByName(name);
-    if (node) node.visible = false;
-  }
 
-  const gltf = await kit.loadGlb("./assets/terra3d/models/ship-large.glb");
-  const moored = kit.cloneGlb(gltf);
-  moored.scale.setScalar(0.32);
-  moored.position.set(12, 0, -14);
+  const moored = await clipper(kit, { scale: 0.32, position: [12, 0, -14] });
 
-  convoy.add(ship.object, muleL.object, muleR.object);
-  scene.add(sea.object, leftWall, rightWall, convoy, guide.object, moored);
+  convoy.add(ship.group, muleL.group, muleR.group);
+  scene.add(sea.object, leftWall, rightWall, convoy, guide.group, moored.group);
 
   function update(t) {
     kit.track(camera, t, {
@@ -73,6 +65,7 @@ export async function build(kit) {
     muleL.update(t);
     muleR.update(t);
     guide.update(t);
+    moored.update(t);
   }
   return { scene, camera, update, hero: convoy };
 }

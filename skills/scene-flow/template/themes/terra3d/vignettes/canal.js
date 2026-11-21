@@ -1,4 +1,5 @@
 // Vignette 2: Pulled-back landscape view of the canal cut, red-earth banks, workers, and drone move.
+import { worker } from "./worker/worker.js";
 export async function build(kit) {
   const { THREE, PALETTE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 28 } });
@@ -26,9 +27,8 @@ export async function build(kit) {
   landmark.receiveShadow = true;
 
   const w1Y = field.heightAt(-5.2, 3.2);
-  const workerA = await kit.human({
-    model: "Knight.glb",
-    clip: "Walking_A",
+  const workerA = worker(kit, {
+    gesture: "walk",
     scale: 1.1,
     shirtColor: "#F27D24",
     pantsColor: "#2B4A6F",
@@ -37,9 +37,8 @@ export async function build(kit) {
   });
 
   const w2Y = field.heightAt(-7.1, 2.4);
-  const workerB = await kit.human({
-    model: "Mage.glb",
-    clip: "Idle",
+  const workerB = worker(kit, {
+    gesture: "idle",
     scale: 1.1,
     shirtColor: "#2E7CC4",
     pantsColor: "#B89F74",
@@ -47,7 +46,7 @@ export async function build(kit) {
     rotationY: 0.9,
   });
 
-  workers.add(landmark, workerA.object, workerB.object);
+  workers.add(landmark, workerA.group, workerB.group);
   scene.add(land.object, workers);
   const landmarkAt = kit.beat("landmark");
 

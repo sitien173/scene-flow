@@ -1,4 +1,5 @@
-// Vignette 4: Southern ocean swells with custom oceanMaterial band, gerstnerAt buoy, shipGlb, dolly, and callout.
+// Vignette 4: Southern ocean swells with custom oceanMaterial band, gerstnerAt buoy, GLB clipper, dolly, and callout.
+import { clipper } from "./clipper/clipper.js";
 export async function build(kit) {
   const { THREE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 24 } });
@@ -10,7 +11,7 @@ export async function build(kit) {
   const crestBand = new THREE.Mesh(crestGeom, crestMat);
   crestBand.position.set(0, 0.04, -9);
 
-  const ship = await kit.shipGlb({
+  const ship = await clipper(kit, {
     scale: 0.48,
     from: [-2.8, 0, 1.2],
     to: [2.2, 0, -1.2],
@@ -22,7 +23,7 @@ export async function build(kit) {
     new THREE.CylinderGeometry(0.18, 0.24, 0.9, 8),
     kit.matte("#F27D24"),
   );
-  scene.add(sea.object, crestBand, ship.object, buoy);
+  scene.add(sea.object, crestBand, ship.group, buoy);
 
   kit.callout({
     from: 8000,
@@ -48,5 +49,5 @@ export async function build(kit) {
     const wavePt = kit.gerstnerAt(3.2, 2.0, t, { waves: kit.WAVES, amp: 1.35 });
     buoy.position.set(wavePt.x, wavePt.y + 0.3, wavePt.z);
   }
-  return { scene, camera, update, hero: ship.object };
+  return { scene, camera, update, hero: ship.group };
 }
