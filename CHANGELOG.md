@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/sitien173/scene-flow/compare/v0.4.1...v0.4.2) (2026-11-21)
+
+
+### Features
+
+* add update scripts for installed plugins ([#15](https://github.com/sitien173/scene-flow/issues/15)) ([aa5a9f5](https://github.com/sitien173/scene-flow/commit/aa5a9f56ebe18dd63c334425f2d5d6d8963df296))
+
 ## [0.4.1](https://github.com/sitien173/scene-flow/compare/v0.4.0...v0.4.1) (2026-11-21)
 
 
