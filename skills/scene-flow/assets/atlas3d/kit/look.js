@@ -149,3 +149,55 @@ export function outlineLoop(positions, options = {}) {
   geom.setPositions(positions);
   return new Line2(geom, lineMaterial(options));
 }
+
+// Create a smooth-normal inflated geometry for crisp inverted-hull outlines without split-corner cracks.
+export function createHullGeometry(geometry, thickness = 0.022, minY = null) {
+  const nonIndexed = geometry.index ? geometry.toNonIndexed() : geometry.clone();
+  nonIndexed.computeVertexNormals();
+  const pos = nonIndexed.attributes.position;
+  const norm = nonIndexed.attributes.normal;
+  const accum = new Map();
+  const keyOf = i => `${pos.getX(i).toFixed(4)},${pos.getY(i).toFixed(4)},${pos.getZ(i).toFixed(4)}`;
+
+  for (let i = 0; i < pos.count; i++) {
+    const key = keyOf(i);
+    let acc = accum.get(key);
+    if (!acc) {
+      acc = [0, 0, 0];
+      accum.set(key, acc);
+    }
+    acc[0] += norm.getX(i);
+    acc[1] += norm.getY(i);
+    acc[2] += norm.getZ(i);
+  }
+  for (let i = 0; i < pos.count; i++) {
+    const acc = accum.get(keyOf(i));
+    const len = Math.hypot(acc[0], acc[1], acc[2]) || 1;
+    const x = pos.getX(i) + (acc[0] / len) * thickness;
+    let y = pos.getY(i) + (acc[1] / len) * thickness;
+    const z = pos.getZ(i) + (acc[2] / len) * thickness;
+    if (minY !== null && y < minY) y = minY;
+    pos.setXYZ(i, x, y, z);
+  }
+  pos.needsUpdate = true;
+  return nonIndexed;
+}
+
+export function addToonWithHull(parent, geometry, color, { thickness = 0.02, hullColor = PALETTE.ink, minY = null, castShadow = true, matOptions = {} } = {}) {
+  const mesh = new THREE.Mesh(geometry, toonMaterial(color, matOptions));
+  mesh.castShadow = castShadow;
+  mesh.receiveShadow = false;
+  const hullMat = new THREE.MeshBasicMaterial({
+    color: hullColor,
+    side: THREE.BackSide,
+    polygonOffset: true,
+    polygonOffsetFactor: 2,
+    polygonOffsetUnits: 2,
+  });
+  const hull = new THREE.Mesh(createHullGeometry(geometry, thickness, minY), hullMat);
+  hull.castShadow = false;
+  hull.receiveShadow = false;
+  mesh.add(hull);
+  parent.add(mesh);
+  return mesh;
+}

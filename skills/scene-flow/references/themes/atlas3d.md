@@ -168,6 +168,51 @@ The kit provides dedicated helpers for positioning and moving the camera:
 | `kit.camera` | `kit.camera(fov = 35)` | Creates a perspective camera configured for 1080x1920 portrait framing. |
 | `kit.lonLatToWorld` | `kit.lonLatToWorld(lon, lat, y = 0.08)` | Converts longitude and latitude coordinates into 3D world space coordinates (default `y = LAND_H = 0.08`, the base land surface). |
 
+## Models
+
+The kit holds the look and the stage. Every character and object the script needs is a model:
+an original module the agent builds once, or reuses from the channel library. Build and reuse
+models with the `model-builder` sub-agent, or follow `agents/model-builder.md` yourself on hosts
+without sub-agents.
+
+A model lives in `vignettes/<name>/`, where `<name>` is kebab-case and is not a vignette id:
+
+```text
+vignettes/ship-name/
+  ship-name.js     exports the factory
+  model.json       name, theme, kind, factory, glb, clips, opts, scene_flow_version
+  preview.png      one snapshot of the model
+  ship-name.glb    optional
+```
+
+```js
+// vignettes/ship-name/ship-name.js
+export function shipName(kit, opts = {}) {
+  return {
+    group,             // root Object3D
+    hero,              // Object3D or array, passed into the vignette's hero
+    update(t, state),  // depends only on t; safe under out-of-order seeks
+  };
+}
+```
+
+- The factory takes everything from `kit` and never imports a kit file. It is `async` only when
+  it loads a GLB.
+- Vignettes import it with `import { shipName } from "./ship-name/ship-name.js";`. Do not list
+  model folders in `vignettes.json`.
+- `build.py` scans model folders with the same banned-API check as vignettes.
+- GLB route: `const gltf = await kit.loadGlb("./vignettes/ship-name/ship-name.glb")`, then
+  `const root = kit.cloneGlb(gltf)` and `const walk = kit.clipPose(root, gltf, "Walk")` in the
+  factory, and `walk.pose(t)` in `update`. `kit.validateClip(modelName, clipName, vignetteId,
+  names)` throws a clear error for a clip name the GLB lacks. `build.py` rejects GLBs that use
+  Draco, meshopt, or KTX2.
+- The channel library is `<channel>/library/<theme>/<name>/`, with the same files. Copy a library
+  model into `vignettes/`; never import from the library.
+- atlas3d: build with `kit.look.toonMaterial` and outline each mesh with
+  `kit.look.addToonWithHull`. Keep chibi proportions, head about one third of the height. Set
+  `group.userData.atlasHero = true` and call `kit.hero({ group })` inside the factory so the
+  layout check sees it. Pop in with `kit.place` and `kit.popWindow`.
+
 ## Figures
 
 Figures are chibi toon characters standing on the map or backdrop stage.

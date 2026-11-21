@@ -1,11 +1,9 @@
 // Actors for terra3d: cached GLB ship & humans (with civilian/worker look and clip validation), code-built container ship, and locomotive.
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
-import { ease, lerp, progress, rand } from "./motion.js";
+import { followPath as applyPathTransform, rand } from "./motion.js";
+import { loadGlb, validateClip, cloneGlb } from "./glb.js";
 
-const loader = new GLTFLoader();
-const glbCache = new Map();
+export { loadGlb, validateClip };
 
 export const HIDDEN_NODES = {
   "Knight.glb": [
@@ -16,22 +14,6 @@ export const HIDDEN_NODES = {
     "Spellbook", "Spellbook_open", "1H_Wand", "2H_Staff", "Mage_Hat", "Mage_Cape",
   ],
 };
-
-// Loads and caches each GLB once per page.
-export function loadGlb(url) {
-  if (!glbCache.has(url)) {
-    glbCache.set(url, loader.loadAsync(url));
-  }
-  return glbCache.get(url);
-}
-
-// Validates a clip name against available clip names and names the vignette id on failure.
-export function validateClip(modelName, clipName, vignetteId, availableNames) {
-  if (!clipName) return;
-  if (!availableNames.includes(clipName)) {
-    throw new Error(`terra3d: vignette ${vignetteId} asks for unknown clip "${clipName}" in ${modelName}`);
-  }
-}
 
 function makeHardHat(color = "#F6C431") {
   const hat = new THREE.Group();
@@ -45,33 +27,6 @@ function makeHardHat(color = "#F6C431") {
   ridge.position.y = 0.41;
   hat.add(dome, brim, ridge);
   return hat;
-}
-
-function applyPathTransform(obj, t, { from, to, start = 0, dur = 4, curve = "linear", heightAt, waterLevel = 0, baseYaw = 0 } = {}) {
-  if (!from || !to) return;
-  const x = ease(progress(t, start, dur), curve);
-  const px = lerp(from[0], to[0], x);
-  const pz = lerp(from[2], to[2], x);
-  const py = heightAt ? heightAt(px, pz, t) : lerp(from[1], to[1], x);
-  obj.position.set(px, py, pz);
-  const dx = to[0] - from[0];
-  const dz = to[2] - from[2];
-  if (Math.hypot(dx, dz) > 1e-4) {
-    obj.rotation.y = Math.atan2(dx, dz) + baseYaw;
-  }
-  if (heightAt) {
-    const d = 0.6;
-    const len = Math.hypot(dx, dz) || 1;
-    const fx = dx / len;
-    const fz = dz / len;
-    const rx = -fz;
-    const rz = fx;
-    const pitch = -Math.atan2(heightAt(px + fx * d, pz + fz * d, t) - heightAt(px - fx * d, pz - fz * d, t), d * 2) * 0.55;
-    const roll = Math.atan2(heightAt(px + rx * d, pz + rz * d, t) - heightAt(px - rx * d, pz - rz * d, t), d * 2) * 0.55;
-    obj.rotation.x = pitch;
-    obj.rotation.z = roll;
-    obj.position.y = py + (from[1] - waterLevel);
-  }
 }
 
 // Animated KayKit human reskinned as a civilian worker/engineer (accessories hidden, work clothes + optional hard hat).
@@ -107,7 +62,7 @@ export async function human({
   validateClip(modelName, clip, vignetteId, available);
 
   const root = new THREE.Group();
-  const clone = SkeletonUtils.clone(gltf.scene);
+  const clone = cloneGlb(gltf);
   clone.scale.setScalar(scale);
   root.position.set(position[0], position[1], position[2]);
   root.rotation.y = rotationY;
@@ -179,7 +134,7 @@ export async function shipGlb({
 } = {}) {
   const gltf = await loadGlb(url);
   const root = new THREE.Group();
-  const clone = SkeletonUtils.clone(gltf.scene);
+  const clone = cloneGlb(gltf);
   clone.scale.setScalar(scale);
   clone.traverse(node => {
     if (node.isMesh) {

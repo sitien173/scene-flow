@@ -8,7 +8,8 @@ import { terrain, terrainHeight, createHeightfield } from "./terrain.js";
 import { rain, swarm, fleet } from "./particles.js";
 import { globe, routeArc, globeZoom, latLonToVec3 } from "./globe.js";
 import { cutaway, chamberLevel, gateAngle } from "./cutaway.js";
-import { shipGlb, containerShip, locomotive, human, validateClip, loadGlb, HIDDEN_NODES } from "./actors.js";
+import { shipGlb, containerShip, locomotive, human, HIDDEN_NODES } from "./actors.js";
+import { loadGlb, validateClip, cloneGlb } from "./glb.js";
 import { callout, pill, ibar, span, countValue, projectPoint } from "./overlay.js";
 
 export function createKit({ id, beats = {}, layer = null }) {
@@ -27,7 +28,8 @@ export function createKit({ id, beats = {}, layer = null }) {
     rain, swarm, fleet,
     globe, routeArc, globeZoom, latLonToVec3,
     cutaway, chamberLevel, gateAngle,
-    shipGlb, containerShip, locomotive, validateClip, loadGlb, HIDDEN_NODES,
+    shipGlb, containerShip, locomotive, HIDDEN_NODES,
+    loadGlb, validateClip, cloneGlb,
     human: (opts = {}) => human({ vignetteId: id, ...opts }),
     countValue, projectPoint,
     callout: opts => trackOverlay(callout(layer, opts)),

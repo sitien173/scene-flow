@@ -2,43 +2,11 @@
 import * as THREE from "three";
 import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
-import { PALETTE, canvasTexture, lineMaterial, toonMaterial } from "./look.js";
-import { clamp01, ease, pop, progress } from "./motion.js";
-import { addToonWithHull, attachMapDiorama } from "./figure.js";
-import { LAND_H, lonLatToWorld } from "./map.js";
+import { PALETTE, canvasTexture, lineMaterial, toonMaterial, addToonWithHull } from "./look.js";
+import { clamp01, ease, pop, progress, applyPopWindow } from "./motion.js";
+import { LAND_H, lonLatToWorld, applyPlacement } from "./map.js";
 
 export const PROP_KINDS = ["sailingShip", "cargoCrate", "moneyBag", "priceTag", "arrow", "riverPath"];
-
-function applyPlacement(group, options, diorama = {}) {
-  const { position = null, rotationY = 0, scale = 1 } = options;
-  if (position) {
-    if (Array.isArray(position)) group.position.set(position[0], position[1], position[2]);
-    else group.position.copy(position);
-  }
-  const pivot = new THREE.Group();
-  group.add(pivot);
-  attachMapDiorama(group, pivot, {
-    rotationY,
-    mapFacing: options.mapFacing ?? diorama.mapFacing ?? true,
-    mapScale: options.mapScale ?? diorama.mapScale ?? 1.38,
-    lift: diorama.lift ?? 0.14,
-  });
-  return { pivot, baseScale: scale };
-}
-
-function applyPopWindow(group, t, { at = 0, popDur = 0.45, outAt = Infinity, outDur = 0.35, baseScale = 1 } = {}) {
-  const inS = pop(t, at, popDur);
-  const outS = outAt < Infinity ? 1 - ease(progress(t, outAt - outDur, outDur), "in") : 1;
-  const s = Math.max(0, inS * outS);
-  if (s <= 0.01) {
-    group.visible = false;
-    group.scale.setScalar(0.001);
-    return 0;
-  }
-  group.visible = true;
-  group.scale.setScalar(baseScale * s);
-  return s;
-}
 
 export function sailingShip(options = {}) {
   const group = new THREE.Group();

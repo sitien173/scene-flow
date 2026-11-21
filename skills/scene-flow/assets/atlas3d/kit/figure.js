@@ -1,6 +1,7 @@
 // Chibi toon figure builder: original roly-poly proportions (~45% head), 4 expressions, 5 keyframe gestures, data-declared costumes, 6 presets, and inverted-hull outlines.
 import * as THREE from "three";
-import { PALETTE, toonMaterial } from "./look.js";
+import { PALETTE, toonMaterial, addToonWithHull } from "./look.js";
+import { attachMapDiorama } from "./map.js";
 import { clamp01, ease, lerp, pop, progress } from "./motion.js";
 
 export const FIGURE_PRESETS = ["king", "soldier", "merchant", "farmer", "diplomat", "businessperson"];
@@ -126,58 +127,6 @@ function evalKeyframes(gestureName, t) {
   return out;
 }
 
-// Create a smooth-normal inflated geometry for crisp inverted-hull outlines without split-corner cracks.
-export function createHullGeometry(geometry, thickness = 0.022, minY = null) {
-  const nonIndexed = geometry.index ? geometry.toNonIndexed() : geometry.clone();
-  nonIndexed.computeVertexNormals();
-  const pos = nonIndexed.attributes.position;
-  const norm = nonIndexed.attributes.normal;
-  const accum = new Map();
-  const keyOf = i => `${pos.getX(i).toFixed(4)},${pos.getY(i).toFixed(4)},${pos.getZ(i).toFixed(4)}`;
-
-  for (let i = 0; i < pos.count; i++) {
-    const key = keyOf(i);
-    let acc = accum.get(key);
-    if (!acc) {
-      acc = [0, 0, 0];
-      accum.set(key, acc);
-    }
-    acc[0] += norm.getX(i);
-    acc[1] += norm.getY(i);
-    acc[2] += norm.getZ(i);
-  }
-  for (let i = 0; i < pos.count; i++) {
-    const acc = accum.get(keyOf(i));
-    const len = Math.hypot(acc[0], acc[1], acc[2]) || 1;
-    const x = pos.getX(i) + (acc[0] / len) * thickness;
-    let y = pos.getY(i) + (acc[1] / len) * thickness;
-    const z = pos.getZ(i) + (acc[2] / len) * thickness;
-    if (minY !== null && y < minY) y = minY;
-    pos.setXYZ(i, x, y, z);
-  }
-  pos.needsUpdate = true;
-  return nonIndexed;
-}
-
-export function addToonWithHull(parent, geometry, color, { thickness = 0.02, hullColor = PALETTE.ink, minY = null, castShadow = true, matOptions = {} } = {}) {
-  const mesh = new THREE.Mesh(geometry, toonMaterial(color, matOptions));
-  mesh.castShadow = castShadow;
-  mesh.receiveShadow = false;
-  const hullMat = new THREE.MeshBasicMaterial({
-    color: hullColor,
-    side: THREE.BackSide,
-    polygonOffset: true,
-    polygonOffsetFactor: 2,
-    polygonOffsetUnits: 2,
-  });
-  const hull = new THREE.Mesh(createHullGeometry(geometry, thickness, minY), hullMat);
-  hull.castShadow = false;
-  hull.receiveShadow = false;
-  mesh.add(hull);
-  parent.add(mesh);
-  return mesh;
-}
-
 function addHat(headPivot, hat, thickness) {
   if (!hat) return;
   const yTop = 0.21;
@@ -238,48 +187,6 @@ function addHat(headPivot, hat, thickness) {
     tuft.position.set(-0.06, 0.21, 0.08);
     tuft.rotation.z = 0.25;
   }
-}
-
-const _dioramaWorldPos = new THREE.Vector3();
-const _dioramaCamPos = new THREE.Vector3();
-
-/**
- * Attach a pure-function-of-camera orientation and map diorama scale to a figure/prop pivot.
- * When map.update(T, camera) runs, the pivot tilts toward the camera so faces/fronts are readable.
- */
-export function attachMapDiorama(root, pivot, {
-  rotationY = 0,
-  mapFacing = true,
-  mapScale = 1.15,
-  lift = 0.14,
-  tiltBias = 0.18,
-  maxTilt = 1.18,
-} = {}) {
-  pivot.rotation.order = "YXZ";
-  pivot.rotation.set(0, rotationY, 0);
-  if (!mapFacing && mapScale === 1) return;
-  root.userData.atlasOrient = camera => {
-    if (!camera) return;
-    pivot.scale.setScalar(mapScale);
-    if (!mapFacing) {
-      pivot.rotation.set(0, rotationY, 0);
-      pivot.position.set(0, 0, 0);
-      return;
-    }
-    root.updateWorldMatrix(true, false);
-    root.getWorldPosition(_dioramaWorldPos);
-    _dioramaCamPos.setFromMatrixPosition(camera.matrixWorld);
-    const dx = _dioramaCamPos.x - _dioramaWorldPos.x;
-    const dy = _dioramaCamPos.y - _dioramaWorldPos.y;
-    const dz = _dioramaCamPos.z - _dioramaWorldPos.z;
-    const horiz = Math.hypot(dx, dz);
-    if (horiz < 1e-4 && Math.abs(dy) < 1e-4) return;
-    const camYaw = Math.atan2(dx, dz);
-    const elev = Math.atan2(dy, horiz);
-    const tiltAngle = Math.max(0, Math.min(maxTilt, elev - tiltBias));
-    pivot.rotation.set(-tiltAngle, camYaw + rotationY, 0, "YXZ");
-    pivot.position.set(0, Math.sin(tiltAngle) * lift, 0);
-  };
 }
 
 export function createFigure(preset = "diplomat", options = {}) {

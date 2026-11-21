@@ -39,9 +39,8 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Get stock, images, icons, cutouts | [style.md §5](references/style.md#5-real-media) | skill `media-use` |
 | Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
-| Build 3D objects for neon3d, terra3d, or atlas3d | [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | skill `3dviz-pro-max` |
+| Build or reuse a 3D character or object for neon3d, terra3d, or atlas3d | theme guide, "Models" section: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | sub-agent `model-builder`, which uses skill `3dviz-pro-max` |
 | Build cleanui cards, tiles, and the mascot | [cleanui.md](references/themes/cleanui.md) | none |
-| Build a 3D character for neon3d, terra3d, or atlas3d | theme guide | sub-agent `character-builder`, which uses skill `3dviz-pro-max` |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
 | Write post caption and hashtags | none | sub-agent `caption-writer` |
@@ -99,7 +98,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
    python scripts/silences.py           # cut points in silence
    ```
    Trust the map only at 90% exact match or better; below that, rerun ASR with a larger model. Cross-check distinct brand names and numbers directly in `asr-words.json`.
-6. **Prepare media.** Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
+6. **Prepare media and models.** On neon3d, terra3d, and atlas3d, theme kits hold only the look and the stage; every character and object the storyboard needs is a model in the project's `vignettes/<name>/`. For each model the storyboard lists, reuse it from the channel library `<channel>/library/<theme>/<name>/` by copying the folder into `vignettes/`, or build it. Use the sub-agent `model-builder` where sub-agents exist; otherwise follow `agents/model-builder.md` in the plugin root yourself. Save a new model to the channel library only after the author agrees. The model contract is in the theme guide's "Models" section. Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
 7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. Per-project settings:
 
    | File | Settings |

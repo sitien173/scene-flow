@@ -53,7 +53,7 @@ export async function build(kit) {
   }
 
   const gltf = await kit.loadGlb("./assets/terra3d/models/ship-large.glb");
-  const moored = gltf.scene.clone();
+  const moored = kit.cloneGlb(gltf);
   moored.scale.setScalar(0.32);
   moored.position.set(12, 0, -14);
 

@@ -13,6 +13,7 @@ import json
 import math
 import os
 import re
+import struct
 import subprocess
 import unicodedata
 
@@ -129,11 +130,35 @@ def vignette_error(problem, detail):
 
 
 def theme_sources(theme):
-    files = [os.path.join("vignettes", f) for f in sorted(os.listdir("vignettes")) if f.endswith(".js")] \
-        if os.path.isdir("vignettes") else []
-    for root, _, names in sorted(os.walk(os.path.join("assets", theme))):
-        files += [os.path.join(root, f) for f in sorted(names) if f.endswith(".js")]
+    """Vignette modules, model modules in vignettes/<model>/, and the theme kit."""
+    files = []
+    for top in ("vignettes", os.path.join("assets", theme)):
+        for root, _, names in sorted(os.walk(top)):
+            files += [os.path.join(root, f) for f in sorted(names) if f.endswith(".js")]
     return files
+
+
+# glTF extensions whose decoders are not vendored; a GLB that declares one fails to load at render time
+GLB_UNSUPPORTED = ("KHR_draco_mesh_compression", "EXT_meshopt_compression", "KHR_texture_basisu")
+
+
+def check_glbs():
+    for top in ("vignettes", "assets"):
+        for root, _, names in sorted(os.walk(top)):
+            for name in sorted(names):
+                if not name.lower().endswith(".glb"):
+                    continue
+                f = os.path.join(root, name)
+                with open(f, "rb") as fh:
+                    head = fh.read(20)
+                    magic, _, _, size, kind = struct.unpack("<4sIIII", head) if len(head) == 20 else (b"", 0, 0, 0, 0)
+                    if magic != b"glTF" or kind != 0x4E4F534A:
+                        vignette_error("invalid GLB", "%s is not a binary glTF file" % f)
+                    used = json.loads(fh.read(size).decode("utf-8")).get("extensionsUsed", [])
+                bad = [e for e in used if e in GLB_UNSUPPORTED]
+                if bad:
+                    vignette_error("unsupported GLB compression", "%s uses %s; export it without Draco, meshopt, or KTX2"
+                                   % (f, ", ".join(bad)))
 
 
 def quiet_windows():
@@ -264,6 +289,7 @@ def resolve_vignettes(theme):
             if m:
                 line = text.count("\n", 0, m.start()) + 1
                 vignette_error("banned API", "%s:%d uses %r; frames must depend on seek time only" % (f, line, m.group(0)))
+    check_glbs()
 
     def fail(problem, detail):
         vignette_error(problem, detail)

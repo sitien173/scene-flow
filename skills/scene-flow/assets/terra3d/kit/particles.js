@@ -153,8 +153,11 @@ export function swarm({
   return { object: mesh, update };
 }
 
-// Fleet of low-poly ships gliding across an ocean/water surface; reads heightAt(x, z, t) if provided.
+// Fleet of ships gliding across an ocean/water surface; reads heightAt(x, z, t) if provided.
+// geometry is one ship facing +Z with its waterline at y = 0; vertex colors are used when it has them.
 export function fleet({
+  geometry = buildBoatGeometry(),
+  color = "#E8E2D4",
   count = 12,
   area = [48, 56],
   direction = [0.22, 1.0],
@@ -179,14 +182,14 @@ export function fleet({
     r() * Math.PI * 2,
     0.8 + r() * 0.4,
   ]);
-  const geom = buildBoatGeometry();
   const mat = new THREE.MeshStandardMaterial({
-    vertexColors: true,
+    color: geometry.hasAttribute("color") ? "#FFFFFF" : color,
+    vertexColors: geometry.hasAttribute("color"),
     roughness: 0.8,
     metalness: 0.05,
     flatShading: true,
   });
-  const mesh = new THREE.InstancedMesh(geom, mat, count);
+  const mesh = new THREE.InstancedMesh(geometry, mat, count);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   const m = new THREE.Matrix4();

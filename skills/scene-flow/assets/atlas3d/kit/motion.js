@@ -77,3 +77,17 @@ export function type(layer, text, { x = 540, y = 300, size = 58, color = "#F4F1F
   update(0);
   return { element: el, update };
 }
+
+export function applyPopWindow(group, t, { at = 0, popDur = 0.45, outAt = Infinity, outDur = 0.35, baseScale = 1 } = {}) {
+  const inS = pop(t, at, popDur);
+  const outS = outAt < Infinity ? 1 - ease(progress(t, outAt - outDur, outDur), "in") : 1;
+  const s = Math.max(0, inS * outS);
+  if (s <= 0.01) {
+    group.visible = false;
+    group.scale.setScalar(0.001);
+    return 0;
+  }
+  group.visible = true;
+  group.scale.setScalar(baseScale * s);
+  return s;
+}

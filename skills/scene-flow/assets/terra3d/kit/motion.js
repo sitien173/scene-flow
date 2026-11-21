@@ -124,3 +124,31 @@ export function type(layer, text, { x = 540, y = 300, size = 58, color = "#F4F1F
   update(0);
   return { element: el, update };
 }
+
+// Moves obj from `from` to `to` over [start, start + dur], facing the direction of travel; heightAt adds wave pitch and roll.
+export function followPath(obj, t, { from, to, start = 0, dur = 4, curve = "linear", heightAt, waterLevel = 0, baseYaw = 0 } = {}) {
+  if (!from || !to) return;
+  const x = ease(progress(t, start, dur), curve);
+  const px = lerp(from[0], to[0], x);
+  const pz = lerp(from[2], to[2], x);
+  const py = heightAt ? heightAt(px, pz, t) : lerp(from[1], to[1], x);
+  obj.position.set(px, py, pz);
+  const dx = to[0] - from[0];
+  const dz = to[2] - from[2];
+  if (Math.hypot(dx, dz) > 1e-4) {
+    obj.rotation.y = Math.atan2(dx, dz) + baseYaw;
+  }
+  if (heightAt) {
+    const d = 0.6;
+    const len = Math.hypot(dx, dz) || 1;
+    const fx = dx / len;
+    const fz = dz / len;
+    const rx = -fz;
+    const rz = fx;
+    const pitch = -Math.atan2(heightAt(px + fx * d, pz + fz * d, t) - heightAt(px - fx * d, pz - fz * d, t), d * 2) * 0.55;
+    const roll = Math.atan2(heightAt(px + rx * d, pz + rz * d, t) - heightAt(px - rx * d, pz - rz * d, t), d * 2) * 0.55;
+    obj.rotation.x = pitch;
+    obj.rotation.z = roll;
+    obj.position.y = py + (from[1] - waterLevel);
+  }
+}
