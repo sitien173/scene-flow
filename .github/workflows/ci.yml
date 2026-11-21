@@ -85,6 +85,15 @@ jobs:
           echo "$got"
           test "$got" = 3365b1e3f7613fd97bbc1fe4675e395a3136835488f77cdf5472af1d241d54af
 
+      - name: Toon3d build checks
+        run: python3 tests/toon3d-build-test.py
+
+      - name: Toon3d fixture hash
+        run: |
+          got="$(bash tests/theme-fixture.sh "$RUNNER_TEMP/sf-check-toon3d" --theme toon3d | tail -1)"
+          echo "$got"
+          test "$got" = c8cb7d1fcdf83832115c0f11b85a9cb951c7e9938eaf9b8034fa3ca4d86870f2
+
       - name: Atlas3d map checks
         run: python3 tests/atlas3d-map-test.py
 

@@ -3,7 +3,7 @@ name: scene-flow
 description: >-
   Build a vertical narrated short (TikTok, Reels, Shorts; 1080x1920) in HyperFrames from a script
   and a voiceover, with picture and voice in sync to the syllable. The voice can be the author's
-  recording, a TTS API, or VieNeu-TTS on a local GPU or a Colab server. Themes: neon3d, terra3d, atlas3d, cleanui;
+  recording, a TTS API, or VieNeu-TTS on a local GPU or a Colab server. Themes: neon3d, terra3d, toon3d, atlas3d, cleanui;
   the author picks one for every project. Ships the project template, pipeline, house sound set, and assets. Use it for ANY
   narrated short: when the author sends a script to make into a video, says "làm video",
   "tạo video tiktok", "đây là file audio nói", "đây là voice", "giọng đọc", "tôi sẽ thu âm",
@@ -39,14 +39,14 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Get stock, images, icons, cutouts | [style.md §5](references/style.md#5-real-media) | skill `media-use` |
 | Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
-| Build or reuse a 3D character or object for neon3d, terra3d, or atlas3d | theme guide, "Models" section: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | sub-agent `model-builder`, which uses skill `3dviz-pro-max` |
+| Build or reuse a 3D character or object for neon3d, terra3d, toon3d, or atlas3d | theme guide, "Models" section: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [toon3d.md](references/themes/toon3d.md), [atlas3d.md](references/themes/atlas3d.md) | sub-agent `model-builder`, which uses skill `3dviz-pro-max` |
 | Build cleanui cards, tiles, and the mascot | [cleanui.md](references/themes/cleanui.md) | none |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
 | Write post caption and hashtags | none | sub-agent `caption-writer` |
-| Create a new theme from a reference video | all theme guides | sub-agent `theme-designer` |
+| Clone a reference video into a new theme | all theme guides | sub-agent `theme-designer` |
 
-Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md), [cleanui.md](references/themes/cleanui.md).
+Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [toon3d.md](references/themes/toon3d.md), [atlas3d.md](references/themes/atlas3d.md), [cleanui.md](references/themes/cleanui.md).
 
 ## Setup
 
@@ -98,7 +98,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
    python scripts/silences.py           # cut points in silence
    ```
    Trust the map only at 90% exact match or better; below that, rerun ASR with a larger model. Cross-check distinct brand names and numbers directly in `asr-words.json`.
-6. **Prepare media and models.** On neon3d, terra3d, and atlas3d, theme kits hold only the look and the stage; every character and object the storyboard needs is a model in the project's `vignettes/<name>/`. For each model the storyboard lists, reuse it from the channel library `<channel>/library/<theme>/<name>/` by copying the folder into `vignettes/`, or build it. Use the sub-agent `model-builder` where sub-agents exist; otherwise follow `agents/model-builder.md` in the plugin root yourself. Save a new model to the channel library only after the author agrees. The model contract is in the theme guide's "Models" section. Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
+6. **Prepare media and models.** On neon3d, terra3d, toon3d, and atlas3d, theme kits hold only the look and the stage; every character and object the storyboard needs is a model in the project's `vignettes/<name>/`. For each model the storyboard lists, reuse it from the channel library `<channel>/library/<theme>/<name>/` by copying the folder into `vignettes/`, or build it. Use the sub-agent `model-builder` where sub-agents exist; otherwise follow `agents/model-builder.md` in the plugin root yourself. Save a new model to the channel library only after the author agrees. The model contract is in the theme guide's "Models" section. Retime recordings and blur private data with `scripts/make-media.py`. Capture public pages with `node scripts/cdp.mjs shot <url> research/shots/x.png --w 1280 --dpr 2`. Use official logo files only; never generate or trace a logo. For pictures of an idea, use licensed stock through `media-use` first; use text-to-image only when the author has set `IMAGE_API_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` in `~/.config/scene-flow/.env`.
 7. **Compose.** Build scenes in `parts/` at syllable times from `syl-times.json`. Per-project settings:
 
    | File | Settings |
@@ -196,6 +196,7 @@ Rules live in three tiers. The more specific tier wins.
 - **Read [traps.md](references/traps.md) before composing.** It covers hidden scenes, `autoAlpha` on seek, timed `<video>` nesting, z-order, and shell escaping.
 - **Studio rewrites `index.html` on preview load.** Edit `parts/` and rebuild with `make.sh`. For a file the author edited in Studio, patch through `scripts/edit_helpers.py` (`replace_el`, `retop`, `sub`). Write patch scripts with the file-editing tool, never with shell heredocs or `python -c`.
 - **Keys and tokens never enter a project file, a video, or the chat output.**
+- **Toon3d cuts hard between vignettes, uses whip sweeps inside a vignette, and has no sound on cuts.** Its sound is the house bed plus `pop`, `click`, or `laser` beats named in `vignettes.json`. Emphasis words come from the `# Từ khóa phụ đề` list in `SCRIPT.md`. Read [references/themes/toon3d.md](references/themes/toon3d.md) before writing a vignette or choosing a sound.
 - **Terra3d has hard cuts only and no sound on cuts.** Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
 - **Atlas3d vignettes use shared map pans and backdrop scenes in `vignettes.json`.** Read [references/themes/atlas3d.md](references/themes/atlas3d.md) before writing an atlas3d vignette.
 - **Cleanui has a swoosh only on hard cuts and chapter openers.** Its seams are set per row in `cues.json` and the theme guide overrides the every-cut rule. Read [references/themes/cleanui.md](references/themes/cleanui.md) before writing a cleanui scene or choosing a sound.

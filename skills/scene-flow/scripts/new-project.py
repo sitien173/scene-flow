@@ -3,7 +3,7 @@
 # fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] --theme neon3d|terra3d|atlas3d|cleanui
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] --theme neon3d|terra3d|toon3d|atlas3d|cleanui
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -36,10 +36,11 @@ ASSETS = [
 ]
 NEON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/neon3d", "assets/neon3d")]
 TERRA3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/terra3d", "assets/terra3d")]
+TOON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/toon3d", "assets/toon3d")]
 # the atlas3d sounds join the shared ones, where add-sfx.py reads them
 ATLAS3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/atlas3d/kit", "assets/atlas3d/kit"),
                   ("assets/atlas3d/map", "assets/atlas3d/map"), ("assets/atlas3d/audio", "assets/audio")]
-# neon3d, terra3d and atlas3d only: the vignette list and modules live at the project root, read by build.py and the page
+# neon3d, terra3d, toon3d and atlas3d only: the vignette list and modules live at the project root, read by build.py and the page
 NEON3D_ROOT = ("vignettes.json", "vignettes", "SCRIPT.md")
 # cleanui only: the scene list, beats and sounds live at the project root, read by build.py
 CLEANUI_ROOT = ("cues.json", "SCRIPT.md")
@@ -69,7 +70,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["neon3d", "terra3d", "atlas3d", "cleanui"], required=True)
+ap.add_argument("--theme", choices=["neon3d", "terra3d", "toon3d", "atlas3d", "cleanui"], required=True)
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 
@@ -90,7 +91,7 @@ for entry in os.listdir(THEME_DIR):
     if a.theme == "atlas3d" and entry == "backdrops":
         put(os.path.join(THEME_DIR, entry), os.path.join(dest, "backdrops"), a.force)
         continue
-    if (a.theme in ("neon3d", "terra3d", "atlas3d") and entry in NEON3D_ROOT) or (a.theme == "cleanui" and entry in CLEANUI_ROOT):
+    if (a.theme in ("neon3d", "terra3d", "toon3d", "atlas3d") and entry in NEON3D_ROOT) or (a.theme == "cleanui" and entry in CLEANUI_ROOT):
         target = os.path.join(dest, entry)
         # the theme's sample script replaces the shared one, never an author's script
         fresh = entry == "SCRIPT.md" and io.open(target, encoding="utf-8").read() == \
@@ -100,7 +101,7 @@ for entry in os.listdir(THEME_DIR):
     put(os.path.join(THEME_DIR, entry), os.path.join(dest, "parts", entry), a.force)
 for f in PIPELINE:
     put(os.path.join(SKILL, "scripts", f), os.path.join(dest, "scripts", f), a.force)
-for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (TERRA3D_ASSETS if a.theme == "terra3d" else []) + (ATLAS3D_ASSETS if a.theme == "atlas3d" else []) + (CLEANUI_ASSETS if a.theme == "cleanui" else []):
+for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (TERRA3D_ASSETS if a.theme == "terra3d" else []) + (TOON3D_ASSETS if a.theme == "toon3d" else []) + (ATLAS3D_ASSETS if a.theme == "atlas3d" else []) + (CLEANUI_ASSETS if a.theme == "cleanui" else []):
     put(os.path.join(SKILL, src), os.path.join(dest, dst), a.force)
 for d in ("assets/video/src", "assets/img", "research/shots", "snapshots"):
     os.makedirs(os.path.join(dest, d), exist_ok=True)

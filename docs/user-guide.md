@@ -111,11 +111,13 @@ Kịch bản:
 ```
 *(English gloss: Create a TikTok video about topic. Voice file: "recordings/voice.wav". 1. Include product logos. 2. Use visuals/recordings instead of text. 3. Use intro.mp4 for the opening. 4. Use keyword CHATBOT in the comment CTA. Script: one sentence per line.)*
 
-There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme neon3d`, `--theme terra3d`, `--theme atlas3d`, or `--theme cleanui` in your prompt.
+There is no default theme. Before creating each project, Claude asks which theme to use and suggests the previous project's theme. To answer up front, include `--theme neon3d`, `--theme terra3d`, `--theme toon3d`, `--theme atlas3d`, or `--theme cleanui` in your prompt.
 
 The neon3d theme shows short neon 3D scenes with one idea each. Each scene starts on a spoken word you choose and moves to the next with a cut, a camera dive, or a short flash. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. The starter project explains AI reward hacking. See [the neon3d theme guide](../skills/scene-flow/references/themes/neon3d.md).
 
 The terra3d theme shows short daylight 3D scenes for engineering, geography, and history topics. Each scene is a hard cut on a spoken word, and captions show one word at a time. The project has a `vignettes.json` file and one code file per scene in `vignettes/`. See [the terra3d theme guide](../skills/scene-flow/references/themes/terra3d.md).
+
+The toon3d theme shows short toon-shaded 3D explainers with thin black outlines and a steep, high-angle camera. Each scene is a hard cut on a spoken sentence, and captions show two to four words at a time, with each word lit as it is spoken. Words you list under `# Từ khóa phụ đề` in `SCRIPT.md` turn red. The sample project explains rooftop solar installation. See [the toon3d theme guide](../skills/scene-flow/references/themes/toon3d.md).
 
 The cleanui theme shows a light 2D stage for AI tools and apps. Rounded cards and icon tiles appear one by one, captions sit in the top band and light up word by word, and an original teal mascot appears in each chapter. The project has a `cues.json` file that sets the timing of each beat. See [the cleanui theme guide](../skills/scene-flow/references/themes/cleanui.md).
 
@@ -164,7 +166,7 @@ If HyperFrames Studio reports "the preview did not reload" or continues displayi
 
 ### 3D characters and objects
 
-A 3D look such as `neon3d`, `terra3d`, or `atlas3d` sets color, light, camera, and motion. It has no built-in characters or objects. When your script needs one, Claude builds an original model in that look and keeps it in the project's `vignettes/<name>/` folder. In a channel folder, Claude first looks in the channel's `library/<look>/` and reuses a saved model. After the video passes its checks, Claude asks whether to save each new model to the library. Nothing is saved without your answer. Each video keeps its own copy, so changing a library model later does not change videos you already made.
+A 3D look such as `neon3d`, `terra3d`, `toon3d`, or `atlas3d` sets color, light, camera, and motion. It has no built-in characters or objects. When your script needs one, Claude builds an original model in that look and keeps it in the project's `vignettes/<name>/` folder. In a channel folder, Claude first looks in the channel's `library/<look>/` and reuses a saved model. After the video passes its checks, Claude asks whether to save each new model to the library. Nothing is saved without your answer. Each video keeps its own copy, so changing a library model later does not change videos you already made.
 
 ## 5. Exporting Video
 

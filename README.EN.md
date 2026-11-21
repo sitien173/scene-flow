@@ -36,7 +36,7 @@ Pick a music bed and a level of sound effects for your channel. The music bed ca
 
 Without your own choices, scene-flow uses its built-in sound set:
 
-- **Music bed:** "Little Things Immaterial" for `neon3d`, `terra3d`, and `cleanui`. "Short Pizzicato Song" for `atlas3d`, looped when the video is longer than the track.
+- **Music bed:** "Little Things Immaterial" for `neon3d`, `terra3d`, `toon3d`, and `cleanui`. "Short Pizzicato Song" for `atlas3d`, looped when the video is longer than the track.
 - **Sound effects:** a whoosh on each scene change, one thud at the start of the video, a pop when an important icon appears, and a click for an important number. `atlas3d` adds pen, coin, and drum sounds. `terra3d` has no sound on scene changes. `cleanui` has a whoosh only on hard cuts and at the start of each chapter.
 
 ### 4. Visual look
@@ -47,6 +47,7 @@ Claude asks which look to use for each video. Keep a channel to one or two looks
 |---|---|---|
 | `neon3d` | Short 3D scenes on a dark neon stage with bloom | Technology, AI tools, software, digital products |
 | `terra3d` | Daylight 3D scenes: a globe with route arcs, ships on the ocean, terrain from a drone, cutaways of soil and water. Hard cuts on spoken words, captions one word at a time | Engineering, construction, geography, history |
+| `toon3d` | Toon-shaded 3D explainers with thin black outlines and a high three-quarter camera: solar panels, roof, rails, inverter. Hard cuts on each sentence, captions one word at a time, listed keywords in red | Installation processes, construction, equipment, technical how-tos
 | `atlas3d` | An old-style world map with camera pans between regions, territories raised in 3D, chibi figures on the map, and photo backdrop scenes | History, geography, geopolitics, and economics told on a map |
 | `cleanui` | A light 2D stage with rounded cards and icon tiles, word-by-word captions in the top band, and an original mascot | AI tools, apps, software, and step-by-step how-tos |
 
@@ -185,13 +186,13 @@ If you have no idea yet, Claude asks what you like, who you want to talk to, and
 Create a new video for the channel:
 
 ```bash
-./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d|cleanui> [voice file]
+./new-video.sh <slug> "Video name" <neon3d|terra3d|toon3d|atlas3d|cleanui> [voice file]
 ```
 
 On Windows:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d|cleanui> [voice file]
+powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|toon3d|atlas3d|cleanui> [voice file]
 ```
 
 Put what applies to every video of the channel in `AGENTS.md`, for example brand colors, address terms, a fixed closing line, or "at most 5 hashtags, always include #xuhuong". For each video, open Claude Code in that video's folder, not in the channel folder. If you use Git, ignore `publish/` and each video's `renders/`, `snapshots/`, and `assets/audio/src/` folders, since they are large.
@@ -257,7 +258,7 @@ Add `VIBI_API_KEY=<key>` or `ELEVENLABS_API_KEY=<key>` to `~/.config/scene-flow/
 Make a video from this script. Show the logos of the tools it mentions. Keep text on screen short.
 ```
 
-Claude asks you to pick `neon3d`, `terra3d`, `atlas3d`, or `cleanui`, lines up the pictures with the voice, and sends a preview link. Name the look in the prompt if you already know which one you want.
+Claude asks you to pick `neon3d`, `terra3d`, `toon3d`, `atlas3d`, or `cleanui`, lines up the pictures with the voice, and sends a preview link. Name the look in the prompt if you already know which one you want.
 
 A look sets only color, light, camera, and motion. 3D characters and objects come from your script: Claude builds them new in that look, then asks whether to save them to the channel library. If you agree, the model is saved under the channel's `library/<look>/`, and later videos on the channel reuse it instead of building it again.
 
@@ -288,7 +289,7 @@ In Claude Code, type these commands to run one step at a time:
 | `/scene-flow:render` | Exports the MP4 |
 | `/scene-flow:caption` | Writes the post title, description, and hashtags |
 | `/scene-flow:publish` | Sends the video to Postiz as a draft |
-| `/scene-flow:theme` | Designs a new look from a reference video |
+| `/scene-flow:theme` | Clones a reference video into a new theme |
 
 You can also just describe what you want. Claude picks the right step.
 

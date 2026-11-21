@@ -29,6 +29,7 @@ python3 tests/postiz-test.py
 python3 tests/neon3d-build-test.py
 node tests/glb-test.mjs
 python3 tests/terra3d-build-test.py
+python3 tests/toon3d-build-test.py
 python3 tests/atlas3d-build-test.py
 python3 tests/atlas3d-map-test.py
 python3 tests/cleanui-build-test.py

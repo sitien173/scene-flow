@@ -1,0 +1,214 @@
+      <div id="toon3d-overlay" aria-hidden="true"></div>
+      <script type="importmap">
+        {"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/addons/","toon3d/kit":"./assets/toon3d/kit/index.js"}}
+      </script>
+      <script>
+        window.__hf = window.__hf || {};
+        window.__hf.buildReady = window.__hf.buildReady || {};
+        let resolveToonReady, rejectToonReady;
+        window.__hf.buildReady.toon3d = new Promise((resolve, reject) => { resolveToonReady = resolve; rejectToonReady = reject; });
+      </script>
+      <script type="module">
+        import * as THREE from "three";
+        import { createKit } from "toon3d/kit";
+
+        // Resolved by build.py from vignettes.json: [{ id, t, end, in: { kind }, beats }], times in seconds. Hard cuts only.
+        const VIGNETTES = @@vignettes@@;
+        const WIDTH = 1080;
+        const HEIGHT = 1920;
+        let renderWidth = WIDTH;
+        let renderHeight = HEIGHT;
+        const canvas = document.getElementById("toon3d-canvas");
+        const overlayRoot = document.getElementById("toon3d-overlay");
+        document.getElementById("w-toon").append(overlayRoot);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(1);
+        renderer.setSize(renderWidth, renderHeight, false);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFShadowMap;
+        renderer.info.autoReset = false;
+        const gl = renderer.getContext();
+        let contextLost = false;
+        canvas.addEventListener("webglcontextlost", () => { contextLost = true; });
+
+        const slots = [];
+        let ready = false;
+        let shown = -1;
+
+        function activeIndex(time) {
+          let k = 0;
+          while (k + 1 < VIGNETTES.length && time >= VIGNETTES[k + 1].t) k++;
+          return k;
+        }
+
+        function renderAt(time) {
+          if (!ready) return;
+          time = Number.isFinite(time) ? Math.max(0, time) : 0;
+          const k = activeIndex(time);
+          const slot = slots[k];
+          if (shown !== k) {
+            for (let i = 0; i < slots.length; i++) slots[i].layer.style.display = i === k ? "block" : "none";
+            shown = k;
+          }
+          const localTime = time - VIGNETTES[k].t;
+          slot.update(localTime);
+          slot.camera.updateMatrixWorld(true);
+          slot.kit.updateOverlays(localTime, slot.camera);
+          renderer.info.reset();
+          renderer.render(slot.scene, slot.camera);
+        }
+
+        async function setupToon() {
+          await document.fonts.ready;
+          await document.fonts.load('800 40px "Be Vietnam Pro"', "Aà Ạ Đ Ư");
+          for (const v of VIGNETTES) {
+            const fail = error => new Error("toon3d: vignette " + v.id + ": " + (error && error.message ? error.message : error));
+            try {
+              const module = await import("./vignettes/" + v.id + ".js");
+              if (typeof module.build !== "function") throw new Error("vignettes/" + v.id + ".js exports no build(kit)");
+              const beats = Object.fromEntries(Object.entries(v.beats || {}).map(([name, t]) => [name, t - v.t]));
+              const layer = document.createElement("div");
+              layer.className = "toon-layer";
+              layer.dataset.vignette = v.id;
+              layer.style.display = "none";
+              overlayRoot.append(layer);
+              const kit = createKit({ id: v.id, beats, layer });
+              const built = await module.build(kit);
+              if (built && built.scene && built.scene.isScene) kit.shadows(built.scene);
+              if (!built || !built.scene || !built.scene.isScene) throw new Error("build must return { scene } with a THREE.Scene");
+              if (!built.camera || !built.camera.isCamera) throw new Error("build must return { camera } with a THREE camera");
+              if (typeof built.update !== "function") throw new Error("build must return update(localTime)");
+              slots.push({ ...built, kit, layer });
+            } catch (error) {
+              throw fail(error);
+            }
+          }
+          for (const [k, slot] of slots.entries()) {
+            try {
+              slot.update(0);
+              await renderer.compileAsync(slot.scene, slot.camera);
+            } catch (error) {
+              throw new Error("toon3d: vignette " + VIGNETTES[k].id + ": " + error.message);
+            }
+          }
+          ready = true;
+          renderAt(0);
+          const pixel = new Uint8Array(4);
+          renderer.setRenderTarget(null);
+          gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+          if (contextLost || gl.isContextLost()) throw new Error("toon3d: WebGL context lost");
+          resolveToonReady();
+        }
+
+        window.addEventListener("hf-seek", event => renderAt(event.detail.time));
+        window.__toon3d = {
+          vignettes: VIGNETTES,
+          renderAt,
+          setScale(scale) {
+            const s = Number.isFinite(scale) ? Math.min(1, Math.max(0.1, scale)) : 1;
+            renderWidth = Math.max(1, Math.round(WIDTH * s));
+            renderHeight = Math.max(1, Math.round(HEIGHT * s));
+            renderer.setSize(renderWidth, renderHeight, false);
+            return { width: renderWidth, height: renderHeight };
+          },
+          // FNV-1a over every byte of the frame, with mean and spread of the luminance.
+          pixels(time) {
+            renderAt(time);
+            renderer.setRenderTarget(null);
+            const data = new Uint8Array(renderWidth * renderHeight * 4);
+            gl.readPixels(0, 0, renderWidth, renderHeight, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            let hash = 0x811c9dc5;
+            for (let i = 0; i < data.length; i++) hash = Math.imul(hash ^ data[i], 0x01000193);
+            let sum = 0, sq = 0, n = 0;
+            const stride = Math.max(4, Math.floor(data.length / (4 * 32400)) * 4);
+            for (let i = 0; i < data.length; i += stride) {
+              const y = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+              sum += y; sq += y * y; n++;
+            }
+            const mean = sum / n;
+            return { hash: (hash >>> 0).toString(16), mean, std: Math.sqrt(Math.max(0, sq / n - mean * mean)) };
+          },
+          // Screen rectangles of the active vignette's hero and visible pill labels.
+          heroRects(time) {
+            renderAt(time);
+            const k = activeIndex(time);
+            const slot = slots[k];
+            const rects = [];
+            const heroes = [].concat(slot.hero || []);
+            for (const hero of heroes) {
+              hero.updateWorldMatrix(true, true);
+              const box = new THREE.Box3().setFromObject(hero);
+              if (box.isEmpty()) continue;
+              let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+              for (let c = 0; c < 8; c++) {
+                const p = new THREE.Vector3(c & 1 ? box.max.x : box.min.x, c & 2 ? box.max.y : box.min.y, c & 4 ? box.max.z : box.min.z).project(slot.camera);
+                const x = (p.x + 1) / 2 * WIDTH;
+                const y = (1 - p.y) / 2 * HEIGHT;
+                x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+              }
+              rects.push({ id: VIGNETTES[k].id, kind: "hero", x: x0, y: y0, width: x1 - x0, height: y1 - y0 });
+            }
+            const visible = el => {
+              const cs = getComputedStyle(el);
+              return cs.display !== "none" && cs.visibility !== "hidden" && parseFloat(cs.opacity) > 0.01;
+            };
+            for (const [sel, kind] of [[".toon-pill", "pill"]]) {
+              for (const el of slot.layer.querySelectorAll(sel)) {
+                if (!visible(el)) continue;
+                const r = el.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) rects.push({ id: VIGNETTES[k].id, kind, x: r.x, y: r.y, width: r.width, height: r.height });
+              }
+            }
+            return rects;
+          },
+          // Projected points of the active vignette scene lines (poles, wires, cables), for the caption clearance check.
+          lineSamples(time) {
+            renderAt(time);
+            const k = activeIndex(time);
+            const slot = slots[k];
+            const out = [];
+            const local = time - VIGNETTES[k].t;
+            const lines = typeof slot.lines === "function" ? slot.lines(local) : slot.lines || [];
+            for (const line of lines) {
+              for (const p of line) {
+                const v = p.clone().project(slot.camera);
+                if (v.z < -1 || v.z > 1) continue;
+                out.push({ x: (v.x + 1) / 2 * WIDTH, y: (1 - v.y) / 2 * HEIGHT });
+              }
+            }
+            return out;
+          },
+          overlayRects(time) {
+            const k = activeIndex(time);
+            const slot = slots[k];
+            for (let i = 0; i < slots.length; i++) slots[i].layer.style.display = i === k ? "block" : "none";
+            shown = k;
+            const local = time - VIGNETTES[k].t;
+            slot.update(local);
+            slot.camera.updateMatrixWorld(true);
+            slot.kit.updateOverlays(local, slot.camera);
+            const rects = [];
+            for (const el of slot.layer.querySelectorAll(".toon-pill, .toon-dot, .toon-num, .toon-badge")) {
+              if (getComputedStyle(el).display === "none") continue;
+              const r = el.getBoundingClientRect();
+              if (r.width > 0 && r.height > 0) rects.push({ id: VIGNETTES[k].id, kind: el.className.split(" ")[0].replace("toon-", ""), x: r.x, y: r.y, width: r.width, height: r.height });
+            }
+            return rects;
+          },
+          info() {
+            return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+              textures: renderer.info.memory.textures, geometries: renderer.info.memory.geometries };
+          },
+        };
+        setupToon().catch(error => { console.error("toon3d: setup failed", error); rejectToonReady(error); });
+      </script>
+      <div class="watermark" id="watermark-top" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>
+      <div class="watermark" id="watermark-bottom" aria-hidden="true">
+        <img src="assets/logos/soi-repo-mark.svg" alt="">
+        <span>@@brand@@</span>
+      </div>

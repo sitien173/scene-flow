@@ -1,0 +1,56 @@
+      :root {
+        --canvas:#B9D7EB; --ink:#1B1B1F; --muted:#3A4A5A; --emph:#DF342C; --wall:#EEC8AE; --panel:#4564C2; --yellow:#F7D33F;
+        --font:"Be Vietnam Pro","Segoe UI",sans-serif;
+      }
+      html, body { width:1080px; height:1920px; margin:0; padding:0; overflow:hidden; background:var(--canvas); }
+      body { color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+      #root { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--canvas); }
+
+      .scene { position:absolute; inset:0; z-index:1; }
+      .wrap { position:absolute; inset:0; will-change:transform, opacity; }
+      #toon3d-canvas { position:absolute; inset:0; display:block; width:1080px; height:1920px; }
+      #toon3d-overlay { position:absolute; inset:0; z-index:6; pointer-events:none; }
+      .toon-layer { position:absolute; inset:0; }
+
+      /* pill label: white, heavy, 62 px (style.md section 3, key label floor), with a dark rim */
+      .toon-pill { position:absolute; transform:translate(-50%, -50%); padding:14px 34px; border-radius:999px;
+                   background:#FFFFFF; color:var(--ink); font-family:var(--font); font-size:62px; font-weight:800; line-height:1.1; text-transform:uppercase;
+                   white-space:nowrap; border:4px solid var(--ink); box-shadow:0 8px 0 rgba(27,27,31,0.9); }
+      /* leader line from the pill centre to its anchor, and the dot on the anchor (the pill covers the line's start) */
+      .toon-leader { position:absolute; height:4px; border-radius:2px; background:var(--ink); transform-origin:0 50%; }
+      .toon-dot { position:absolute; box-sizing:border-box; width:24px; height:24px; margin:-12px 0 0 -12px; border-radius:50%;
+                  background:var(--ink); border:4px solid #FFFFFF; }
+
+      /* watermarks in ink: readable on the pale sky and on the lawn */
+      .watermark { position:absolute; z-index:12; display:flex; align-items:center; gap:12px; color:var(--ink);
+                   font-size:24px; font-weight:700; letter-spacing:0.01em; opacity:0.8; text-shadow:0 1px 0 rgba(255,255,255,0.6); }
+      .watermark img { display:block; width:44px; height:44px; object-fit:contain; }
+      #watermark-top { top:60px; left:42px; }
+      #watermark-bottom { right:42px; bottom:48px; }
+
+      /* top caption band, sentence case: lines of 2 to 4 words, heavy black sans with a white halo (the reference), about 84 px.
+         A word is hidden until its reveal time (timeline.js sets display), then 75% ink, then black or red when spoken. */
+      #kara { position:absolute; z-index:21; inset:0; pointer-events:none; }
+      .kc { position:absolute; left:0; right:0; top:120px; height:130px; line-height:130px; text-align:center; }
+      .kin { display:block; color:#191B1F; font-size:84px; font-weight:800; line-height:inherit; text-transform:none; white-space:nowrap; opacity:0;
+             -webkit-text-stroke:6px #FFFFFF; paint-order:stroke fill; }
+      .kin.kr { color:var(--emph); }
+      /* counter tags (overlay.js counterTags): a white number with an ink rim over each panel, and the yellow multiplier badge */
+      .toon-num { position:absolute; transform:translate(-50%, -50%); color:#FFFFFF; font-family:var(--font); font-size:72px; font-weight:800;
+                  line-height:1; -webkit-text-stroke:6px var(--ink); paint-order:stroke fill; white-space:nowrap; }
+      .toon-badge { position:absolute; transform:translate(-50%, -50%); color:var(--yellow); font-family:var(--font); font-size:128px; font-weight:800;
+                    line-height:1; -webkit-text-stroke:20px var(--ink); paint-order:stroke fill; white-space:nowrap; }
+      .kw { position:relative; display:inline-block; padding:0 8px; margin:0 -3px; }
+      .kb { position:relative; color:inherit; }
+      .kc.rv .kw { display:none; }
+      /* full-frame flash, one frame long, in the violet of the reference's flash at 132.83 s (overlay.js) */
+      .toon-flash { position:absolute; inset:0; opacity:0; pointer-events:none; }
+
+      .cta-card { position:absolute; top:650px; left:72px; right:72px; padding:54px 42px 60px; border-radius:32px; background:#FFFFFF;
+                  box-shadow:0 28px 66px rgba(27,27,31,0.3); text-align:center; border:6px solid var(--ink); }
+      .cta-label { color:var(--muted); font-size:27px; font-weight:800; letter-spacing:0.08em; }
+      .cta-title { margin-top:24px; color:var(--ink); font-size:52px; font-weight:800; line-height:1.25; }
+
+      #ec-logo { position:absolute; top:548px; left:420px; display:block; width:240px; height:240px; object-fit:contain; }
+      #ec-brand { position:absolute; top:850px; left:72px; width:936px; color:var(--ink); font-size:72px; font-weight:800; line-height:1.15; text-align:center; }
+      #ec-slogan { position:absolute; top:960px; left:84px; width:912px; color:var(--muted); font-size:36px; font-weight:600; line-height:1.4; text-align:center; }
