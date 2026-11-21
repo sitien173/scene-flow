@@ -1,0 +1,46 @@
+      :root {
+        --sky:#DCECEC; --night:#1C2C4C; --night-lit:#2E4470; --earth:#BC8C5C; --earth-dk:#A4744C; --straw:#F4D484; --soil:#5C443C; --soil-dk:#3B2C27;
+        --ink:#1A1410; --water:#7FA6B3; --olive:#8FA35A; --tunic:#C98A3A; --skin:#E9B98A; --hat:#E3B76A; --buffalo:#4A4A52; --lamp:#FFC247;
+        --font:"Be Vietnam Pro","Segoe UI",sans-serif;
+      }
+      html, body { width:1080px; height:1920px; margin:0; padding:0; overflow:hidden; background:var(--sky); }
+      body { color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+      #root { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--sky); }
+
+      .scene { position:absolute; inset:0; z-index:1; }
+      .wrap { position:absolute; inset:0; will-change:transform, opacity; }
+
+      /* flat vector art: thick near-black outlines, flat fills, no gradients, no shadows */
+      .l2d-v { position:absolute; inset:0; width:1080px; height:1920px; display:none; overflow:hidden; }
+      .ink { stroke:var(--ink); stroke-width:5; stroke-linejoin:round; stroke-linecap:round; }
+      .line { fill:none; }
+      .dash { fill:none; stroke:var(--earth-dk); stroke-width:6; stroke-linecap:round; }
+      .dot { fill:var(--ink); }
+      .shadow { fill:rgba(26,20,16,0.22); }
+      .star { fill:var(--straw); }
+      .f-sky { fill:var(--sky); } .f-night { fill:var(--night); } .f-night-lit { fill:var(--night-lit); } .f-earth { fill:var(--earth); } .f-earth-dk { fill:var(--earth-dk); }
+      .f-straw { fill:var(--straw); } .f-soil { fill:var(--soil); } .f-soil-dk { fill:var(--soil-dk); } .f-water { fill:var(--water); }
+      .f-olive { fill:var(--olive); } .f-tunic { fill:var(--tunic); } .f-skin { fill:var(--skin); } .f-hat { fill:var(--hat); }
+      .f-buffalo { fill:var(--buffalo); } .f-lamp { fill:var(--lamp); }
+
+      .watermark { position:absolute; z-index:12; display:flex; align-items:center; gap:12px; color:var(--ink);
+                   font-size:40px; font-weight:700; letter-spacing:0.01em; opacity:0.72; }
+      .watermark img { display:block; width:44px; height:44px; object-fit:contain; }
+      #watermark-top { top:184px; right:42px; }
+      #watermark-top.on-dark { color:#FFFFFF; }
+
+      /* captions: uppercase, 76 px at 1080x1920, active word #FFC247 (set by karaoke.py), thick dark outline */
+      #kara { position:absolute; z-index:21; inset:0; pointer-events:none; }
+      .kc { position:absolute; left:64px; right:64px; bottom:480px; text-align:center; }
+      .kin { display:block; color:#FFFFFF; font-size:76px; font-weight:800; line-height:1.2; text-transform:uppercase; white-space:nowrap; opacity:0; }
+      .kw { position:relative; display:inline-block; padding:0 6px; margin:0 -2px; }
+      .kb { position:relative; color:#FFFFFF; -webkit-text-stroke:6px var(--ink); paint-order:stroke fill; }
+
+      .cta-card { position:absolute; top:650px; left:72px; right:72px; padding:54px 42px 60px; border:5px solid var(--ink);
+                  border-radius:32px; background:#FFFFFF; box-shadow:0 14px 0 var(--ink); text-align:center; }
+      .cta-label { color:var(--earth-dk); font-size:40px; font-weight:800; letter-spacing:0.08em; }
+      .cta-title { margin-top:24px; color:var(--ink); font-size:52px; font-weight:800; line-height:1.25; }
+
+      #ec-logo { position:absolute; top:548px; left:420px; display:block; width:240px; height:240px; object-fit:contain; }
+      #ec-brand { position:absolute; top:850px; left:72px; width:936px; color:var(--ink); font-size:72px; font-weight:800; line-height:1.15; text-align:center; }
+      #ec-slogan { position:absolute; top:960px; left:84px; width:912px; color:var(--earth-dk); font-size:40px; font-weight:600; line-height:1.4; text-align:center; }

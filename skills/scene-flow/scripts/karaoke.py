@@ -37,7 +37,7 @@ COMPOUNDS = [
 ]
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
+    raise SystemExit("theme %s was removed; only neon3d, terra3d, atlas3d and legend2d are supported" % THEME)
 THEME_SETTINGS = {
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
@@ -62,6 +62,14 @@ THEME_SETTINGS = {
         "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
         "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
         "minu": 3, "highlight": False,  # whole phrases only: no per-word colour
+    },
+    # uppercase cues of 2 to 3 words, 16 characters at most so one line fits 936 px at 76 px; the active word is yellow
+    "legend2d": {
+        "maxu": 3, "maxc": 16, "maxc_side": 16,
+        "lit_color": "#FFC247", "lit_shadow": "DHALO",
+        "unlit_color": "#FFFFFF", "unlit_shadow": "DHALO",
+        "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
+        "minu": 2,
     },
 }
 if THEME not in THEME_SETTINGS:

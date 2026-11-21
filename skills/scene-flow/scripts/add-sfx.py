@@ -29,6 +29,10 @@
 #     bed      -33   file -22.7   gain 0.305 (Short Pizzicato Song from 0:00, 56.3 s; the mean is the same over
 #                                            26.95 s, 56.3 s and 105 s of film. A film longer than the file gets
 #                                            a looped render, see LOOP_OVERLAP)
+# legend2d bed (Freesound, CC0; measured 2026-11-21 with scripts/sfx-gain.py):
+#     bed      -33   file -21.5   gain 0.266 (ukulele by _steef from 0:00, 98.0 s; the mean is -21.9 over 30 s,
+#                                            -21.5 over 60 s and -21.1 over the whole file. The file has no quiet
+#                                            tail, so a longer film gets a crossfaded loop, see LOOP_FADE)
 
 import io
 import json
@@ -64,6 +68,7 @@ G_PEN = 6.5
 G_COINS = 0.89
 G_DRUM = 0.90
 G_BED_ATLAS3D = 0.305
+G_BED_LEGEND2D = 0.266
 
 DURATION = {"thud": 3.11, "swoosh": 1.12, "pop": 0.72, "laser": 0.37, "risercut3": 3.20, "click": 0.25,
             "pen": 1.19, "coins": 2.26, "drum": 2.99}
@@ -86,10 +91,11 @@ LEDGER = json.load(io.open("ledger.json", encoding="utf-8"))
 # terra3d has no sound on cuts, its seams into the CTA and end card included
 SWOOSH = [] if LEDGER.get("theme") == "terra3d" else [(float(r["cut"]), "swoosh", G_SWOOSH) for r in LEDGER["seams"]]
 ATLAS3D = os.path.exists("meta.json") and json.load(io.open("meta.json", encoding="utf-8")).get("theme") == "atlas3d"
-# atlas3d: build.py resolves a whoosh per `pan` and each vignettes.json `sfx` beat into ledger cues. A pan that
+LEGEND2D = os.path.exists("meta.json") and json.load(io.open("meta.json", encoding="utf-8")).get("theme") == "legend2d"
+# atlas3d and legend2d: build.py resolves a whoosh per `pan` and each vignettes.json `sfx` beat into ledger cues. A pan that
 # lands on a seam already has the seam's swoosh, so it adds none. Every other theme ignores ledger cues.
 CUES = []
-for c in LEDGER.get("cues", []) if ATLAS3D else []:
+for c in LEDGER.get("cues", []) if ATLAS3D or LEGEND2D else []:
     assert c["sound"] in CUE_GAIN, "ledger cue at %.2fs names an unknown sound: %s" % (c["t"], c["sound"])
     if c["sound"] == "swoosh" and any(abs(c["t"] - t) < 0.05 for t, _, _ in SWOOSH):
         continue
@@ -105,6 +111,10 @@ if ATLAS3D:
 # The atlas3d bed's tail is below -57 dB for its last 5.6 s, so each repeat starts 5 s early under that tail:
 # no gap and no click, and nothing audible is crossfaded.
 LOOP_OVERLAP = 5.0
+LOOP_FADE = False      # True: an equal-power crossfade over LOOP_OVERLAP, for a bed that plays to its last sample
+if LEGEND2D:
+    BED, BED_LABEL, G_BED, LOOP_BED = "assets/audio/bgm-ukulele.mp3", "ukulele", G_BED_LEGEND2D, True
+    LOOP_OVERLAP, LOOP_FADE = 2.0, True
 RISER = []        # e.g. [(1.36, "risercut3", G_RISER)]   -> peaks at 4.56
 LASER = [(t - 0.05, "laser", G_LASER) for t in (
 )]                # e.g. 18.04, 27.22 — the moment of each click
@@ -171,9 +181,15 @@ if LOOP_BED and os.path.exists(BED):
     if DUR > len(song) / SR:
         step = len(song) - int(LOOP_OVERLAP * SR)
         out = np.zeros((int(round(DUR * SR)), 2))
+        fade = np.linspace(0, np.pi / 2, len(song) - step)[:, None]
         for a in range(0, len(out), step):
             b = min(len(out), a + len(song))
-            out[a:b] += song[:b - a]
+            part = song[:b - a].astype(np.float64)
+            if LOOP_FADE and a:
+                part[:len(fade)] *= np.sin(fade[:len(part)])
+            if LOOP_FADE and a + step < len(out):
+                part[step:] *= np.cos(fade[:len(part) - step])
+            out[a:b] += part
         with wave.open("assets/audio/bgm-loop.wav", "wb") as w:
             w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
             w.writeframes((np.clip(out, -1, 1) * 32767).round().astype("<i2").tobytes())

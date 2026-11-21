@@ -1,9 +1,9 @@
 # Create videos\<yyyy-mm>-<slug>\ with scene-flow, then apply the branding from brand\brand.json.
-# usage: powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d> [voice-recording]
+# usage: powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Video name" <neon3d|terra3d|atlas3d|legend2d> [voice-recording]
 param(
   [Parameter(Mandatory = $true)][ValidatePattern('^[a-z0-9]+(-[a-z0-9]+)*$')][string]$Slug,
   [Parameter(Mandatory = $true)][string]$Name,
-  [Parameter(Mandatory = $true)][ValidateSet('neon3d', 'terra3d', 'atlas3d')][string]$Theme,
+  [Parameter(Mandatory = $true)][ValidateSet('neon3d', 'terra3d', 'atlas3d', 'legend2d')][string]$Theme,
   [string]$Voice
 )
 $ErrorActionPreference = 'Stop'

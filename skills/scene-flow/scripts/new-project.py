@@ -3,7 +3,7 @@
 # fonts, brand marks) — everything the series uses, in the places the scripts expect.
 #
 # usage:
-#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] --theme neon3d|terra3d|atlas3d
+#   python "<skill>/scripts/new-project.py" <project-folder> [--name "Video title"] [--voice "<recording>"] --theme neon3d|terra3d|atlas3d|legend2d
 #
 # Then, from inside the project folder, follow SKILL.md (voice first): put the script in SCRIPT.md,
 # one sentence per line, and run the alignment chain. Nothing here overwrites an existing file unless
@@ -36,10 +36,11 @@ ASSETS = [
 ]
 NEON3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/neon3d", "assets/neon3d")]
 TERRA3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/terra3d", "assets/terra3d")]
-# the atlas3d sounds join the shared ones, where add-sfx.py reads them
+# the atlas3d and legend2d sounds join the shared ones, where add-sfx.py reads them
 ATLAS3D_ASSETS = [("assets/vendor/three", "assets/vendor/three"), ("assets/atlas3d/kit", "assets/atlas3d/kit"),
                   ("assets/atlas3d/map", "assets/atlas3d/map"), ("assets/atlas3d/audio", "assets/audio")]
-# neon3d, terra3d and atlas3d only: the vignette list and modules live at the project root, read by build.py and the page
+LEGEND2D_ASSETS = [("assets/legend2d/audio", "assets/audio")]
+# neon3d, terra3d, atlas3d and legend2d: the vignette list lives at the project root, read by build.py; neon3d, terra3d and atlas3d also keep modules there
 NEON3D_ROOT = ("vignettes.json", "vignettes", "SCRIPT.md")
 
 
@@ -66,7 +67,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("dest")
 ap.add_argument("--name", default=None)
 ap.add_argument("--voice", default=None)
-ap.add_argument("--theme", choices=["neon3d", "terra3d", "atlas3d"], required=True)
+ap.add_argument("--theme", choices=["neon3d", "terra3d", "atlas3d", "legend2d"], required=True)
 ap.add_argument("--force", action="store_true")
 a = ap.parse_args()
 
@@ -87,7 +88,7 @@ for entry in os.listdir(THEME_DIR):
     if a.theme == "atlas3d" and entry == "backdrops":
         put(os.path.join(THEME_DIR, entry), os.path.join(dest, "backdrops"), a.force)
         continue
-    if a.theme in ("neon3d", "terra3d", "atlas3d") and entry in NEON3D_ROOT:
+    if a.theme in ("neon3d", "terra3d", "atlas3d", "legend2d") and entry in NEON3D_ROOT:
         target = os.path.join(dest, entry)
         # the theme's sample script replaces the shared one, never an author's script
         fresh = entry == "SCRIPT.md" and io.open(target, encoding="utf-8").read() == \
@@ -97,7 +98,7 @@ for entry in os.listdir(THEME_DIR):
     put(os.path.join(THEME_DIR, entry), os.path.join(dest, "parts", entry), a.force)
 for f in PIPELINE:
     put(os.path.join(SKILL, "scripts", f), os.path.join(dest, "scripts", f), a.force)
-for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (TERRA3D_ASSETS if a.theme == "terra3d" else []) + (ATLAS3D_ASSETS if a.theme == "atlas3d" else []):
+for src, dst in ASSETS + (NEON3D_ASSETS if a.theme == "neon3d" else []) + (TERRA3D_ASSETS if a.theme == "terra3d" else []) + (ATLAS3D_ASSETS if a.theme == "atlas3d" else []) + (LEGEND2D_ASSETS if a.theme == "legend2d" else []):
     put(os.path.join(SKILL, src), os.path.join(dest, dst), a.force)
 for d in ("assets/video/src", "assets/img", "research/shots", "snapshots"):
     os.makedirs(os.path.join(dest, d), exist_ok=True)

@@ -1,0 +1,197 @@
+      <div class="scene clip" id="sc-legend" data-start="@@start:legend@@" data-duration="@@dur:legend@@" data-track-index="1">
+        <div class="wrap" id="w-legend">
+          <!-- One flat vector vignette per vignettes.json entry. data-v must equal the vignette id, data-pan is the
+               camera pan in px across the shot, and data-m names a part that stage.part moves as a pure function of time. -->
+          <svg class="l2d-v" data-v="village" data-pan="-30 30" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-sky" width="1080" height="1920"/>
+              <circle class="f-straw ink" cx="220" cy="330" r="92"/>
+              <path class="f-olive ink" d="M0 1000 L180 880 L360 990 L560 860 L760 980 L940 890 L1080 960 V1100 H0 Z"/>
+              <rect class="f-earth" x="0" y="1040" width="1080" height="880"/>
+              <path class="f-straw ink" d="M120 880 H320 V1040 H120 Z"/>
+              <path class="f-earth-dk ink" d="M100 890 L220 790 L340 890 Z"/>
+              <path class="f-straw ink" d="M800 860 H980 V1040 H800 Z"/>
+              <path class="f-earth-dk ink" d="M780 870 L890 770 L1000 870 Z"/>
+              <ellipse class="shadow" data-m="boy-shadow" cx="540" cy="1262" rx="96" ry="16"/>
+              <g data-m="boy">
+                <rect class="f-soil ink" x="508" y="1196" width="28" height="74"/>
+                <rect class="f-soil ink" x="544" y="1196" width="28" height="74"/>
+                <path class="f-tunic ink" d="M488 1060 H592 L612 1210 H468 Z"/>
+                <path class="f-tunic ink" d="M494 1076 L452 1172 L470 1180 L506 1098 Z"/>
+                <path class="f-tunic ink" d="M586 1076 L628 1172 L610 1180 L574 1098 Z"/>
+                <circle class="f-skin ink" cx="461" cy="1176" r="14"/>
+                <circle class="f-skin ink" cx="619" cy="1176" r="14"/>
+                <rect class="f-soil ink" x="596" y="1120" width="40" height="46" rx="6"/>
+                <path class="f-hat ink" d="M478 952 L540 856 L602 952 Z"/>
+                <circle class="f-skin ink" cx="540" cy="1000" r="54"/>
+                <ellipse class="f-hat ink" cx="540" cy="958" rx="118" ry="22"/>
+                <circle class="dot" cx="522" cy="996" r="5"/>
+                <circle class="dot" cx="558" cy="996" r="5"/>
+                <path class="line ink" d="M524 1030 Q540 1040 556 1030"/>
+              </g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="ridge" data-pan="40 -40" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-sky" width="1080" height="1920"/>
+              <path class="f-olive ink" d="M0 1010 L200 800 L420 960 L640 760 L880 950 L1080 820 V1100 H0 Z"/>
+              <rect class="f-earth" x="0" y="1080" width="1080" height="840"/>
+              <g data-m="stem-0" data-x="173"><rect class="f-olive ink" x="150" y="700" width="46" height="480"/></g>
+              <g data-m="stem-1" data-x="318"><rect class="f-olive ink" x="295" y="640" width="46" height="540"/></g>
+              <g data-m="stem-2" data-x="448"><rect class="f-olive ink" x="425" y="730" width="46" height="450"/></g>
+              <g data-m="stem-3" data-x="612"><rect class="f-olive ink" x="589" y="610" width="46" height="570"/></g>
+              <g data-m="stem-4" data-x="790"><rect class="f-olive ink" x="767" y="690" width="46" height="490"/></g>
+              <g data-m="stem-5" data-x="930"><rect class="f-olive ink" x="907" y="750" width="46" height="430"/></g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="stampede" data-pan="0 0" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-sky" width="1080" height="1920"/>
+              <circle class="f-straw ink" cx="220" cy="300" r="80"/>
+              <rect class="f-earth" x="0" y="1080" width="1080" height="840"/>
+              <path class="f-earth-dk ink" d="M0 1080 H1080 V1120 H0 Z"/>
+              <g data-m="herd">
+                <g transform="translate(780 0)">
+                  <ellipse class="f-buffalo ink" cx="0" cy="1150" rx="150" ry="82"/>
+                  <ellipse class="f-buffalo ink" cx="-150" cy="1110" rx="60" ry="50"/>
+                  <path class="f-straw ink" d="M-176 1080 Q-214 1040 -198 1024 Q-170 1040 -150 1076 Z"/>
+                  <rect class="f-soil ink" x="-100" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="-30" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="40" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="100" y="1200" width="30" height="82"/>
+                </g>
+                <g transform="translate(450 0)">
+                  <ellipse class="f-buffalo ink" cx="0" cy="1150" rx="150" ry="82"/>
+                  <ellipse class="f-buffalo ink" cx="-150" cy="1110" rx="60" ry="50"/>
+                  <path class="f-straw ink" d="M-176 1080 Q-214 1040 -198 1024 Q-170 1040 -150 1076 Z"/>
+                  <rect class="f-soil ink" x="-100" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="-30" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="40" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="100" y="1200" width="30" height="82"/>
+                </g>
+                <g transform="translate(120 0)">
+                  <ellipse class="f-buffalo ink" cx="0" cy="1150" rx="150" ry="82"/>
+                  <ellipse class="f-buffalo ink" cx="-150" cy="1110" rx="60" ry="50"/>
+                  <path class="f-straw ink" d="M-176 1080 Q-214 1040 -198 1024 Q-170 1040 -150 1076 Z"/>
+                  <rect class="f-soil ink" x="-100" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="-30" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="40" y="1200" width="30" height="82"/>
+                  <rect class="f-soil ink" x="100" y="1200" width="30" height="82"/>
+                </g>
+              </g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="cave" data-pan="0 0" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-soil" width="1080" height="1920"/>
+              <path class="f-straw ink" d="M0 0 H1080 V1080 Q540 880 0 1080 Z"/>
+              <path class="dash" d="M120 300 l40 -18"/>
+              <path class="dash" d="M260 420 l40 -18"/>
+              <path class="dash" d="M640 260 l40 -18"/>
+              <path class="dash" d="M820 500 l40 -18"/>
+              <path class="dash" d="M180 640 l40 -18"/>
+              <path class="dash" d="M700 720 l40 -18"/>
+              <g data-m="hollow">
+                <ellipse class="f-soil-dk ink" cx="540" cy="1220" rx="210" ry="150"/>
+              </g>
+              <path class="f-earth-dk ink" d="M0 1400 H1080 V1920 H0 Z"/>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="lantern" data-pan="0 0" data-dark="1" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-night" width="1080" height="1920"/>
+              <circle class="star" cx="140" cy="260" r="4"/>
+              <circle class="star" cx="330" cy="180" r="3"/>
+              <circle class="star" cx="620" cy="300" r="4"/>
+              <circle class="star" cx="860" cy="200" r="3"/>
+              <circle class="star" cx="960" cy="420" r="4"/>
+              <circle class="star" cx="220" cy="520" r="3"/>
+              <!-- the lamp's glow: a flat, lighter night disc behind the ground, not a see-through yellow -->
+              <circle class="f-night-lit" data-m="glow" cx="540" cy="1010" r="300" opacity="0"/>
+              <path class="f-soil-dk ink" d="M0 1300 Q540 1180 1080 1300 V1920 H0 Z"/>
+              <line class="line ink" x1="540" y1="700" x2="540" y2="950"/>
+              <g data-m="lamp">
+                <rect class="f-lamp ink" x="500" y="960" width="80" height="100" rx="18"/>
+                <rect class="f-soil ink" x="506" y="950" width="68" height="16" rx="6"/>
+                <rect class="f-soil ink" x="506" y="1056" width="68" height="16" rx="6"/>
+              </g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="footprints" data-pan="-40 40" data-dark="1" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-night" width="1080" height="1920"/>
+              <path class="f-earth-dk ink" d="M0 1080 Q540 980 1080 1100 V1920 H0 Z"/>
+              <!-- the lantern's pool of light: a flat lit patch on the ground, kept under the horizon and the prints under the caption band -->
+              <ellipse class="f-earth ink" cx="540" cy="1620" rx="440" ry="170"/>
+              <g data-m="print-0" data-i="0"><ellipse class="f-soil-dk ink" cx="220" cy="1660" rx="22" ry="40"/></g>
+              <g data-m="print-1" data-i="1"><ellipse class="f-soil-dk ink" cx="310" cy="1620" rx="22" ry="40"/></g>
+              <g data-m="print-2" data-i="2"><ellipse class="f-soil-dk ink" cx="400" cy="1660" rx="22" ry="40"/></g>
+              <g data-m="print-3" data-i="3"><ellipse class="f-soil-dk ink" cx="490" cy="1610" rx="22" ry="40"/></g>
+              <g data-m="print-4" data-i="4"><ellipse class="f-soil-dk ink" cx="590" cy="1650" rx="22" ry="40"/></g>
+              <g data-m="print-5" data-i="5"><ellipse class="f-soil-dk ink" cx="680" cy="1590" rx="22" ry="40"/></g>
+              <g data-m="print-6" data-i="6"><ellipse class="f-soil-dk ink" cx="770" cy="1630" rx="22" ry="40"/></g>
+              <g data-m="print-7" data-i="7"><ellipse class="f-soil-dk ink" cx="860" cy="1580" rx="22" ry="40"/></g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="dock" data-pan="0 0" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-sky" width="1080" height="1920"/>
+              <rect class="f-water" x="0" y="1080" width="1080" height="840"/>
+              <path class="f-earth ink" d="M0 1040 Q540 1000 1080 1060 V1120 H0 Z"/>
+              <rect class="f-earth-dk ink" x="200" y="1000" width="16" height="120"/>
+              <rect class="f-earth-dk ink" x="880" y="1010" width="16" height="110"/>
+              <g data-m="boat">
+                <path class="f-earth-dk ink" d="M380 1290 H700 L650 1350 H430 Z"/>
+                <line class="line ink" x1="540" y1="1290" x2="540" y2="1070"/>
+                <path class="f-straw ink" d="M548 1100 L650 1210 H548 Z"/>
+              </g>
+            </g>
+          </svg>
+
+          <svg class="l2d-v" data-v="night" data-pan="0 0" data-dark="1" viewBox="0 0 1080 1920" aria-hidden="true">
+            <g class="cam">
+              <rect class="f-night" width="1080" height="1920"/>
+              <circle class="star" cx="180" cy="240" r="4"/>
+              <circle class="star" cx="500" cy="180" r="3"/>
+              <circle class="star" cx="760" cy="300" r="4"/>
+              <circle class="star" cx="930" cy="160" r="3"/>
+              <path class="f-soil-dk ink" d="M0 1200 H1080 V1920 H0 Z"/>
+              <rect class="f-soil-dk ink" x="120" y="1030" width="200" height="170"/>
+              <rect class="f-soil-dk ink" x="760" y="1010" width="220" height="190"/>
+              <g data-m="lights">
+                <circle class="f-lamp" cx="210" cy="1120" r="14"/>
+                <circle class="f-lamp" cx="330" cy="1140" r="14"/>
+                <circle class="f-lamp" cx="840" cy="1110" r="14"/>
+                <circle class="f-lamp" cx="920" cy="1130" r="14"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-cta" data-start="@@start:cta@@" data-duration="@@dur:cta@@" data-track-index="1">
+        <div class="wrap" id="w-cta">
+          <div class="cta-card" id="cta-card">
+            <div class="cta-label">BẠN NGHĨ SAO?</div>
+            <div class="cta-title">BẠN ĐÃ NGHE<br>CHUYỆN NÀY CHƯA?</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scene clip" id="sc-ec" data-start="@@start:ec@@" data-duration="@@dur:ec@@" data-track-index="1">
+        <div class="wrap" id="w-ec">
+          <img id="ec-logo" src="@@logo@@" alt="">
+          <div id="ec-brand">@@brand@@</div>
+          <div id="ec-slogan">@@slogan@@</div>
+        </div>
+      </div>
+
+      <div id="kara" data-layout-allow-overlap="true"></div>
+      <audio id="vo" class="clip" data-start="0" data-duration="@@vo@@" data-track-index="8" src="assets/audio/voiceover.mp3" data-volume="1" data-audio-group="voiceover"></audio>
+      <!-- sfx cues are written by scripts/add-sfx.py -->

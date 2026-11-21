@@ -53,6 +53,15 @@ The folder `skills/scene-flow/assets/atlas3d/audio/` contains four Freesound sou
 | `sfx-coins.mp3` | 17502 | Coin dropping.wav | Jace | https://freesound.org/people/Jace/sounds/17502/ | CC0 1.0 |
 | `sfx-drum.mp3` | 573275 | Timpani 2.wav | Sorinious_Genious | https://freesound.org/people/Sorinious_Genious/sounds/573275/ | CC0 1.0 |
 
+The folder `skills/scene-flow/assets/legend2d/audio/` contains four Freesound sounds for the `legend2d` theme, licensed under Creative Commons CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/). Each file is the Freesound HQ MP3 preview, retrieved 2026-11-21.
+
+| File | Freesound ID | Name | Author | Source URL | License |
+|---|---|---|---|---|---|
+| `bgm-ukulele.mp3` | 173122 | ukulele.wav | _steef | https://freesound.org/people/_steef/sounds/173122/ | CC0 1.0 |
+| `amb-rain.mp3` | 50053 | rain_session_thunder1_2006.wav | vibe_crc | https://freesound.org/people/vibe_crc/sounds/50053/ | CC0 1.0 |
+| `amb-steps.mp3` | 637548 | footsteps sandals dirt walk.flac | kyles | https://freesound.org/people/kyles/sounds/637548/ | CC0 1.0 |
+| `amb-dig.mp3` | 384361 | Digging a Hole and Shovelling Soil/Dirt | Ali_6868 | https://freesound.org/people/Ali_6868/sounds/384361/ | CC0 1.0 |
+
 ## Notes
 
 - `skills/freesound` holds the upstream repository's `SKILL.md`, `scripts/` and `references/`. One local change: the automatic credentials file moved from `pi-freesound/credentials.env` to the shared scene-flow file `~/.config/scene-flow/.env` on every platform, which must be owner-only outside Windows, in `scripts/freesound.js`, `SKILL.md`, `references/authentication.md` and `references/examples.md`. The upstream `README.md`, `CONTRIBUTING.md`, `tests/` and `.github/` are not bundled.

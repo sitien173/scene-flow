@@ -31,6 +31,17 @@ Freesound downloads, copied by `scripts/new-project.py` into atlas3d projects as
 | `sfx-coins.mp3` | 17502 | Coin dropping.wav | Jace | https://freesound.org/people/Jace/sounds/17502/ | CC0 1.0 | 2026-11-20 | atlas3d `sfx` beat `coins`, gain 0.89 |
 | `sfx-drum.mp3` | 573275 | Timpani 2.wav | Sorinious_Genious | https://freesound.org/people/Sorinious_Genious/sounds/573275/ | CC0 1.0 | 2026-11-20 | atlas3d `sfx` beat `drum`, gain 0.90 |
 
+### Legend2d sounds: `assets/legend2d/audio/`
+
+Freesound downloads, copied by `scripts/new-project.py` into legend2d projects as `assets/audio/` files. Licensed CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/), so no credit is required. It is the Freesound HQ MP3 preview, retrieved 2026-11-21 (no OAuth token, so no original files). The bed gain and the way it was measured are in the `scripts/add-sfx.py` header; `add-sfx.py` sets each ambience gain from the file's mean level.
+
+| File | Freesound ID | Name | Author | URL | Licence | Retrieved | Video usage |
+|---|---|---|---|---|---|---|---|
+| `bgm-ukulele.mp3` | 173122 | ukulele.wav | _steef | https://freesound.org/people/_steef/sounds/173122/ | CC0 1.0 | 2026-11-21 | legend2d background music from 0:00, gain 0.266, looped with a 2 s crossfade by `add-sfx.py` on a film longer than 98.0 s |
+| `amb-rain.mp3` | 50053 | rain_session_thunder1_2006.wav | vibe_crc | https://freesound.org/people/vibe_crc/sounds/50053/ | CC0 1.0 | 2026-11-21 | legend2d `ambience`, category `medium`; the sample uses it on the `night` vignette (17.3 s, rain with thunder) |
+| `amb-steps.mp3` | 637548 | footsteps sandals dirt walk.flac | kyles | https://freesound.org/people/kyles/sounds/637548/ | CC0 1.0 | 2026-11-21 | legend2d `ambience`, category `medium`; the sample uses it on the `ridge` vignette (9.5 s) |
+| `amb-dig.mp3` | 384361 | Digging a Hole and Shovelling Soil/Dirt | Ali_6868 | https://freesound.org/people/Ali_6868/sounds/384361/ | CC0 1.0 | 2026-11-21 | legend2d `ambience`, category `medium`; the sample uses it on the `cave` vignette (26.0 s) |
+
 ## Fonts: `assets/fonts/`
 
 - **Be Vietnam Pro:** from Google Fonts via Fontsource, split into latin / latin-ext / vietnamese subsets, woff2, weights 600, 700, and 800. Files: `BeVietnamPro-{latin,latin-ext,vietnamese}-{600,700,800}.woff2`. SIL Open Font License 1.1: [fonts/BeVietnamPro-OFL.txt](fonts/BeVietnamPro-OFL.txt).

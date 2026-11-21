@@ -35,6 +35,7 @@ Do one step at a time and wait for the author's answer.
    | `neon3d` | technology, AI tools, software, digital products |
    | `terra3d` | engineering, construction, geography, history |
    | `atlas3d` | history, geography, geopolitics, economics told on a map |
+   | `legend2d` | folk tales and children's stories in flat 2D cartoon art |
 
 2. **Collect the channel values.** Ask for any that are missing:
    - channel name and folder name: suggest a lowercase ASCII slug, such as `tiktok-goc-nhin-mo`;
@@ -58,8 +59,8 @@ Do one step at a time and wait for the author's answer.
      usage line, or the parse error.
 
 6. **Hand over.** Tell the author how to make the first video and offer to run it now:
-   - macOS or Linux: `./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d> [voice file]`
-   - Windows: `powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d> [voice file]`
+   - macOS or Linux: `./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d|legend2d> [voice file]`
+   - Windows: `powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d|legend2d> [voice file]`
    Then open the agent in `videos/<yyyy-mm>-<slug>/` and continue with the `scene-flow` skill,
    starting from a topic or a script.
 

@@ -18,13 +18,14 @@ import unicodedata
 
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
-if THEME not in ("neon3d", "terra3d", "atlas3d"):
+    raise SystemExit("theme %s was removed; only neon3d, terra3d, atlas3d and legend2d are supported" % THEME)
+if THEME not in ("neon3d", "terra3d", "atlas3d", "legend2d"):
     raise SystemExit("unknown theme: " + THEME)
 
 # ── PER-PROJECT ──────────────────────────────────────────────────────────────────────────
 SC = [("terra", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "terra3d" else \
      [("atlas", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "atlas3d" else \
+     [("legend", 0.00), ("cta", 17.50), ("ec", 24.20)] if THEME == "legend2d" else \
      [("neon", 0.00), ("cta", 17.50), ("ec", 24.20)]   # scene id, cut (s)
 EC_DUR = 2.75                     # the house end card at 2x (5.5 s -> 2.75 s)
 STEPS = ["i-laptopdl", "i-code", "i-send"]       # the step tracker's icons (sprite ids); [] for none
@@ -51,7 +52,7 @@ def probe(path):
 
 VO = probe("assets/audio/voiceover.mp3")
 assert VO, "assets/audio/voiceover.mp3 missing — run scripts/prep-voice.py first"
-if THEME in ("neon3d", "terra3d", "atlas3d"):
+if THEME in ("neon3d", "terra3d", "atlas3d", "legend2d"):
     SC = [(SC[0][0], 0.00), ("cta", round(VO, 2)), ("ec", round(VO + 6.70, 2))]
     START = dict(SC)
     END = round(SC[-1][1] + EC_DUR, 2)
@@ -109,7 +110,7 @@ def anchor_time(anchor, who, fail):
 
 
 # neon3d, terra3d and atlas3d: banned in vignette and kit code, so every frame is a function of seek time (comments included)
-VIGNETTE_THEMES = ("neon3d", "terra3d", "atlas3d")
+VIGNETTE_THEMES = ("neon3d", "terra3d", "atlas3d", "legend2d")
 NEON_BANNED = [r"\brandom\b", r"\bDate\b", r"\bperformance\b", r"requestAnimationFrame", r"setAnimationLoop",
                r"setTimeout", r"setInterval", r"\bClock\b", r"\bTimer\b", r"getDelta", r"GlitchPass", r"FilmPass",
                r"\bfetch\b", r"XMLHttpRequest", r"WebSocket", r"\b(?:https?|wss?):"]
@@ -244,7 +245,7 @@ def resolve_vignettes(theme):
                     vignette_error("invalid sfx", "%r sfx %r: sound must match [a-z0-9-]+" % (vid, name))
                 if name not in beats:
                     vignette_error("invalid sfx", "%r sfx %r names no beat of this vignette" % (vid, name))
-        if not os.path.isfile(os.path.join("vignettes", vid + ".js")):
+        if theme != "legend2d" and not os.path.isfile(os.path.join("vignettes", vid + ".js")):  # legend2d: art in stage.part
             vignette_error("missing vignette module", "%r: vignettes/%s.js" % (vid, vid))
         amb = v.get("ambience")
         if amb is not None:
@@ -311,7 +312,7 @@ def check_vignettes(rows, cta, theme):
                 vignette_error("fly too long", "%r fly of %.2fs exceeds 60%% of %r (%.2fs)"
                                % (v["id"], v["in"]["dur"], prev["id"], v["t"] - prev["t"]))
         elif kind == "cut":
-            if theme == "terra3d":  # terra3d cuts are hard cuts on a visual beat, with no silence rule
+            if theme in ("terra3d", "legend2d"):  # hard cuts on a visual beat, with no silence rule
                 continue
             if quiet is None:
                 quiet = quiet_windows()
@@ -392,6 +393,16 @@ if THEME == "terra3d":  # add-sfx.py reads this: terra3d has no sound on cuts, s
 if THEME == "atlas3d":  # add-sfx.py reads these cues: each pan whooshes, each vignette sfx beat plays its sound
     ledger["vignettes"] = [dict(row, kind=v.get("kind", "map")) for row, v in zip(ledger["vignettes"], VIGNETTES)]
     cues = [{"t": v["t"], "sound": "swoosh"} for v in VIGNETTES if v["in"]["kind"] == "pan"]
+    cues += [{"t": v["beats"][name], "sound": sound} for v in VIGNETTES for name, sound in v.get("sfx", {}).items()]
+    ledger["cues"] = sorted(cues, key=lambda c: (c["t"], c["sound"]))
+if THEME == "legend2d":  # add-sfx.py reads these cues: a swoosh on each vignette cut, and each vignettes.json sfx beat
+    for v in VIGNETTES:
+        if not isinstance(v.get("sfx", {}), dict):
+            vignette_error("invalid sfx", "%r sfx must be an object of beat -> sound" % v["id"])
+        for name in v.get("sfx", {}):
+            if name not in v["beats"]:
+                vignette_error("invalid sfx", "%r sfx %r names no beat of this vignette" % (v["id"], name))
+    cues = [{"t": v["t"], "sound": "swoosh"} for v in VIGNETTES[1:]]
     cues += [{"t": v["beats"][name], "sound": sound} for v in VIGNETTES for name, sound in v.get("sfx", {}).items()]
     ledger["cues"] = sorted(cues, key=lambda c: (c["t"], c["sound"]))
 io.open("ledger.json", "w", encoding="utf-8").write(json.dumps(ledger, ensure_ascii=False, indent=1))

@@ -2,3 +2,6 @@ __pycache__/
 *.py[cod]
 .DS_Store
 Thumbs.db
+
+# third-party reference frames, kept local for theme analysis only
+research/reference/suthathuyenbi-frames/

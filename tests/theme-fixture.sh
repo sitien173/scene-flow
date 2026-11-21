@@ -22,6 +22,7 @@ cd "$OUT/demo"
 VOICE_SECONDS=81.00
 if [[ "$THEME" == "terra3d" ]]; then VOICE_SECONDS=59.95; fi
 if [[ "$THEME" == "atlas3d" ]]; then VOICE_SECONDS=90.00; fi  # the Louisiana sample SCRIPT.md has 221 words
+if [[ "$THEME" == "legend2d" ]]; then VOICE_SECONDS=41.30; fi  # the 102-word legend2d sample at 0.4 s per word
 # PCM WAV content keeps the probed duration exact on every ffmpeg version; MP3 padding is not.
 ffmpeg -v error -y -f lavfi -i anullsrc=r=44100:cl=mono -t "$VOICE_SECONDS" -c:a pcm_s16le -f wav assets/audio/voiceover.mp3
 python3 - <<'PY'

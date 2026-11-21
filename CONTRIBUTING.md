@@ -28,6 +28,7 @@ bash tests/check-bundled.sh
 python3 tests/postiz-test.py
 python3 tests/neon3d-build-test.py
 python3 tests/terra3d-build-test.py
+python3 tests/legend2d-build-test.py
 python3 tests/atlas3d-build-test.py
 python3 tests/atlas3d-map-test.py
 claude plugin validate --strict .

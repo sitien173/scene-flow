@@ -88,6 +88,15 @@ jobs:
       - name: Atlas3d build checks
         run: python3 tests/atlas3d-build-test.py
 
+      - name: Legend2d build checks
+        run: python3 tests/legend2d-build-test.py
+
+      - name: Legend2d fixture hash
+        run: |
+          got="$(bash tests/theme-fixture.sh "$RUNNER_TEMP/sf-check-legend2d" --theme legend2d | tail -1)"
+          echo "$got"
+          test "$got" = cbcdc217fedbcb92b3b28ba309ab793c43f3f725515886c739c70e9111f0a5df
+
   actionlint:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

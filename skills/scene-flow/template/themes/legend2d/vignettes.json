@@ -1,0 +1,21 @@
+{
+  "vignettes": [
+    {"id": "village", "beats": {"boy": {"sentence": 1, "word": "chú bé"}}},
+    {"id": "ridge", "anchor": {"sentence": 2, "word": "Mỗi"}, "in": {"kind": "cut"},
+     "beats": {"bamboo": {"sentence": 2, "word": "đồi tre"}},
+     "ambience": {"file": "assets/audio/amb-steps.mp3", "gain": "medium"}},
+    {"id": "stampede", "anchor": {"sentence": 3, "word": "Một"}, "in": {"kind": "cut"},
+     "beats": {"herd": {"sentence": 3, "word": "đàn trâu"}}},
+    {"id": "cave", "anchor": {"sentence": 4, "word": "Tám"}, "in": {"kind": "cut"},
+     "beats": {"hollow": {"sentence": 4, "word": "cái hang"}},
+     "ambience": {"file": "assets/audio/amb-dig.mp3", "gain": "medium"}},
+    {"id": "lantern", "anchor": {"sentence": 5, "word": "Trong"}, "in": {"kind": "cut"},
+     "beats": {"lamp": {"sentence": 5, "word": "lồng đèn"}}, "sfx": {"lamp": "pop"}},
+    {"id": "footprints", "anchor": {"sentence": 6, "word": "Tám"}, "in": {"kind": "cut"},
+     "beats": {"prints": {"sentence": 6, "word": "dấu chân"}}},
+    {"id": "dock", "anchor": {"sentence": 7, "word": "Dấu"}, "in": {"kind": "cut"},
+     "beats": {"boat": {"sentence": 7, "word": "thuyền"}}, "sfx": {"boat": "pop"}},
+    {"id": "night", "anchor": {"sentence": 8, "word": "Từ"}, "in": {"kind": "cut"},
+     "ambience": {"file": "assets/audio/amb-rain.mp3", "gain": "medium"}}
+  ]
+}
