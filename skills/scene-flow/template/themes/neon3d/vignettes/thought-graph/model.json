@@ -1,0 +1,21 @@
+{
+  "name": "thought-graph",
+  "theme": "neon3d",
+  "kind": "object",
+  "factory": "thoughtGraph",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "color": "#3DE8FF",
+    "accent": "#FF3DCB",
+    "nodes": 14,
+    "radius": 1.2,
+    "center": [
+      0,
+      1.8,
+      0
+    ],
+    "seed": 1
+  },
+  "scene_flow_version": "0.4.0"
+}

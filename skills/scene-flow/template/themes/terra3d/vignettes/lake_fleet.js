@@ -1,10 +1,13 @@
 // Vignette 10: Top-down highland lake crossing with fleet and terrain-checked marker buoys.
+import { containerShip } from "./container-ship/container-ship.js";
+import { skiff } from "./skiff/skiff.js";
 export async function build(kit) {
   const { THREE, PALETTE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 26 } });
   const camera = kit.camera(38);
   const sea = kit.ocean({ size: 180, segments: 96, amp: 0.45 });
   const boats = kit.fleet({
+    geometry: skiff(kit).geometry,
     count: 14,
     area: [28, 34],
     direction: [0.0, -1.0],
@@ -13,7 +16,7 @@ export async function build(kit) {
     seed: 91,
   });
 
-  const lead = kit.containerShip({
+  const lead = containerShip(kit, {
     length: 6.4,
     beam: 1.9,
     seed: 44,
@@ -32,7 +35,7 @@ export async function build(kit) {
   island.position.set(5.4, 0.3, -5.0);
   island.receiveShadow = true;
 
-  scene.add(sea.object, boats.object, lead.object, island);
+  scene.add(sea.object, boats.object, lead.group, island);
 
   function update(t) {
     const u = kit.clamp01(t / 2.4);
@@ -47,5 +50,5 @@ export async function build(kit) {
     boats.update(t);
     lead.update(t);
   }
-  return { scene, camera, update, hero: lead.object };
+  return { scene, camera, update, hero: lead.group };
 }

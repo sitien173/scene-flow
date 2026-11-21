@@ -776,3 +776,62 @@ export function createMap({ regions = [], overlay, seed = 101 } = {}) {
     lonLatToWorld,
   };
 }
+
+const _dioramaWorldPos = new THREE.Vector3();
+const _dioramaCamPos = new THREE.Vector3();
+
+/**
+ * Attach a pure-function-of-camera orientation and map diorama scale to a figure/prop pivot.
+ * When map.update(T, camera) runs, the pivot tilts toward the camera so faces/fronts are readable.
+ */
+export function attachMapDiorama(root, pivot, {
+  rotationY = 0,
+  mapFacing = true,
+  mapScale = 1.15,
+  lift = 0.14,
+  tiltBias = 0.18,
+  maxTilt = 1.18,
+} = {}) {
+  pivot.rotation.order = "YXZ";
+  pivot.rotation.set(0, rotationY, 0);
+  if (!mapFacing && mapScale === 1) return;
+  root.userData.atlasOrient = camera => {
+    if (!camera) return;
+    pivot.scale.setScalar(mapScale);
+    if (!mapFacing) {
+      pivot.rotation.set(0, rotationY, 0);
+      pivot.position.set(0, 0, 0);
+      return;
+    }
+    root.updateWorldMatrix(true, false);
+    root.getWorldPosition(_dioramaWorldPos);
+    _dioramaCamPos.setFromMatrixPosition(camera.matrixWorld);
+    const dx = _dioramaCamPos.x - _dioramaWorldPos.x;
+    const dy = _dioramaCamPos.y - _dioramaWorldPos.y;
+    const dz = _dioramaCamPos.z - _dioramaWorldPos.z;
+    const horiz = Math.hypot(dx, dz);
+    if (horiz < 1e-4 && Math.abs(dy) < 1e-4) return;
+    const camYaw = Math.atan2(dx, dz);
+    const elev = Math.atan2(dy, horiz);
+    const tiltAngle = Math.max(0, Math.min(maxTilt, elev - tiltBias));
+    pivot.rotation.set(-tiltAngle, camYaw + rotationY, 0, "YXZ");
+    pivot.position.set(0, Math.sin(tiltAngle) * lift, 0);
+  };
+}
+
+export function applyPlacement(group, options, diorama = {}) {
+  const { position = null, rotationY = 0, scale = 1 } = options;
+  if (position) {
+    if (Array.isArray(position)) group.position.set(position[0], position[1], position[2]);
+    else group.position.copy(position);
+  }
+  const pivot = new THREE.Group();
+  group.add(pivot);
+  attachMapDiorama(group, pivot, {
+    rotationY,
+    mapFacing: options.mapFacing ?? diorama.mapFacing ?? true,
+    mapScale: options.mapScale ?? diorama.mapScale ?? 1.38,
+    lift: diorama.lift ?? 0.14,
+  });
+  return { pivot, baseScale: scale };
+}

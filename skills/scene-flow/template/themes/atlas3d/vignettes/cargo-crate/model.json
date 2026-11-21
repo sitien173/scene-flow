@@ -1,0 +1,10 @@
+{
+  "name": "cargo-crate",
+  "theme": "atlas3d",
+  "kind": "object",
+  "factory": "cargoCrate",
+  "glb": "",
+  "clips": [],
+  "opts": {"scale": 1.7, "at": 0.6, "popDur": 0.45},
+  "scene_flow_version": "0.4.0"
+}

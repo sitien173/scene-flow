@@ -1,4 +1,6 @@
 // Sentences 2-4: Western Europe view with France, Spain, Napoleon, and cargo crate.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { cargoCrate } from "./cargo-crate/cargo-crate.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -24,7 +26,8 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const king = kit.figure("king", {
+  const king = townsfolk(kit, {
+    role: "king",
     expression: "smile",
     gesture: "idle",
     scale: 1.7,
@@ -34,7 +37,7 @@ export function build(kit) {
     popDur: 0.45,
   });
 
-  const crate = kit.props.cargoCrate({
+  const crate = cargoCrate(kit, {
     scale: 1.55,
     position: kit.lonLatToWorld(-0.4, 46.2, 0.145),
     rotationY: 0.3,

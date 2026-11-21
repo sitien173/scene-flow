@@ -73,6 +73,8 @@ Do one step at a time and wait for the author's answer.
 ├── brand/
 │   ├── brand.json         # channel name, logo file name, slogan
 │   └── logos/             # the channel's official logo files
+├── library/               # created on the first saved model
+│   └── <theme>/<model>/   # 3D characters and objects reused across videos
 ├── new-video.sh           # macOS and Linux; new-video.ps1 on Windows
 ├── videos/
 │   └── <yyyy-mm>-<slug>/  # one scene-flow project per video
@@ -114,3 +116,6 @@ if the author asks.
   following the scene-flow skill's "Recording feedback" section.
 - Final renders go to `publish/<yyyy-mm>-<slug>.mp4` when the author asks to publish or archive
   them.
+- `library/<theme>/<model>/` holds the 3D characters and objects of this channel, in the folder
+  shape from the scene-flow theme guides' "Models" section. A model is saved there only after the
+  author agrees, and each video copies the models it uses into its own `vignettes/`.

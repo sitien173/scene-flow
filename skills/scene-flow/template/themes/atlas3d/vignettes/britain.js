@@ -1,4 +1,5 @@
 // Sentence 6: Great Britain view with angry soldier as war looms.
+import { townsfolk } from "./townsfolk/townsfolk.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -19,7 +20,8 @@ export function build(kit) {
   scene.add(layerGroup);
 
   const [gbrLon, gbrLat] = kit.map.regionCenter("gbr");
-  const soldier = kit.figure("soldier", {
+  const soldier = townsfolk(kit, {
+    role: "soldier",
     expression: "angry",
     gesture: "point",
     scale: 1.25,

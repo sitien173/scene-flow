@@ -1,9 +1,13 @@
 // Vignette 3: Gerstner ocean with fleet, GLB sailing ship, and container ship under orbit in lower zone.
+import { clipper } from "./clipper/clipper.js";
+import { containerShip } from "./container-ship/container-ship.js";
+import { skiff } from "./skiff/skiff.js";
 export async function build(kit) {
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 28 } });
   const camera = kit.camera(38);
   const sea = kit.ocean({ size: 180, segments: 96, amp: 1.0 });
   const boats = kit.fleet({
+    geometry: skiff(kit).geometry,
     count: 10,
     area: [44, 48],
     direction: [0.22, 1.0],
@@ -11,23 +15,23 @@ export async function build(kit) {
     heightAt: sea.heightAt,
     seed: 37,
   });
-  const cargo = kit.containerShip({
+  const cargo = containerShip(kit, {
     length: 10.0,
     beam: 2.5,
     seed: 71,
-    from: [0.5, 0, 2.5],
-    to: [0.5, 0, -2.5],
+    from: [0.5, 0, 1.8],
+    to: [0.5, 0, -3.2],
     dur: 3.2,
     heightAt: sea.heightAt,
   });
-  const escort = await kit.shipGlb({
+  const escort = await clipper(kit, {
     scale: 0.42,
     from: [-6.5, 0, 4.0],
     to: [-5.5, 0, -2.0],
     dur: 3.2,
     heightAt: sea.heightAt,
   });
-  scene.add(sea.object, boats.object, cargo.object, escort.object);
+  scene.add(sea.object, boats.object, cargo.group, escort.group);
 
   kit.beat("ship");
   function update(t) {
@@ -46,5 +50,5 @@ export async function build(kit) {
     cargo.update(t);
     escort.update(t);
   }
-  return { scene, camera, update, hero: cargo.object };
+  return { scene, camera, update, hero: cargo.group };
 }

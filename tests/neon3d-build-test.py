@@ -114,10 +114,27 @@ class Neon3dBuild(unittest.TestCase):
                     f.write("\n" + code + "\n")
                 self.rejects(d, "banned API", "o3.js")
 
+    def test_banned_api_in_model_module(self):
+        d = self.project()
+        os.makedirs(os.path.join(d, "vignettes", "probe"))
+        with open(os.path.join(d, "vignettes", "probe", "probe.js"), "w", encoding="utf-8") as f:
+            f.write("export function probe(kit) { return { t: Date.now() }; }\n")
+        self.rejects(d, "banned API", os.path.join("vignettes", "probe", "probe.js"))
+
+    def test_compressed_glb(self):
+        import struct
+        d = self.project()
+        os.makedirs(os.path.join(d, "vignettes", "ship"))
+        doc = json.dumps({"asset": {"version": "2.0"}, "extensionsUsed": ["KHR_draco_mesh_compression"]}).encode()
+        doc += b" " * (-len(doc) % 4)
+        with open(os.path.join(d, "vignettes", "ship", "ship.glb"), "wb") as f:
+            f.write(struct.pack("<4sII", b"glTF", 2, 20 + len(doc)) + struct.pack("<II", len(doc), 0x4E4F534A) + doc)
+        self.rejects(d, "unsupported GLB compression", "KHR_draco_mesh_compression")
+
     def test_fly_without_portal(self):
         d = self.project()
         p = os.path.join(d, "vignettes", "hack.js")
-        src = open(p, encoding="utf-8").read().replace(", portal: () => board.exit", "")
+        src = open(p, encoding="utf-8").read().replace(", portal: () => board.portal()", "")
         open(p, "w", encoding="utf-8").write(src)
         self.rejects(d, "fly without portal", "'reward' flies out of 'hack'")
 

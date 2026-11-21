@@ -1,4 +1,6 @@
 // Sentence 1: North America wide view introducing the 1803 Louisiana Purchase.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { coinSack } from "./coin-sack/coin-sack.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -16,7 +18,8 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const merchant = kit.figure("merchant", {
+  const merchant = townsfolk(kit, {
+    role: "merchant",
     expression: "smile",
     gesture: "wave",
     scale: 2.1,
@@ -26,7 +29,7 @@ export function build(kit) {
     popDur: 0.45,
   });
 
-  const bag = kit.props.moneyBag({
+  const bag = coinSack(kit, {
     scale: 1.9,
     position: kit.lonLatToWorld(-81.2, 36.0, 0.09),
     rotationY: -0.25,

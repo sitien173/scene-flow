@@ -73,6 +73,9 @@ jobs:
       - name: Neon3d build checks
         run: python3 tests/neon3d-build-test.py
 
+      - name: GLB loader checks
+        run: node tests/glb-test.mjs
+
       - name: Terra3d build checks
         run: python3 tests/terra3d-build-test.py
 

@@ -1,4 +1,7 @@
 // Sentences 7-8: Gulf coast view showing Jefferson's initial offer for New Orleans and Florida.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { coinSack } from "./coin-sack/coin-sack.js";
+import { priceTag } from "./price-tag/price-tag.js";
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -21,7 +24,8 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const diplomat = kit.figure("diplomat", {
+  const diplomat = townsfolk(kit, {
+    role: "diplomat",
     expression: "neutral",
     gesture: "point",
     scale: 1.6,
@@ -31,7 +35,7 @@ export function build(kit) {
     popDur: 0.45,
   });
 
-  const tag = kit.props.priceTag({
+  const tag = priceTag(kit, {
     text: "10 triệu $",
     scale: 1.55,
     position: kit.lonLatToWorld(-89.5, 32.8, 0.09),
@@ -40,7 +44,7 @@ export function build(kit) {
     popDur: 0.4,
   });
 
-  const bag = kit.props.moneyBag({
+  const bag = coinSack(kit, {
     scale: 1.45,
     position: kit.lonLatToWorld(-86.6, 31.6, 0.09),
     rotationY: -0.2,

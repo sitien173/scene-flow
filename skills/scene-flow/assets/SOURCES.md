@@ -96,18 +96,11 @@ Download integrity: each Poly Haven source file matched the MD5 in the Poly Have
 
 ### Models
 
-`assets/terra3d/models/ship-large.glb` was packed from Kenney's source GLB, which referenced `Textures/colormap.png` as an external file. The packer kept the glTF JSON and the geometry buffer, appended the PNG to the binary buffer as a buffer view, pointed the image at that view with `mimeType` `image/png`, and wrote GLB 2.0 JSON and BIN chunks. It did not change mesh data. The embedded PNG is byte-identical to the source `colormap.png`. The KayKit characters ship as single GLB files with the image already embedded, so they are copied byte-identically. No GLB uses Draco, meshopt, or KTX2. Clip names and durations are in `assets/terra3d/assets.json`, read from the animation samplers in each GLB.
+The terra3d sample project carries one GLB, `template/themes/terra3d/vignettes/clipper/clipper.glb`. It is original work for scene-flow, built in Blender 5.3.0 by `tests/fixtures/build-clipper-glb.py` and released under the repository licence. It has one looping clip, `Sway`, and uses no Draco, meshopt, or KTX2. Every other terra3d sample model is plain JavaScript in `template/themes/terra3d/vignettes/<model>/`.
 
-Licence line, quoted from each downloaded licence file: `License: (Creative Commons Zero, CC0)`. The full files are `assets/terra3d/LICENSES/Kenney-PirateKit-CC0.txt` and `assets/terra3d/LICENSES/KayKit-Character-Pack-Adventures-CC0.txt`.
-
-- Ship: Kenney Pirate Kit 2.1, creation date 17-02-2026. Page checked 2026-11-20: [kenney.nl/assets/pirate-kit](https://kenney.nl/assets/pirate-kit) states `License Creative Commons CC0`, and [OpenGameArt Pirate Kit](https://opengameart.org/content/pirate-kit) states `License(s): CC0`. Kenney's own download is a script-driven donation prompt, so the zip came from the OpenGameArt copy, `https://opengameart.org/sites/default/files/kenney_pirate-kit_2.1.zip`, downloaded 2026-11-20. Source zip SHA-256: `667ed2caf92954ddb98f7b7cede831fe99ab75063c26b25e23d32715bee9c943`. Source file: `Models/GLB format/ship-large.glb`.
-- Humans: [KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0), downloaded 2026-11-20 from `https://codeload.github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/zip/refs/heads/main`. Commit: `672074b73ba276876a19e8816ecdc5241817ab47`. Source zip SHA-256: `e19176d799036452bc783c00dd1036e158c66c5a43b7285ccbfea3466d6f57bf`. Source files: `addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb` and `Mage.glb`. Each has a skinned rig and 76 clips, for example `Idle`, `Walking_A`, `Running_A`, and `Cheer`.
-
-| Path | Source URL | Author | License | Date checked | SHA-256 |
+| Path | Source | Author | License | Date | SHA-256 |
 |---|---|---|---|---|---|
-| `assets/terra3d/models/ship-large.glb` | [Kenney Pirate Kit](https://kenney.nl/assets/pirate-kit) via [OpenGameArt](https://opengameart.org/content/pirate-kit) | Kenney | CC0 | 2026-11-20 | `8567386c64faf3a73832f77a0dcfcc44208487c34b46440b9a3fa8d452068579` |
-| `assets/terra3d/models/Knight.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168` |
-| `assets/terra3d/models/Mage.glb` | [KayKit Adventurers Character Pack 1.0](https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0) | Kay Lousberg | CC0 | 2026-11-20 | `cf898585da33fab50c724d31605fb931eb2912e6d2280092141e98ca81ad507d` |
+| `template/themes/terra3d/vignettes/clipper/clipper.glb` | `tests/fixtures/build-clipper-glb.py` | scene-flow contributors | Repository licence | 2026-11-21 | `e64c4c7faa3802063ef19e0dd47bbcd65baa03c84a9cdad9791ab5679f1c7b56` |
 
 ## Atlas3d map: `assets/atlas3d/map/`
 

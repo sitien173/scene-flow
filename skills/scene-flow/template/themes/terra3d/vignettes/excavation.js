@@ -1,4 +1,5 @@
 // Vignette 8: Ground-level dolly beside excavation workers and textured earth/rock spoil mounds.
+import { worker } from "./worker/worker.js";
 export async function build(kit) {
   const { THREE } = kit;
   const scene = await kit.stage({ ground: false, shadow: { size: 1024, range: 22 } });
@@ -38,24 +39,22 @@ export async function build(kit) {
   boulder.position.set(-1.5, baseY + 0.45, -0.3);
   boulder.castShadow = true;
 
-  const w1 = await kit.human({
-    model: "Knight.glb",
-    clip: "Walking_A",
+  const w1 = worker(kit, {
+    gesture: "walk",
     scale: 1.0,
     shirtColor: "#F27D24",
     position: [-0.6, baseY, 0.7],
     rotationY: 0.4,
   });
-  const w2 = await kit.human({
-    model: "Mage.glb",
-    clip: "Interact",
+  const w2 = worker(kit, {
+    gesture: "work",
     scale: 1.0,
     shirtColor: "#2E7CC4",
     position: [0.5, baseY, 0.6],
     rotationY: -0.5,
   });
 
-  crew.add(mound, boulder, w1.object, w2.object);
+  crew.add(mound, boulder, w1.group, w2.group);
   scene.add(land.object, crew);
 
   function update(t) {

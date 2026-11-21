@@ -162,6 +162,10 @@ The template contains example preferences. Edit them to match your style and del
 
 If HyperFrames Studio reports "the preview did not reload" or continues displaying previous frames, reload the browser tab (F5) and wait 20 seconds.
 
+### 3D characters and objects
+
+A 3D look such as `neon3d`, `terra3d`, or `atlas3d` sets color, light, camera, and motion. It has no built-in characters or objects. When your script needs one, Claude builds an original model in that look and keeps it in the project's `vignettes/<name>/` folder. In a channel folder, Claude first looks in the channel's `library/<look>/` and reuses a saved model. After the video passes its checks, Claude asks whether to save each new model to the library. Nothing is saved without your answer. Each video keeps its own copy, so changing a library model later does not change videos you already made.
+
 ## 5. Exporting Video
 
 When the preview looks right, enter **"render video"**. Claude renders a 1080x1920 MP4 file to the project's `renders/` directory.

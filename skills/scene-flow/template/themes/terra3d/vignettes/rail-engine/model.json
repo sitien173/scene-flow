@@ -1,0 +1,22 @@
+{
+  "name": "rail-engine",
+  "theme": "terra3d",
+  "kind": "object",
+  "factory": "railEngine",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "from": [
+      -8,
+      0,
+      0
+    ],
+    "to": [
+      8,
+      0,
+      0
+    ],
+    "dur": 4
+  },
+  "scene_flow_version": "0.4.0"
+}

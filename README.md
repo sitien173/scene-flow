@@ -224,6 +224,8 @@ Tạo video từ kịch bản này. Phải có logo của các công cụ đư�
 
 Claude hỏi bạn chọn `neon3d`, `terra3d`, `atlas3d` hay `cleanui`, căn hình theo giọng đọc, rồi gửi link xem thử. Nhắc tên phong cách ngay trong prompt nếu bạn đã biết mình muốn gì.
 
+Phong cách chỉ quyết định màu, ánh sáng, góc máy và chuyển động. Nhân vật và vật thể 3D đến từ kịch bản: Claude dựng mới theo đúng phong cách, rồi hỏi "Lưu vào thư viện kênh?". Nếu bạn đồng ý, model được lưu vào `library/<phong cách>/` của kênh, và các video sau của kênh dùng lại thay vì dựng lại.
+
 ### 5. Góp ý, xuất file và đăng
 
 - Mở link xem thử và bấm phát. Góp ý bằng lời thường, ví dụ "chữ nhỏ quá" hoặc "cảnh 3 đổi sang logo GitHub".

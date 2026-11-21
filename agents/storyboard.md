@@ -31,6 +31,7 @@ When the theme guide is a 3D theme, such as `neon3d`, `terra3d`, or `atlas3d` (`
 - Build pictures from procedural elements that render the same on every frame: `InstancedMesh` grids, honeycombs, and crowds; particle systems; energy paths; hologram maps; shader effects such as selective bloom, Fresnel, glitch, shockwave, and pixel dissolve; HTML and CSS chat bubbles pinned to 3D positions. Use only what the theme guide supports, and no unseeded randomness.
 - Avoid realistic people and hands. If a scene truly needs one, label it `[HYBRID - AI VIDEO]` and offer a minimal geometric alternative.
 - Keep one main entity with one consistent look for the whole video, and at most three key colors that shift with the story.
+- The theme kit holds no characters or objects. List every character and object the scenes need as a model. Find the channel root, the nearest folder above the project that contains `brand/brand.json`, and read the `model.json` files under `library/<theme>/` there. Mark each model `library` when a saved model fits, or `new` with a one-line brief: what it is, `character` or `object`, and the poses or states the scenes use.
 
 ## Rules for other themes
 
@@ -49,6 +50,6 @@ Write `STORYBOARD.md` in the project folder when the prompt gives one; otherwise
 
    `Lời thoại` quotes the sentences without tone marks. Put caption keywords in `Text / UI Overlay`. Name the picture source in `Hình ảnh & Camera` when it is not procedural.
 3. **Audio queries.** One or two background-music searches in English, with mood, genre, estimated BPM, and where the drop and the silence fall. Then one bullet per sound effect: `[time] Vietnamese description -> English query or prompt (suggested length)`, ready for `freesound` or `synth-sfx.py`.
-4. **Build notes.** Two or three concrete notes on transitions or the loop, caption colors, and shader or camera details to watch. Then the media checklist: every logo, URL to capture, and recording the author must supply. Then suggested values for `build.py`, `CTA_WORD` and `STEPS`, and the scene grouping for `SCENES` in `plan-beats.py`.
+4. **Build notes.** Two or three concrete notes on transitions or the loop, caption colors, and shader or camera details to watch. Then, on 3D themes, the model list: each model's kebab-case name, `library` or `new`, its brief, and the scenes that use it, for `model-builder`. Then the media checklist: every logo, URL to capture, and recording the author must supply. Then suggested values for `build.py`, `CTA_WORD` and `STEPS`, and the scene grouping for `SCENES` in `plan-beats.py`.
 
 Write in Vietnamese unless the prompt asks otherwise.

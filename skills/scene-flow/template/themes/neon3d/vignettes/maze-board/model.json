@@ -1,0 +1,16 @@
+{
+  "name": "maze-board",
+  "theme": "neon3d",
+  "kind": "object",
+  "factory": "mazeBoard",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "size": 5,
+    "cell": 0.3,
+    "color": "#7C4DFF",
+    "exitColor": "#FFB23D",
+    "seed": 5
+  },
+  "scene_flow_version": "0.4.0"
+}

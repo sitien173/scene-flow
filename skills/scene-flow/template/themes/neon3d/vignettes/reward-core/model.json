@@ -1,0 +1,14 @@
+{
+  "name": "reward-core",
+  "theme": "neon3d",
+  "kind": "object",
+  "factory": "rewardCore",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "color": "#FFB23D",
+    "beamColor": "#FF3DCB",
+    "radius": 0.8
+  },
+  "scene_flow_version": "0.4.0"
+}

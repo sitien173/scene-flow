@@ -80,14 +80,69 @@ for every option.
 | Terrain, `terrain.js` | `terrain(opts)` heightfield with river and lake mask and red-earth walls, `createHeightfield({ seed })`, `terrainHeight` |
 | Globe, `globe.js` | `globe()`, `routeArc({ from, to, start, dur })` drawn by progress, `globeZoom`, `latLonToVec3` |
 | Cutaway, `cutaway.js` | `cutaway()` soil strata and water chambers, `chamberLevel`, `gateAngle` |
-| Actors, `actors.js` | `human`, `shipGlb`, `containerShip`, `locomotive`, `loadGlb`, `validateClip` |
-| Particles, `particles.js` | `rain`, `swarm`, `fleet` as instanced meshes |
+| GLB, `glb.js` | `loadGlb`, `cloneGlb`, `clipPose`, `validateClip`, for models that ship a GLB |
+| Particles, `particles.js` | `rain`, `swarm`, and `fleet({ geometry })` as instanced meshes; `fleet` repeats a geometry the vignette passes in |
 | Overlays, `overlay.js` | `callout` numeric count-up near the top, `pill` place label on a 3D point, `ibar` vertical and `span` horizontal dimension markers, `countValue`, `projectPoint`, all drawn in the vignette's text layer; the kit's `updateOverlays(t, camera)` poses them |
-| Motion, `motion.js` | `clamp01`, `lerp`, `ease`, `progress`, `pop`, `rand`, `dolly` |
+| Motion, `motion.js` | `clamp01`, `lerp`, `ease`, `progress`, `pop`, `rand`, `dolly`, `followPath` |
 | Per vignette | `THREE`, `camera(fov)`, `beat(name)`, `layer` |
 
-Bundled textures, sky, and models are CC0 or public domain. Their sources and licenses are in
+Bundled textures and sky are CC0 or public domain. Their sources and licenses are in
 `assets/SOURCES.md` and `assets/terra3d/LICENSES/`. A vignette loads them through the kit, never by URL.
+The kit has no characters, ships, or vehicles; those are models, below.
+
+## Models
+
+The kit holds the look and the stage. Every character and object the script needs is a model:
+an original module the agent builds once, or reuses from the channel library. Build and reuse
+models with the `model-builder` sub-agent, or follow `agents/model-builder.md` yourself on hosts
+without sub-agents.
+
+A model lives in `vignettes/<name>/`, where `<name>` is kebab-case and is not a vignette id:
+
+```text
+vignettes/ship-name/
+  ship-name.js     exports the factory
+  model.json       name, theme, kind, factory, glb, clips, opts, scene_flow_version
+  preview.png      one snapshot of the model
+  ship-name.glb    optional
+```
+
+```js
+// vignettes/ship-name/ship-name.js
+export function shipName(kit, opts = {}) {
+  return {
+    group,             // root Object3D
+    hero,              // Object3D or array, passed into the vignette's hero
+    update(t, state),  // depends only on t; safe under out-of-order seeks
+  };
+}
+```
+
+- The factory takes everything from `kit` and never imports a kit file. It is `async` only when
+  it loads a GLB.
+- Vignettes import it with `import { shipName } from "./ship-name/ship-name.js";`. Do not list
+  model folders in `vignettes.json`.
+- `build.py` scans model folders with the same banned-API check as vignettes.
+- GLB route: `const gltf = await kit.loadGlb("./vignettes/ship-name/ship-name.glb")`, then
+  `const root = kit.cloneGlb(gltf)` and `const walk = kit.clipPose(root, gltf, "Walk")` in the
+  factory, and `walk.pose(t)` in `update`. `kit.validateClip(modelName, clipName, vignetteId,
+  names)` throws a clear error for a clip name the GLB lacks. `build.py` rejects GLBs that use
+  Draco, meshopt, or KTX2.
+- The channel library is `<channel>/library/<theme>/<name>/`, with the same files. Copy a library
+  model into `vignettes/`; never import from the library.
+- terra3d: use `kit.matte` under the daylight rig from `kit.stage`. Models return `group`;
+  environment helpers such as `kit.ocean` keep `object`. Pass a model's geometry to
+  `kit.fleet({ geometry })` to repeat it.
+
+Sample models in the starter project, each a style reference, not a part of the kit:
+
+| Model | Kind | Shows |
+|---|---|---|
+| `worker` | character | Low-poly person with `gesture` and clothing colors, posed from `t` |
+| `container-ship` | object | Hull, bridge, and one `InstancedMesh` of seeded containers, riding `heightAt` |
+| `rail-engine` | object | Locomotive moved by `kit.followPath` |
+| `skiff` | object | A small boat whose `geometry` feeds `kit.fleet` |
+| `clipper` | object | The GLB route: `clipper.glb` built in Blender, with the `Sway` clip posed by `kit.clipPose` |
 
 ## Camera grammar
 

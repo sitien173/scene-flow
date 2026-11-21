@@ -168,60 +168,90 @@ The kit provides dedicated helpers for positioning and moving the camera:
 | `kit.camera` | `kit.camera(fov = 35)` | Creates a perspective camera configured for 1080x1920 portrait framing. |
 | `kit.lonLatToWorld` | `kit.lonLatToWorld(lon, lat, y = 0.08)` | Converts longitude and latitude coordinates into 3D world space coordinates (default `y = LAND_H = 0.08`, the base land surface). |
 
-## Figures
+## Models
 
-Figures are chibi toon characters standing on the map or backdrop stage.
+The kit holds the look and the stage. Every character and object the script needs is a model:
+an original module the agent builds once, or reuses from the channel library. Build and reuse
+models with the `model-builder` sub-agent, or follow `agents/model-builder.md` yourself on hosts
+without sub-agents.
 
-Features:
-- Proportions: canonical height 1.0 unit with head diameter 0.45.
-- Outlines: smooth inverted-hull geometry with polygon offset (`polygonOffsetFactor: 2, polygonOffsetUnits: 2`) to prevent z-fighting with map lines.
-- Presets: `king`, `soldier`, `merchant`, `farmer`, `diplomat`, `businessperson`.
-- Expressions: `neutral`, `smile`, `angry`, `shocked`.
-- Gestures: `idle`, `wave`, `point`, `hold`, `shrug`. All gestures are pure functions of local time `t`.
-- Pop-in and pop-out transitions via `at`, `popDur`, `outAt`, `outDur`.
+A model lives in `vignettes/<name>/`, where `<name>` is kebab-case and is not a vignette id:
 
-Usage:
+```text
+vignettes/ship-name/
+  ship-name.js     exports the factory
+  model.json       name, theme, kind, factory, glb, clips, opts, scene_flow_version
+  preview.png      one snapshot of the model
+  ship-name.glb    optional
+```
 
-```javascript
-const diplomat = kit.figure("diplomat", {
-  expression: "neutral",
-  gesture: "point",
-  scale: 1.0,
-  position: kit.lonLatToWorld(3.9, 46.8, 0.145),
-  rotationY: -0.28,
-  at: 0.65,
-  popDur: 0.45,
-  outAt: 5.45,
-  outDur: 0.35,
-});
-
-scene.add(diplomat.group);
-
-function update(t) {
-  diplomat.update(t);
+```js
+// vignettes/ship-name/ship-name.js
+export function shipName(kit, opts = {}) {
+  return {
+    group,             // root Object3D
+    hero,              // Object3D or array, passed into the vignette's hero
+    update(t, state),  // depends only on t; safe under out-of-order seeks
+  };
 }
 ```
 
-Figures created with `kit.figure` are automatically tracked in `kit._heroes` for layout and clearance checks.
+- The factory takes everything from `kit` and never imports a kit file. It is `async` only when
+  it loads a GLB.
+- Vignettes import it with `import { shipName } from "./ship-name/ship-name.js";`. Do not list
+  model folders in `vignettes.json`.
+- `build.py` scans model folders with the same banned-API check as vignettes.
+- GLB route: `const gltf = await kit.loadGlb("./vignettes/ship-name/ship-name.glb")`, then
+  `const root = kit.cloneGlb(gltf)` and `const walk = kit.clipPose(root, gltf, "Walk")` in the
+  factory, and `walk.pose(t)` in `update`. `kit.validateClip(modelName, clipName, vignetteId,
+  names)` throws a clear error for a clip name the GLB lacks. `build.py` rejects GLBs that use
+  Draco, meshopt, or KTX2.
+- The channel library is `<channel>/library/<theme>/<name>/`, with the same files. Copy a library
+  model into `vignettes/`; never import from the library.
+- atlas3d: build with `kit.look.toonMaterial` and outline each mesh with
+  `kit.look.addToonWithHull`. Keep chibi proportions, head about one third of the height. Set
+  `group.userData.atlasHero = true` and call `kit.hero({ group })` inside the factory so the
+  layout check sees it. Pop in with `kit.place` and `kit.popWindow`.
 
-## The six props
+## Sample models
 
-The theme provides six built-in props:
+The starter project ships agent-built models in `vignettes/<name>/`. They show the house style; a
+new video copies them, extends them, or builds its own.
 
-| Prop | Helper | Key options |
+| Model | Factory | Notes |
 |---|---|---|
-| Sailing ship | `kit.props.sailingShip(opts)` | 3D galleon with hull, deck, masts, and parchment sails. |
-| Cargo crate | `kit.props.cargoCrate(opts)` | Wooden freight crate with corner reinforcement. |
-| Money bag | `kit.props.moneyBag(opts)` | Cloth sack with tied neck. |
-| Price tag | `kit.props.priceTag(opts)` | Hanging parchment tag with text drawn on a dynamic canvas texture via `opts.text` (e.g. `"$15M"`). |
-| Arrow | `kit.props.arrow(opts)` | Extruded white arrow with black outline. |
-| River path | `kit.props.riverPath(opts)` | Winding glowing river line generated from `CatmullRomCurve3`. |
+| `townsfolk` | `townsfolk(kit, opts)` | Chibi character. `role`: `king`, `soldier`, `merchant`, `diplomat`, `farmer`. `expression`: `neutral`, `smile`, `angry`, `shocked`. `gesture`: `idle`, `wave`, `point`, `hold`, `shrug`. |
+| `trade-ship` | `tradeShip(kit, opts)` | Schooner with fore-and-aft sails, so the sails read side-on. |
+| `cargo-crate` | `cargoCrate(kit, opts)` | Wooden freight crate. |
+| `coin-sack` | `coinSack(kit, opts)` | Cloth money sack with a tied neck. |
+| `price-tag` | `priceTag(kit, opts)` | Hanging tag; `opts.text` is drawn on a canvas texture. |
+| `map-arrow` | `mapArrow(kit, opts)` | Extruded arrow with an ink outline. |
 
-The first five props (`sailingShip`, `cargoCrate`, `moneyBag`, `priceTag`, `arrow`) support `position`, `rotationY`, `scale`, `at`, `popDur`, `outAt`, and `outDur`.
+Every sample model takes `position`, `rotationY`, `scale`, `at`, `popDur`, `outAt`, and `outDur`,
+registers itself as a hero, and exposes `group` and `update(t)`. Call `model.update(t)` inside the
+vignette `update(t)`.
 
-`kit.props.riverPath(opts)` behaves differently: it ignores `position` and `popDur`, builds its path directly from `points` (`[lon, lat]` coordinates at height `y = LAND_H + 0.022` when `space` is `"lonlat"`, or `[x, y, z]` when `space` is `"world"`), and draws along the curve starting at `at` over `dur` seconds (default `1.4`). It supports `rotationY`, `scale`, `outAt`, `outDur`, `color`, `glowColor`, and `linewidth` (default `6`).
+```javascript
+import { townsfolk } from "./townsfolk/townsfolk.js";
 
-Call `prop.update(t)` inside the vignette `update(t)` loop. All six props are automatically registered as heroes for layout verification.
+const diplomat = townsfolk(kit, {
+  role: "diplomat",
+  expression: "neutral",
+  gesture: "point",
+  position: kit.lonLatToWorld(3.9, 46.8, 0.145),
+  rotationY: -0.28,
+  at: 0.65,
+  outAt: 5.45,
+});
+```
+
+### River path
+
+`kit.riverPath(opts)` is part of the theme, not a model, because it draws on the map itself. It
+ignores `position` and `popDur`, builds its path from `points` (`[lon, lat]` at height
+`y = LAND_H + 0.022` when `space` is `"lonlat"`, or `[x, y, z]` when `space` is `"world"`), and
+draws along the curve from `at` over `dur` seconds, default `1.4`. It supports `rotationY`,
+`scale`, `outAt`, `outDur`, `color`, `glowColor`, and `linewidth`, default `6`.
 
 ## Backdrop vignettes
 
@@ -393,10 +423,15 @@ The following complete configuration defines two map scenes and one backdrop sce
 
 ### Vignette module: `vignettes/intro.js`
 
-The module exports `build(kit)`. It places the shared map, two chibi figures (`king`, `diplomat`), and three props (`sailingShip`, `cargoCrate`, `moneyBag`) in the scene:
+The module exports `build(kit)`. It places the shared map, two `townsfolk` characters, and three object models in the scene:
 
 ```javascript
-// Sentence 1: shared parchment map focusing on France, with two chibi figures and three props on the vignette's layer.
+// Sentence 1: shared parchment map focusing on France, with two characters and three objects on the vignette's layer.
+import { townsfolk } from "./townsfolk/townsfolk.js";
+import { tradeShip } from "./trade-ship/trade-ship.js";
+import { cargoCrate } from "./cargo-crate/cargo-crate.js";
+import { coinSack } from "./coin-sack/coin-sack.js";
+
 export function build(kit) {
   const { THREE } = kit;
   const scene = new THREE.Scene();
@@ -416,7 +451,8 @@ export function build(kit) {
   const layerGroup = new THREE.Group();
   scene.add(layerGroup);
 
-  const king = kit.figure("king", {
+  const king = townsfolk(kit, {
+    role: "king",
     expression: "smile",
     gesture: "wave",
     scale: 1.0,
@@ -427,7 +463,8 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const diplomat = kit.figure("diplomat", {
+  const diplomat = townsfolk(kit, {
+    role: "diplomat",
     expression: "neutral",
     gesture: "point",
     scale: 0.98,
@@ -439,7 +476,7 @@ export function build(kit) {
     outDur: 0.35,
   });
 
-  const ship = kit.props.sailingShip({
+  const ship = tradeShip(kit, {
     position: kit.lonLatToWorld(-2.4, 45.6, 0.015),
     rotationY: 0.6,
     scale: 1.15,
@@ -448,7 +485,7 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const crate = kit.props.cargoCrate({
+  const crate = cargoCrate(kit, {
     position: kit.lonLatToWorld(0.4, 45.2, 0.145),
     rotationY: 0.35,
     scale: 0.95,
@@ -457,7 +494,7 @@ export function build(kit) {
     outAt: 5.45,
     outDur: 0.35,
   });
-  const bag = kit.props.moneyBag({
+  const bag = coinSack(kit, {
     position: kit.lonLatToWorld(4.1, 45.4, 0.145),
     rotationY: -0.25,
     scale: 1.0,

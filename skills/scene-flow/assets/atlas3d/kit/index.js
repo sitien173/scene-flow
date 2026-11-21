@@ -1,27 +1,15 @@
 // The atlas3d kit handed to every vignette's build(kit).
 import * as THREE from "three";
-import { clamp01, lerp, ease, progress, pop, rand, dolly, orbit, type } from "./motion.js";
+import { clamp01, lerp, ease, progress, pop, rand, dolly, orbit, type, applyPopWindow } from "./motion.js";
+import { loadGlb, validateClip, cloneGlb, clipPose } from "./glb.js";
 import * as look from "./look.js";
-import { createMap, view, applyView, move, lonLatToWorld } from "./map.js";
-import { createFigure, FIGURE_PRESETS, FIGURE_EXPRESSIONS, FIGURE_GESTURES, COSTUMES } from "./figure.js";
-import { createProp, PROP_KINDS, sailingShip, cargoCrate, moneyBag, priceTag, arrow, riverPath } from "./props.js";
+import { createMap, view, applyView, move, lonLatToWorld, applyPlacement } from "./map.js";
+import { riverPath } from "./river.js";
 import { createBackdrop } from "./backdrop.js";
 
 export {
   ease,
   createMap,
-  createFigure,
-  FIGURE_PRESETS,
-  FIGURE_EXPRESSIONS,
-  FIGURE_GESTURES,
-  COSTUMES,
-  createProp,
-  PROP_KINDS,
-  sailingShip,
-  cargoCrate,
-  moneyBag,
-  priceTag,
-  arrow,
   riverPath,
   createBackdrop,
 };
@@ -57,15 +45,6 @@ export function createKit({ id, t = 0, end = Infinity, beats = {}, layer, map = 
     }),
   } : null;
 
-  const props = {
-    sailingShip: (opts = {}) => registerHero(sailingShip(opts)),
-    cargoCrate: (opts = {}) => registerHero(cargoCrate(opts)),
-    moneyBag: (opts = {}) => registerHero(moneyBag(opts)),
-    priceTag: (opts = {}) => registerHero(priceTag(opts)),
-    arrow: (opts = {}) => registerHero(arrow(opts)),
-    riverPath: (opts = {}) => registerHero(riverPath(opts)),
-  };
-
   return {
     THREE, id, layer, image,
     PALETTE: look.PALETTE,
@@ -73,10 +52,16 @@ export function createKit({ id, t = 0, end = Infinity, beats = {}, layer, map = 
     map: scopedMap,
     view, applyView, move, lonLatToWorld,
     clamp01, lerp, ease, progress, pop, rand, dolly, orbit,
+    loadGlb, validateClip, cloneGlb, clipPose,
     type: (text, options) => type(layer, text, options),
-    figure: (preset, opts = {}) => registerHero(createFigure(preset, opts)),
-    prop: (kind, opts = {}) => registerHero(createProp(kind, opts)),
-    props,
+    // Tracks a model ({ group }) for the stage's layout and clearance checks; returns it.
+    hero: registerHero,
+    // Puts group at options.position under a pivot that faces the map camera; returns { pivot, baseScale }.
+    place: (group, options = {}, diorama = {}) => applyPlacement(group, options, diorama),
+    // Pop-in at options.at and pop-out before options.outAt; returns the current scale factor, 0 while hidden.
+    popWindow: (group, t, options = {}) => applyPopWindow(group, t, options),
+    // Glowing river line over the map, drawn along points from at over dur seconds.
+    riverPath: (opts = {}) => registerHero(riverPath(opts)),
     backdrop: (scene, opts = {}) => {
       const hasScene = Boolean(scene && scene.isScene);
       const rawOpts = !hasScene && scene && typeof scene === "object" ? scene : opts;

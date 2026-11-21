@@ -1,0 +1,10 @@
+{
+  "name": "map-arrow",
+  "theme": "atlas3d",
+  "kind": "object",
+  "factory": "mapArrow",
+  "glb": "",
+  "clips": [],
+  "opts": {"pointing": "down", "color": "#F3EEE4", "scale": 2.3},
+  "scene_flow_version": "0.4.0"
+}

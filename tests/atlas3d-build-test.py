@@ -23,9 +23,12 @@ STARTER_VOICE_SECONDS = "26.95"
 
 
 def install_starter(d):
-    # the shipped sample uses other vignette ids; these tests rely on the old starter ids intro, outro and scene
-    shutil.rmtree(os.path.join(d, "vignettes"), ignore_errors=True)
-    os.makedirs(os.path.join(d, "vignettes"))
+    # the shipped sample uses other vignette ids; these tests rely on the old starter ids intro, outro and scene.
+    # The sample's model folders stay, because the starter vignettes import them.
+    vdir = os.path.join(d, "vignettes")
+    for name in os.listdir(vdir):
+        if name.endswith(".js"):
+            os.remove(os.path.join(vdir, name))
     for rel in STARTER_FILES:
         shutil.copyfile(os.path.join(STARTER, rel), os.path.join(d, rel))
 

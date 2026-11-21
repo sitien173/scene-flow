@@ -331,15 +331,10 @@ async function main() {
       async figureSeek() {
         const kitMod = await import("atlas3d/kit");
         const kit = kitMod.createKit({ id: "figure-seek-check" });
-        if (typeof kit.figure !== "function") {
-          return { supported: false, reason: "kit.figure missing" };
-        }
-        if (typeof kit.prop !== "function" || !Array.isArray(kitMod.PROP_KINDS) || kitMod.PROP_KINDS.length !== 6) {
-          return { supported: false, reason: "kit.prop or 6 PROP_KINDS missing" };
-        }
+        const { townsfolk } = await import("/vignettes/townsfolk/townsfolk.js");
         const scene = new kit.THREE.Scene();
         kit.look.lights(scene);
-        const fig = kit.figure("king", { expression: "smile", gesture: "wave", at: 0, popDur: 0.3 });
+        const fig = townsfolk(kit, { role: "king", expression: "smile", gesture: "wave", at: 0, popDur: 0.3 });
         scene.add(fig.group);
         const probe = t => {
           fig.update(t);
@@ -375,9 +370,12 @@ async function main() {
           backdropOptsError = err && err.message ? err.message : String(err);
         }
 
-        // Finding 3: cargoCrate and moneyBag hull minY covers lower half of body.
+        // Finding 3: the sample cargo-crate and coin-sack hulls cover the lower half of the body.
+        const { cargoCrate } = await import("/vignettes/cargo-crate/cargo-crate.js");
+        const { coinSack } = await import("/vignettes/coin-sack/coin-sack.js");
+        const { townsfolk } = await import("/vignettes/townsfolk/townsfolk.js");
         const kit = kitMod.createKit({ id: "prop-bounds-check" });
-        const crate = kit.props.cargoCrate({ at: 0, popDur: 0.2 });
+        const crate = cargoCrate(kit, { at: 0, popDur: 0.2 });
         crate.update(0.5);
         crate.group.updateMatrixWorld(true);
         const crateMeshes = [];
@@ -387,7 +385,7 @@ async function main() {
         const crateBodyBox = new THREE.Box3().setFromObject(crateBody);
         const crateHullBox = new THREE.Box3().setFromObject(crateHull);
 
-        const bag = kit.props.moneyBag({ at: 0, popDur: 0.2 });
+        const bag = coinSack(kit, { at: 0, popDur: 0.2 });
         bag.update(0.5);
         bag.group.updateMatrixWorld(true);
         let bagSack = null;
@@ -408,7 +406,8 @@ async function main() {
         const cam = new THREE.PerspectiveCamera(35, 1080 / 1920, 0.1, 500);
         const pose = kitMod.createKit({ id: "map-pose-check" }).view(2.3, 46.8, 0.85, 22);
         kitMod.createKit({ id: "map-pose-apply" }).applyView(cam, pose);
-        const fig = kitMod.createFigure("king", {
+        const fig = townsfolk(kitMod.createKit({ id: "fig-check" }), {
+          role: "king",
           expression: "smile",
           gesture: "idle",
           position: kitMod.createKit({ id: "pos-check" }).lonLatToWorld(0.6, 46.8, 0.145),
@@ -420,10 +419,10 @@ async function main() {
         map.update(0.5, cam);
         fig.group.updateMatrixWorld(true);
 
-        // Head sphere has radius ~0.225 (largest child inside headHolder).
+        // The townsfolk head sphere has radius 0.23.
         let headMesh = null;
         fig.group.traverse(o => {
-          if (o.isMesh && o.geometry?.type === "SphereGeometry" && Math.abs((o.geometry.parameters?.radius || 0) - 0.225) < 0.01) {
+          if (o.isMesh && o.geometry?.type === "SphereGeometry" && Math.abs((o.geometry.parameters?.radius || 0) - 0.23) < 0.005) {
             headMesh = o;
           }
         });
@@ -602,10 +601,10 @@ async function main() {
     failures.push("backdropOptionsOnly: " + (rf.backdropOptsError || "plateWidth mismatch"));
   }
   if (!(rf.crateHullMinY <= 0.02 && rf.crateHullMinY <= rf.crateBodyMinY + 0.01)) {
-    failures.push("cargoCrate hull minY=" + rf.crateHullMinY + " does not cover body minY=" + rf.crateBodyMinY);
+    failures.push("cargo-crate hull minY=" + rf.crateHullMinY + " does not cover body minY=" + rf.crateBodyMinY);
   }
   if (!(rf.bagHullMinY <= 0.02 && rf.bagHullMinY <= rf.bagBodyMinY + 0.02)) {
-    failures.push("moneyBag hull minY=" + rf.bagHullMinY + " does not cover body minY=" + rf.bagBodyMinY);
+    failures.push("coin-sack hull minY=" + rf.bagHullMinY + " does not cover body minY=" + rf.bagBodyMinY);
   }
   if (!(rf.faceCamDot >= 0.85)) {
     failures.push("mapFigure faceCamDot=" + rf.faceCamDot + " (< 0.85, character is not facing camera)");

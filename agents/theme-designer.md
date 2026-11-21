@@ -24,7 +24,7 @@ Write `research/theme-<name>/SPEC.md` with these sections, each citing frame tim
 | Section | What to record |
 |---|---|
 | Phong cách 3D | render look, materials, lighting, palette as hex values, background, post effects such as bloom or grain |
-| Nhân vật | proportions, shapes, face, colors, expressions, how it moves; an original design brief that is clearly different from the reference character |
+| Nhân vật | the construction rules a model needs to belong to the theme: proportions, shapes, face style, materials, outline, how it moves. The theme kit ships no characters or objects; models are built per video by `model-builder`. Include one original sample brief, clearly different from the reference character |
 | Hình ảnh 3D và góc máy | shot types, lens feel, camera moves, average shot length, transition types and counts per second |
 | Âm nhạc | genre, tempo in BPM, mood, energy curve, level under the voice in LUFS |
 | Âm thanh và SFX | each SFX type, when it fires, its level; map each to the house sound set or a Freesound search query |
@@ -41,7 +41,8 @@ Return a short Vietnamese summary of the spec and its path, then stop. Phase 2 n
 Run this phase only when the prompt says the spec is approved. Fork the chosen base theme and follow the integration pattern of commit `9ff88d3`, which added `neon3d`:
 
 - `skills/scene-flow/template/themes/<name>/`: `fontfaces.txt`, `scenes.part`, `stage.part`, `theme.css`, `timeline.js`, plus a sample `SCRIPT.md` and data files if the base theme has them.
-- `skills/scene-flow/assets/<name>/` for kit code, fonts, and sounds; record every source and license in `skills/scene-flow/assets/SOURCES.md`.
+- `skills/scene-flow/assets/<name>/` for kit code, fonts, and sounds; record every source and license in `skills/scene-flow/assets/SOURCES.md`. The kit holds the look, stage, camera, and motion helpers, plus `glb.js` copied from an existing 3D kit. It holds no characters or objects.
+- One sample model in the template's `vignettes/<model-name>/`, following the "Models" section of the theme guides.
 - `skills/scene-flow/references/themes/<name>.md`: identity, captions, seams, markup catalogue, and checks, in the shape of the existing guides.
 - `skills/scene-flow/scripts/new-project.py`: add the name to `--theme` choices and its asset list.
 - `scripts/build.py` and `scripts/karaoke.py` only if the theme needs new build or caption behavior.
