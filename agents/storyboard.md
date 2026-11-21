@@ -26,7 +26,7 @@ You plan scenes, visuals, and sound for a narrated short. You do not build the H
 
 ## Rules for 3D themes
 
-When the theme guide is a 3D theme, such as `neon3d`, `terra3d`, or `atlas3d` (`cleanui` is 2D and follows its own guide):
+When the theme guide is a 3D theme, such as `neon3d`, `terra3d`, `toon3d`, or `atlas3d` (`cleanui` is 2D and follows its own guide):
 
 - Build pictures from procedural elements that render the same on every frame: `InstancedMesh` grids, honeycombs, and crowds; particle systems; energy paths; hologram maps; shader effects such as selective bloom, Fresnel, glitch, shockwave, and pixel dissolve; HTML and CSS chat bubbles pinned to 3D positions. Use only what the theme guide supports, and no unseeded randomness.
 - Avoid realistic people and hands. If a scene truly needs one, label it `[HYBRID - AI VIDEO]` and offer a minimal geometric alternative.

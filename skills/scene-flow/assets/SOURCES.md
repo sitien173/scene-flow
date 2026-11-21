@@ -133,3 +133,9 @@ Original art drawn for the cleanui theme with plain SVG geometry. No third-party
 |---|---|---|---|
 | `assets/cleanui/mascot.svg` | Original work, scene-flow project | Teal squircle with two dot eyes and a smile. Not derived from any reference character. | `4e253f5bc6f130a0f67e980a5b95babb0b62dc7fcaeeb29ebbdd43e6bb9ff011` |
 | `assets/cleanui/starburst.svg` | Original work, scene-flow project | Six-ray orange accent drawn as a stroked asterisk. | `d9eb550a43f89624895e8865669576456f71fae3181351453e7448e5d0f1d414` |
+
+## Toon3d kit: `assets/toon3d/kit/`
+
+The toon3d kit (`camera.js`, `index.js`, `look.js`, `motion.js`, `overlay.js`) is original scene-flow code, written for the toon3d theme in this repository, under the repository licence. `glb.js` is a byte-identical copy of `assets/terra3d/kit/glb.js`. The toon3d theme uses these existing entries, not new files: Be Vietnam Pro in `assets/fonts/` (see the fonts section above), the house bed `assets/audio/bgm-little-things.mp3`, and the sound effects `sfx-pop.mp3`, `sfx-click.mp3` and `sfx-laser.mp3` (see the audio section above). The vendored Three.js addons `GLTFLoader.js`, `BufferGeometryUtils.js` and `SkeletonUtils.js` are listed in the vendored section above.
+
+No audio, footage, character, or brand mark from the toon3d reference video is in this folder or in `assets/audio/`. Adding any such file later requires a recorded redistribution licence in this file first.

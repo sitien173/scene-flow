@@ -34,6 +34,7 @@ Do one step at a time and wait for the author's answer.
    |---|---|
    | `neon3d` | technology, AI tools, software, digital products |
    | `terra3d` | engineering, construction, geography, history |
+   | `toon3d` | installing or maintaining equipment, seen from above |
    | `atlas3d` | history, geography, geopolitics, economics told on a map |
    | `cleanui` | AI tools, apps, and software explained step by step on a light 2D UI |
 
@@ -59,8 +60,8 @@ Do one step at a time and wait for the author's answer.
      usage line, or the parse error.
 
 6. **Hand over.** Tell the author how to make the first video and offer to run it now:
-   - macOS or Linux: `./new-video.sh <slug> "Tên video" <neon3d|terra3d|atlas3d|cleanui> [voice file]`
-   - Windows: `powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|atlas3d|cleanui> [voice file]`
+   - macOS or Linux: `./new-video.sh <slug> "Tên video" <neon3d|terra3d|toon3d|atlas3d|cleanui> [voice file]`
+   - Windows: `powershell -ExecutionPolicy Bypass -File .\new-video.ps1 <slug> "Tên video" <neon3d|terra3d|toon3d|atlas3d|cleanui> [voice file]`
    Then open the agent in `videos/<yyyy-mm>-<slug>/` and continue with the `scene-flow` skill,
    starting from a topic or a script.
 

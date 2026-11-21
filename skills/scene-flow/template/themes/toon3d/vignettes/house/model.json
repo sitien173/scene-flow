@@ -1,0 +1,14 @@
+{
+  "name": "house",
+  "theme": "toon3d",
+  "kind": "object",
+  "factory": "house",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "panelStart": 0.6,
+    "rails": false,
+    "inverter": false
+  },
+  "scene_flow_version": "0.4.3"
+}

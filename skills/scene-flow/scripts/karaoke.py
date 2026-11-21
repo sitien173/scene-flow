@@ -37,7 +37,7 @@ COMPOUNDS = [
 ]
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d, terra3d, atlas3d and cleanui are supported" % THEME)
+    raise SystemExit("theme %s was removed; only neon3d, terra3d, toon3d, atlas3d and cleanui are supported" % THEME)
 THEME_SETTINGS = {
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
@@ -55,6 +55,18 @@ THEME_SETTINGS = {
         "minu": 1, "single": True,
         "compounds": ["kênh đào", "Trái Đất", "con tàu", "công trình", "đại dương", "con người", "kỹ sư", "mặt nước",
                       "cửa âu", "đường sắt"],
+    },
+    # toon3d: lines of 2 to 4 words, one line per sentence, as the reference. A word shows at 75% ink just before it is spoken (the reference's pre-read words, measured in the 2.0 s frame)
+    # (REVEAL seconds), turns ink when spoken (the reference's 0.0 s and 5.0 s frames), and a word under "# Từ khóa phụ đề"
+    # in SCRIPT.md turns red then (emph_color). The white rim is CSS (theme.css). Lines stay on screen until the next line starts, then cut.
+    "toon3d": {
+        "maxu": 4, "maxc": 30, "maxc_side": 30,
+        "lit_color": "#191B1F", "lit_shadow": "LIT",
+        "unlit_color": "rgba(27,27,31,0.75)", "unlit_shadow": "LIT",
+        "dark_unlit_color": "rgba(27,27,31,0.75)", "dark_unlit_shadow": "LIT",
+        "minu": 2, "sticky": True, "reveal": True, "emph_color": "#DF342C", "emphasis": True,
+        "compounds": ["mặt trời", "ánh sáng", "kỹ thuật", "mái nhà", "tấm pin", "khung giá", "xà mái", "biến tần",
+                      "xoay chiều", "phát điện"],
     },
     "atlas3d": {
         "maxu": 4, "maxc": 24, "maxc_side": 24,
@@ -80,6 +92,7 @@ MAXC = SETTINGS["maxc"]
 MAXC_SIDE = SETTINGS["maxc_side"]
 BOXED = SETTINGS.get("boxed", SETTINGS["minu"] == 1 and not SETTINGS.get("single"))     # the current word gets the violet box and 1.08 scale
 LEAD = 0.03     # a word lights this much before its first syllable
+REVEAL = 0.2    # reveal captions: a word shows in grey this much before it is spoken
 
 
 def key(t):
@@ -94,7 +107,7 @@ for x in syl:
     by_sent.setdefault(x["i"], []).append(x)
 
 
-def units_of(toks):
+def units_of(toks, hit=()):
     out, k = [], 0
     while k < len(toks):
         for c in COMP:
@@ -103,7 +116,8 @@ def units_of(toks):
                 break
         else:
             seg = toks[k:k + 1]
-        out.append({"text": " ".join(t["syl"] for t in seg), "s": seg[0]["s"], "e": seg[-1]["e"]})
+        out.append({"text": " ".join(t["syl"] for t in seg), "s": seg[0]["s"], "e": seg[-1]["e"],
+                    "red": any(hit[k:k + len(seg)])})
         k += len(seg)
     return out
 
@@ -128,11 +142,35 @@ def side_cls(t):
     return next((c for a, b, c in SIDES if a <= t < b), "")
 
 
+# Emphasis (toon3d): the phrases under "# Từ khóa phụ đề" in SCRIPT.md. "- Câu 3: xà mái" names sentence 3;
+# "- xà mái" names every sentence. Other themes read nothing here.
+EMPHASIS = []
+if SETTINGS.get("emphasis"):
+    on = False
+    for line in io.open("SCRIPT.md", encoding="utf-8"):
+        s = line.strip()
+        if s.startswith("#"):
+            on = s.lstrip("#").strip() == "Từ khóa phụ đề"
+        elif on and re.match(r"-\s", s):
+            m = re.match(r"-\s*(?:Câu\s*(\d+)\s*:\s*)?(.+)$", s)
+            EMPHASIS.append((int(m.group(1)) if m.group(1) else None, [key(w) for w in m.group(2).split()]))
+
+def emphasis_hits(toks, sentence):
+    keys = [key(t["syl"]) for t in toks]
+    hit = [False] * len(keys)
+    for n, words in EMPHASIS:
+        if n not in (None, sentence) or not words:
+            continue
+        for k in range(len(keys) - len(words) + 1):
+            if keys[k:k + len(words)] == words:
+                hit[k:k + len(words)] = [True] * len(words)
+    return hit
+
 cues = []
 for i in sorted(by_sent):
     if i in SKIP:
         continue
-    us = units_of(by_sent[i])
+    us = units_of(by_sent[i], emphasis_hits(by_sent[i], i))
     lim = MAXC_SIDE if in_side(us[0]["s"]) else MAXC
     group, cur = [], []
     for u in us:
@@ -232,23 +270,31 @@ for n, c in enumerate(cues):
                      '<span class="kb" id="kb%03d">%s</span></span>'
                      % (w, highlight, w, esc(u["text"])))
         w += 1
-    html.append('        <div class="kc clip%s%s" id="kc%03d" data-start="%.3f" data-duration="%.3f"'
+    html.append('        <div class="kc clip%s%s%s" id="kc%03d" data-start="%.3f" data-duration="%.3f"'
                 ' data-track-index="6" data-layout-allow-overlap="true">'
-                '<span class="kin" id="ki%03d">%s</span></div>'
-                % (" " + c["side"] if c["side"] else "", " dk" if c["dark"] else "", n, c["s"], c["e"] - c["s"], n, " ".join(spans)))
+                '<span class="kin%s" id="ki%03d">%s</span></div>'
+                % (" " + c["side"] if c["side"] else "", " dk" if c["dark"] else "", " rv" if SETTINGS.get("reveal") else "",
+                   n, c["s"], c["e"] - c["s"],
+                   " kr" if not SETTINGS.get("reveal") and any(u.get("red") for u in c["units"]) else "", n, " ".join(spans)))
     anim.append('      tl.fromTo("#ki%03d", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.12,'
                 ' ease: "power2.out" }, %.3f);' % (n, c["s"]))
     us = c["units"]
+    if SETTINGS.get("reveal"):  # each word shows in the unlit colour REVEAL seconds before it is spoken
+        for u in us:
+            show = max(c["s"], u["s"] - REVEAL)
+            anim.append('      tl.set("#kw%03d", { display: "inline-block" }, %.3f); tl.set("#kb%03d", { color: "%s" }, %.3f);'
+                        % (u["id"], show, u["id"], SETTINGS["unlit_color"], show))
     for k, u in enumerate(us if SETTINGS.get("highlight", True) else []):
         on = max(c["s"], u["s"] - LEAD)
         off = (max(c["s"], us[k + 1]["s"] - LEAD) if k + 1 < len(us) else c["e"]) - 0.01
+        lit = SETTINGS["emph_color"] if SETTINGS.get("reveal") and u.get("red") else SETTINGS["lit_color"]
         if BOXED:
             anim.append('      tl.set("#ka%03d", { autoAlpha: 1 }, %.3f); tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         ' tl.set("#kw%03d", { scale: 1.08 }, %.3f);'
                         % (u["id"], on, u["id"], SETTINGS["lit_color"], SETTINGS["lit_shadow"], on, u["id"], on))
         else:
             anim.append('      tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
-                        % (u["id"], SETTINGS["lit_color"], SETTINGS["lit_shadow"], on))
+                        % (u["id"], lit, SETTINGS["lit_shadow"], on))
         if BOXED:
             anim.append('      tl.set("#ka%03d", { autoAlpha: 0 }, %.3f); tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         ' tl.set("#kw%03d", { scale: 1 }, %.3f);'

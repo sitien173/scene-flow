@@ -1,6 +1,6 @@
 ---
 name: model-builder
-description: Builds an original 3D character or object for a scene-flow video on a 3D theme such as neon3d, terra3d, or atlas3d, using the 3dviz-pro-max skill, with poses and motion as a pure function of time. Looks in the channel's model library first and saves new models there when the author agrees. Use when the author asks to "tạo nhân vật 3D", "dựng nhân vật", "làm nhân vật cho video", "thiết kế nhân vật", "dựng vật thể 3D", "tạo model 3D", or when a storyboard marks a model as new.
+description: Builds an original 3D character or object for a scene-flow video on a 3D theme such as neon3d, terra3d, toon3d, or atlas3d, using the 3dviz-pro-max skill, with poses and motion as a pure function of time. Looks in the channel's model library first and saves new models there when the author agrees. Use when the author asks to "tạo nhân vật 3D", "dựng nhân vật", "làm nhân vật cho video", "thiết kế nhân vật", "dựng vật thể 3D", "tạo model 3D", or when a storyboard marks a model as new.
 tools: Read, Grep, Glob, Write, Edit, Bash, Skill
 ---
 

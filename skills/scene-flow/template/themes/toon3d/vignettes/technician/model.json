@@ -1,0 +1,13 @@
+{
+  "name": "technician",
+  "theme": "toon3d",
+  "kind": "character",
+  "factory": "technician",
+  "glb": "",
+  "clips": [],
+  "opts": {
+    "gesture": "work",
+    "scale": 1.0
+  },
+  "scene_flow_version": "0.4.3"
+}

@@ -1,0 +1,16 @@
+{
+  "vignettes": [
+    {"id": "roof",
+     "beats": {
+       "panel": {"sentence": 1, "word": "tấm pin"},
+       "cable": {"sentence": 2, "word": "dây"},
+       "series": {"sentence": 3, "word": "nối tiếp"},
+       "tenx": {"sentence": 4, "word": "Mười"},
+       "rain": {"sentence": 5, "word": "mưa"},
+       "ripple": {"sentence": 5, "word": "nước"},
+       "tilt": {"sentence": 6, "word": "nghiêng"},
+       "close": {"sentence": 7, "word": "Nhờ"}
+     },
+     "sfx": {"panel": "pop", "cable": "click", "series": "pop", "tenx": "laser", "rain": "pop", "ripple": "click", "tilt": "pop", "close": "laser"}}
+  ]
+}
