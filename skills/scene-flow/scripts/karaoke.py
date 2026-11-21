@@ -37,7 +37,7 @@ COMPOUNDS = [
 ]
 THEME = json.load(io.open("meta.json", encoding="utf-8")).get("theme", "neon3d")
 if THEME in ("dark", "paper", "world3d"):
-    raise SystemExit("theme %s was removed; only neon3d, terra3d and atlas3d are supported" % THEME)
+    raise SystemExit("theme %s was removed; only neon3d, terra3d, atlas3d and cleanui are supported" % THEME)
 THEME_SETTINGS = {
     "neon3d": {
         "maxu": 5, "maxc": 30, "maxc_side": 30,
@@ -63,6 +63,14 @@ THEME_SETTINGS = {
         "dark_unlit_color": "#FFFFFF", "dark_unlit_shadow": "DHALO",
         "minu": 3, "highlight": False,  # whole phrases only: no per-word colour
     },
+    # light page: unread words grey, the word being read turns ink and stays ink ("sticky": read words keep the lit colour)
+    "cleanui": {
+        "maxu": 4, "maxc": 26, "maxc_side": 26,
+        "lit_color": "#1C1C1C", "lit_shadow": "LIT",
+        "unlit_color": "#A3A3A3", "unlit_shadow": "LIT",
+        "dark_unlit_color": "#A3A3A3", "dark_unlit_shadow": "LIT",
+        "minu": 1, "boxed": False, "sticky": True,
+    },
 }
 if THEME not in THEME_SETTINGS:
     raise SystemExit("unknown theme: " + THEME)
@@ -70,7 +78,7 @@ SETTINGS = THEME_SETTINGS[THEME]
 MAXU = SETTINGS["maxu"]
 MAXC = SETTINGS["maxc"]
 MAXC_SIDE = SETTINGS["maxc_side"]
-BOXED = SETTINGS["minu"] == 1 and not SETTINGS.get("single")     # the current word gets the violet box and 1.08 scale
+BOXED = SETTINGS.get("boxed", SETTINGS["minu"] == 1 and not SETTINGS.get("single"))     # the current word gets the violet box and 1.08 scale
 LEAD = 0.03     # a word lights this much before its first syllable
 
 
@@ -246,7 +254,7 @@ for n, c in enumerate(cues):
                         ' tl.set("#kw%03d", { scale: 1 }, %.3f);'
                         % (u["id"], off, u["id"], SETTINGS["dark_unlit_color"] if c["dark"] else SETTINGS["unlit_color"],
                            SETTINGS["dark_unlit_shadow"] if c["dark"] else SETTINGS["unlit_shadow"], off, u["id"], off))
-        else:
+        elif not SETTINGS.get("sticky"):
             anim.append('      tl.set("#kb%03d", { color: "%s", textShadow: %s }, %.3f);'
                         % (u["id"], SETTINGS["dark_unlit_color"] if c["dark"] else SETTINGS["unlit_color"],
                            SETTINGS["dark_unlit_shadow"] if c["dark"] else SETTINGS["unlit_shadow"], off))

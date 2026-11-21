@@ -3,7 +3,7 @@ name: scene-flow
 description: >-
   Build a vertical narrated short (TikTok, Reels, Shorts; 1080x1920) in HyperFrames from a script
   and a voiceover, with picture and voice in sync to the syllable. The voice can be the author's
-  recording, a TTS API, or VieNeu-TTS on a local GPU or a Colab server. Themes: neon3d, terra3d, atlas3d;
+  recording, a TTS API, or VieNeu-TTS on a local GPU or a Colab server. Themes: neon3d, terra3d, atlas3d, cleanui;
   the author picks one for every project. Ships the project template, pipeline, house sound set, and assets. Use it for ANY
   narrated short: when the author sends a script to make into a video, says "làm video",
   "tạo video tiktok", "đây là file audio nói", "đây là voice", "giọng đọc", "tôi sẽ thu âm",
@@ -40,12 +40,13 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
 | Build 3D objects for neon3d, terra3d, or atlas3d | [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | skill `3dviz-pro-max` |
+| Build cleanui cards, tiles, and the mascot | [cleanui.md](references/themes/cleanui.md) | none |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
 | Write post caption and hashtags | none | sub-agent `caption-writer` |
 | Create a new theme from a reference video | all theme guides | sub-agent `theme-designer` |
 
-Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md).
+Theme guides: [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md), [cleanui.md](references/themes/cleanui.md).
 
 ## Setup
 
@@ -71,7 +72,7 @@ No mascot ships. The author may add a transparent `.webm`; its size and placemen
 
 ## Order of work
 
-1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects, or the nearest `AGENTS.md` above the project, such as a channel folder from the `scene-flow-channel` skill. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, or atlas3d to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
+1. **Read the author style, then ask for the theme.** Read `AGENTS.md` in the folder that holds the author's projects, or the nearest `AGENTS.md` above the project, such as a channel folder from the `scene-flow-channel` skill. If it is missing, ask the author whether to create it from [author/AGENTS.template.md](author/AGENTS.template.md); see [Recording feedback](#recording-feedback). There is no default theme. Before creating any project, ask which of neon3d, terra3d, atlas3d, or cleanui to use, and mark the latest project's theme as the suggestion when there is one. Never pick a theme the author has not named. Carry the latest project's other style choices forward.
 2. **Get the script.** `SCRIPT.md` holds one sentence per plain line, exactly as spoken. `plan-beats.py` skips lines starting with `#`, `-`, `>`, or `|`, so a markdown table yields zero sentences. Three optional marks, read by `scripts/scriptmd.py`, never reach alignment or captions: a leading `[tense]`, `[normal]`, or `[calm]` sets the delivery, which `tts.py` sends to ElevenLabs and Vibi on `eleven_v3` as an audio tag; a `[pause:0.6s]` line sets the silence after the sentence above it; and `- term -> spelling` lines respell English terms for VieNeu-TTS only.
 
    The author may bring a script written anywhere, such as ChatGPT, in any shape: a scene table, labelled prose, or paragraphs. Normalize it into `SCRIPT.md` before step 3:
@@ -197,6 +198,7 @@ Rules live in three tiers. The more specific tier wins.
 - **Keys and tokens never enter a project file, a video, or the chat output.**
 - **Terra3d has hard cuts only and no sound on cuts.** Its ambience is per project: CC0 sounds from the freesound skill, approved by the author, named in `vignettes.json`, attribution kept. Read [references/themes/terra3d.md](references/themes/terra3d.md) before writing a vignette or choosing a sound.
 - **Atlas3d vignettes use shared map pans and backdrop scenes in `vignettes.json`.** Read [references/themes/atlas3d.md](references/themes/atlas3d.md) before writing an atlas3d vignette.
+- **Cleanui has a swoosh only on hard cuts and chapter openers.** Its seams are set per row in `cues.json` and the theme guide overrides the every-cut rule. Read [references/themes/cleanui.md](references/themes/cleanui.md) before writing a cleanui scene or choosing a sound.
 
 ## Reading author feedback
 

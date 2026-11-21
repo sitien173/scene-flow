@@ -69,6 +69,7 @@ python3 tests/neon3d-build-test.py
 python3 tests/terra3d-build-test.py
 python3 tests/atlas3d-build-test.py
 python3 tests/atlas3d-map-test.py
+python3 tests/cleanui-build-test.py
 claude plugin validate --strict .
 bash tests/theme-fixture.sh /tmp/sf-check | tail -1
 ```

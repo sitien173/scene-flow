@@ -38,7 +38,7 @@ options with their real cost and let the author choose. Offer; don't decide.
 type, bookends, sound set and scripts.
 
 **Always ask the author which theme to use before creating a project.** There is no default
-theme. List neon3d, terra3d, and atlas3d, and mark the latest project's theme as the
+theme. List neon3d, terra3d, atlas3d, and cleanui, and mark the latest project's theme as the
 suggestion when there is one. Never pick a theme the author has not named. Then read the
 selected guide in [themes/](themes/).
 

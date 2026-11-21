@@ -1,0 +1,35 @@
+{
+  "scenes": [
+    {"id": "hook"},
+    {"id": "ch1", "in": "open", "at": {"sentence": 3, "word": "Bước"}},
+    {"id": "draft", "in": "slide", "at": {"sentence": 4, "word": "Một"}},
+    {"id": "ch2", "in": "open", "at": {"sentence": 5, "word": "Bước"}},
+    {"id": "check", "in": "slide", "at": {"sentence": 6, "word": "AI"}},
+    {"id": "pick", "in": "cut", "at": {"sentence": 7, "word": "Bạn"}},
+    {"id": "done", "in": "slide", "at": {"sentence": 8, "word": "Cuối"}},
+    {"id": "ask", "in": "slide", "at": {"sentence": 9, "word": "Bạn"}}
+  ],
+  "beats": {
+    "hook-claude": {"sentence": 1, "word": "Đừng"},
+    "hook-gpt": {"sentence": 1, "word": "AI"},
+    "ch1-title": {"sentence": 3, "word": "viết"},
+    "ch1-mascot": {"sentence": 3, "word": "một"},
+    "draft-send": {"sentence": 4, "word": "ý"},
+    "ch2-title": {"sentence": 5, "word": "kiểm"},
+    "ch2-mascot": {"sentence": 5, "word": "hai"},
+    "check-chip": {"sentence": 6, "word": "logic"},
+    "pick-pick": {"sentence": 7, "word": "giữ"},
+    "done-file": {"sentence": 8, "word": "ghi"},
+    "ask-send": {"sentence": 9, "word": "chưa"}
+  },
+  "sfx": [
+    {"beat": "hook-claude", "sound": "pop"},
+    {"beat": "ch1-mascot", "sound": "pop"},
+    {"beat": "draft-send", "sound": "laser"},
+    {"beat": "ch2-mascot", "sound": "pop"},
+    {"beat": "check-chip", "sound": "pop"},
+    {"beat": "pick-pick", "sound": "laser"},
+    {"beat": "done-file", "sound": "pop"},
+    {"beat": "ask-send", "sound": "laser"}
+  ]
+}

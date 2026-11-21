@@ -63,6 +63,12 @@ Every category sits under the bed and so under the voice at -21 LUFS. The Freeso
 ambience and the license rule (CC0 only, attribution recorded per project) are in
 [themes/terra3d.md](themes/terra3d.md#sound-map).
 
+### Swoosh exceptions (cleanui)
+
+Every ledger row gets a swoosh unless the row sets `"swoosh": false`. Cleanui sets it false on its slide seams,
+so a swoosh plays only on its hard cuts and chapter openers. The rule is in
+[themes/cleanui.md](themes/cleanui.md#theme-rule-swoosh-only-on-hard-cuts-and-chapter-openers).
+
 ## Sounds outside the house set: Freesound
 
 When no house cue fits a moment (glass breaking, a crowd, a door, a different bed), search

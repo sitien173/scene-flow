@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Create videos/<yyyy-mm>-<slug>/ with scene-flow, then apply the branding from brand/brand.json.
-# usage: ./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d> [voice-recording]
+# usage: ./new-video.sh <slug> "Video name" <neon3d|terra3d|atlas3d|cleanui> [voice-recording]
 set -euo pipefail
 cd "$(dirname "$0")"
 
-[ $# -ge 3 ] || { echo "usage: $0 <slug> \"Video name\" <neon3d|terra3d|atlas3d> [voice-recording]" >&2; exit 1; }
+[ $# -ge 3 ] || { echo "usage: $0 <slug> \"Video name\" <neon3d|terra3d|atlas3d|cleanui> [voice-recording]" >&2; exit 1; }
 SLUG="$1" NAME="$2" THEME="$3" VOICE="${4:-}"
 [[ "$SLUG" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || { echo "slug must be lowercase ASCII words joined by hyphens" >&2; exit 1; }
 DEST="videos/$(date +%Y-%m)-$SLUG"
