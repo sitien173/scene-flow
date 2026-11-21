@@ -8,6 +8,7 @@ $Raw = "https://raw.githubusercontent.com/$Repo/main"
 $Hyperframes = 'hyperframes@0.8.140'
 $MinPython = [version]'3.10'
 $MinNode = [version]'22.0'
+$MinBlender = [version]'4.2'
 
 function Ok($m) { Write-Host "  [ok]      $m" }
 function Miss($m) { Write-Host "  [missing] $m" }
@@ -96,6 +97,28 @@ try {
     Install-Tool 'Gyan.FFmpeg' 'FFmpeg'
     if (-not ((Test-Command ffmpeg) -and (Test-Command ffprobe))) { Stop-Install 'FFmpeg installed, but this window cannot find it yet. Open a new PowerShell window and run this script again.' }
     Ok 'ffmpeg installed'
+  }
+
+  Step "Blender $MinBlender or newer (optional)"
+  # winget installs Blender without adding it to PATH.
+  function Get-BlenderVersion {
+    $paths = @('blender') + @(Get-ChildItem "$env:ProgramFiles\Blender Foundation\Blender *\blender.exe" -ErrorAction SilentlyContinue |
+      Sort-Object FullName -Descending | ForEach-Object { $_.FullName })
+    foreach ($p in $paths) { $v = Get-ToolVersion $p @('--version'); if ($v) { return $v } }
+    return $null
+  }
+  $v = Get-BlenderVersion
+  if ($v -and $v -ge $MinBlender) { Ok "blender $v" }
+  else {
+    $found = if ($v) { " (found $v)" } else { '' }
+    Miss "Blender $MinBlender+$found, for detailed 3D characters and models; without it 3D is built in Three.js only"
+    if (Ask 'Install Blender?') {
+      winget install -e --id BlenderFoundation.Blender --accept-package-agreements --accept-source-agreements
+      $v = Get-BlenderVersion
+      if ($v -and $v -ge $MinBlender) { Ok "blender $v" }
+      else { Write-Host "  Blender $MinBlender+ is still missing. Install it from https://www.blender.org/download/ later." }
+    }
+    else { Write-Host "  Skipped. Install Blender $MinBlender+ from https://www.blender.org/download/ later if you want it." }
   }
 
   Step 'Python packages'

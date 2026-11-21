@@ -11,7 +11,7 @@ description: >-
   video trước"), says voice and picture do not line up ("chưa khớp", "hình nhanh hơn voice",
   "mất voice"), or asks to post a render via Postiz. Load it before designing the first frame.
 license: Apache-2.0
-compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and for ASR and TTS either a Colab server started with scripts/colab-session.py up, or whisper.cpp and vieneu on a local NVIDIA GPU or Apple Silicon, per scripts/gpu-check.py. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
+compatibility: Requires Node 22+, Python 3.10+ with the packages in requirements.txt, ffmpeg on PATH, and for ASR and TTS either a Colab server started with scripts/colab-session.py up, or whisper.cpp and vieneu on a local NVIDIA GPU or Apple Silicon, per scripts/gpu-check.py. Optional Blender 4.2+ for detailed 3D models. Optional Postiz publishing needs POSTIZ_URL and POSTIZ_API_KEY in ~/.config/scene-flow/.env.
 ---
 
 # Narrated short pipeline
@@ -40,6 +40,7 @@ Read the reference before the step. In Claude Code, delegate to the listed sub-a
 | Add a sound outside the house set | [audio-mix.md](references/audio-mix.md#sounds-outside-the-house-set-freesound) | skill `freesound` |
 | Compose scenes in `parts/` | theme guide, [traps.md](references/traps.md) | skills `hyperframes` and `motion-doctrine`, which routes to `cut-the-curve`, `seam-craft`, `oversized-cursor` |
 | Build 3D objects for neon3d, terra3d, or atlas3d | [neon3d.md](references/themes/neon3d.md), [terra3d.md](references/themes/terra3d.md), [atlas3d.md](references/themes/atlas3d.md) | skill `3dviz-pro-max` |
+| Build a 3D character for neon3d, terra3d, or atlas3d | theme guide | sub-agent `character-builder`, which uses skill `3dviz-pro-max` |
 | Snapshot, preview, render | [verification.md](references/verification.md) | skill `hyperframes-cli` |
 | Mix audio | [audio-mix.md](references/audio-mix.md) | none |
 | Write post caption and hashtags | none | sub-agent `caption-writer` |

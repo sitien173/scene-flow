@@ -85,6 +85,7 @@ The installer sets up:
 | Python, with the numpy and Pillow packages | 3.10 or newer |
 | Node.js | 22 or newer |
 | FFmpeg | any |
+| Blender, optional, for detailed 3D characters and models | 4.2 or newer |
 | The scene-flow plugin, for each agent on your computer that you agree to | latest |
 
 At the end it offers to run a HyperFrames check, which downloads the browser used to draw the video. When it finishes, open a new terminal and start your agent in the folder for your videos.

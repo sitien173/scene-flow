@@ -9,6 +9,7 @@ RAW=https://raw.githubusercontent.com/$REPO/main
 HYPERFRAMES=hyperframes@0.8.140
 MIN_PYTHON=3.10
 MIN_NODE=22.0
+MIN_BLENDER=4.2
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || pwd)
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -143,6 +144,35 @@ else
   install_tool ffmpeg FFmpeg
   has ffmpeg && has ffprobe || die "FFmpeg did not install."
   ok "ffmpeg installed"
+fi
+
+step "Blender $MIN_BLENDER or newer (optional)"
+blender_version() {  # prints the version of the first Blender that runs
+  local b v
+  for b in "$(command -v blender || true)" /Applications/Blender.app/Contents/MacOS/Blender \
+           "$HOME/Applications/Blender.app/Contents/MacOS/Blender" /snap/bin/blender; do
+    [[ -x $b ]] || continue
+    v=$("$b" --version 2>/dev/null | awk '/^Blender/ {print $2; exit}')
+    [[ -n $v ]] && { echo "$v"; return; }
+  done
+}
+v=$(blender_version || true)
+if [[ -n $v ]] && ver_ge "$v" "$MIN_BLENDER"; then ok "blender $v"
+else
+  miss "Blender $MIN_BLENDER+${v:+ (found $v)}, for detailed 3D characters and models; without it 3D is built in Three.js only"
+  if ask "Install Blender?"; then
+    # Distribution packages are often older than $MIN_BLENDER; the snap tracks the current release.
+    if [[ $PM == brew ]]; then brew install --cask blender
+    elif has snap; then sudo snap install blender --classic
+    elif [[ $PM != none ]]; then pm_install blender
+    fi || true
+    v=$(blender_version || true)
+    if [[ -n $v ]] && ver_ge "$v" "$MIN_BLENDER"; then ok "blender $v"
+    else printf '  Blender %s+ is still missing. Install it from https://www.blender.org/download/ later.\n' "$MIN_BLENDER"
+    fi
+  else
+    printf '  Skipped. Install Blender %s+ from https://www.blender.org/download/ later if you want it.\n' "$MIN_BLENDER"
+  fi
 fi
 
 step "Python packages"

@@ -85,6 +85,7 @@ Trình cài đặt chuẩn bị:
 | Python, kèm gói numpy và Pillow | 3.10 trở lên |
 | Node.js | 22 trở lên |
 | FFmpeg | bất kỳ |
+| Blender, không bắt buộc, để dựng nhân vật và mô hình 3D chi tiết | 4.2 trở lên |
 | Plugin scene-flow, cho từng agent trên máy mà bạn đồng ý cài | mới nhất |
 
 Cuối cùng, trình cài đặt đề nghị chạy bước kiểm tra HyperFrames. Bước này tải trình duyệt dùng để vẽ video. Khi xong, mở cửa sổ dòng lệnh mới và khởi động agent của bạn trong thư mục làm video.
